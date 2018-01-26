@@ -289,7 +289,7 @@ int main()
 
         default:
             {
-            std::cout << "Please Enter A Valid Option";
+            std::cout << "Please Enter A Valid Option \n";
             }
         }
     }
