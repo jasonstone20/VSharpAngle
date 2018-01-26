@@ -1,9 +1,9 @@
 # VStickAngle
 A program written to run in a GNU/Linux Bash Terminal, that helps you adjust and find the angle of V-Stick type knife sharpeners. 
 
-This is a program for V-Stick/CrockStick/Spyderco Sharpmaker type knife sharpeners.
+This is a program for V-Stick/CrockStick/Spyderco Sharpmaker type knife sharpeners. I also added a Passes Per Side function that counts the total passes per side when using a decreasing passes per side ei 30, 20, 10 ect.
 
-This program does four things.
+This program does five things.
 
 Calculate how to change the angle of the V-Sticks by rotating the base of the sharpener.
 
@@ -12,6 +12,8 @@ Calculate how to change the angle of the V-Sticks by elevation one side of the s
 Display a chart of rotation angles.
 
 Calculate the angle of the edge bevel, per side, of the knife.
+
+Counts the total passes per side when using a decreasing passes per side ei 30, 20, 10 ect.
 
 Use:
 
@@ -34,3 +36,6 @@ type in the angle per-side angle of the V-Stick.
 4)
 To estimate the edge angle per side of the knife blade, measure the thickness/width right behind the edge bevel. 
 Then measure the height of the edge bevel.  
+
+5) 
+Enter the starting number of passes per side. The number should be larger than 10.
