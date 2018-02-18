@@ -27,6 +27,7 @@ void Tilting();
 void Chart();
 void Angle();
 void Passes();
+int Quit();
 int Menu();
 
 int main()
@@ -190,35 +191,35 @@ int DisplayTotal(int NumberOfPasses)
 
 void Rotate()
 {
-    float d;
-    float a;
+    float DesiredRotate;
+    float StickAngleRotate;
     // std::cout << "Enter desired angle" << std::endl;
     //std::cin >> d;
-    get_float(d, "Enter desired angle ", "Sorry, that's not an number. \n");
+    get_float(DesiredRotate, "Enter desired angle ", "Sorry, that's not an number. \n");
     //std::cout << "Enter V stick angle" << std::endl;
     //std::cin >> a;
-    get_float(a, "Enter V Stick Angle ", "Sorry, that's not an number. \n");
-    std::cout << "For Rotating:  " << rad2deg(acos(dcsc(a)*dsin(d))) << std::endl;
+    get_float(StickAngleRotate, "Enter V Stick Angle ", "Sorry, that's not an number. \n");
+    std::cout << "For Rotating:  " << rad2deg(acos(dcsc(StickAngleRotate)*dsin(DesiredRotate))) << std::endl;
     std::cout << "Press Enter" << std::endl;
     std::cin.ignore().get();
 }
 
 void Tilting()
 {
-    float d;
-    float a;
-    float hh;
-    float jj;
+    float DesiredAngle;
+    float AngleOfStick;
+    float ResultAngle;
+    float MetricResult;
     //std::cout << "Enter desired angle" << std::endl;
     //std::cin >> d;
-    get_float(d, "Enter desired angle ", "Sorry, that's not an number. \n");
+    get_float(DesiredAngle, "Enter desired angle ", "Sorry, that's not an number. \n");
     //std::cout << "Enter V stick angle" << std::endl;
     //std::cin >> a;
-    get_float(a, "Enter V Stick Angle ", "Sorry, that's not an number. \n");
+    get_float(AngleOfStick, "Enter V Stick Angle ", "Sorry, that's not an number. \n");
     std::cout << "For tilting:" << std::endl;
     std::cout << std::endl;
-    hh = StickAngle(d,a);
-    if (hh > 0)
+    ResultAngle = StickAngle(DesiredAngle,AngleOfStick);
+    if (ResultAngle > 0)
     {
         std::cout << "Near Side ";
     }
@@ -226,9 +227,9 @@ void Tilting()
     {
         std::cout << "Far Side ";
     }
-    jj = AbsoluteVal(StickAngle(d,a));
-    std::cout << "Height to raise: Inches> " << AbsoluteVal(hh) << " CM> "<< MetricCon(jj) <<"\nStick Angles: " << "\n Near Stick: " <<
-        d << " Far Stick: " << (a) - (d-a) << std::endl;;
+    MetricResult = AbsoluteVal(StickAngle(DesiredAngle,AngleOfStick));
+    std::cout << "Height to raise: Inches> " << AbsoluteVal(ResultAngle) << " CM> "<< MetricCon(MetricResult) <<"\nStick Angles: " << "\n Near Stick: " <<
+        DesiredAngle << " Far Stick: " << (AngleOfStick) - (DesiredAngle - AngleOfStick) << std::endl;;
     std::cout << "Press Enter" << std::endl;
     std::cin.ignore().get();
 }
@@ -239,13 +240,13 @@ void Chart()
     // std::cin >> d;
     //std::cout << "Enter V stick angle" << std::endl;
     //std::cin >> a;
-    float a;
-    get_float(a, "Enter V Stick Angle ", "Sorry, that's not an number. \n");
+    float ChartAngle;
+    get_float(ChartAngle, "Enter V Stick Angle ", "Sorry, that's not an number. \n");
     std::cout << "Angle Solutions: -------------------------" << std::endl;
-    for ( int x = 1 ;  x < a;  x++)
+    for ( int x = 1 ;  x < ChartAngle;  x++)
     {
 
-        std::cout << "R for " << a << "* @ " << x << " -- " << rad2deg(acos(dcsc(a)*dsin(x))) << std::endl;
+        std::cout << "R for " << ChartAngle << "* @ " << x << " -- " << rad2deg(acos(dcsc(ChartAngle)*dsin(x))) << std::endl;
         /*for (int x = 1; x < 20 ; x++)
             {
                 std::cout << "R for 20* @ " << x << " -- " << rad2deg(acos(dcsc(20)*dsin(x))) << std::endl;
@@ -265,15 +266,15 @@ void Angle()
 {
     //std::cout << "Enter Measured Width: ";
     //std::cin >> MW;
-    float MW;
-    float MH;
+    float MeasuredWidth;
+    float MeasuredHeight;
 
-    get_float(MW, "Enter Measured Width: ", "Sorry, that's not number. \n");
+    get_float(MeasuredWidth, "Enter Measured Width: ", "Sorry, that's not number. \n");
     std::cout << std::endl;
     //std::cout << "Enter Measured Height: ";
     //std::cin >> MH;
-    get_float(MH, "Enter Measured Height: ", "Sorry, that's not an number. \n");
-    std::cout << MeasuredAngle(MW,MH);
+    get_float(MeasuredHeight, "Enter Measured Height: ", "Sorry, that's not an number. \n");
+    std::cout << MeasuredAngle(MeasuredWidth,MeasuredHeight);
     std::cout << std::endl << "Press Enter" << std::endl;
     std::cin.ignore().get();
 }
@@ -298,15 +299,21 @@ void Passes()
     std::cin.ignore().get();
 }
 
+int Quit()
+{
+    //return EXIT_SUCCESS;
+    //exit(0);
+}
+
 int Menu()
 {
-    float d;  // Angle desired
-    float a;  // Angle of v-sticks
+    //float DesiredAngle;  // Angle desired
+    //float AngleOfSticks;  // Angle of v-sticks
     //dEst();
-    float h;
-    float MH;
-    float MW;
-    float hh;
+    //float h;
+    //float MH;
+    //float MW;
+    //float hh;
     int sel;
 
     //std::cout << "Please Select 1)Rotate, 2)Tilting, 3)Chart, or 4)Angle:>";
@@ -353,6 +360,8 @@ int Menu()
         case 6:
         {
             return 0;
+//            return EXIT_SUCCESS;
+            //Quit();
             break;
         }
 
