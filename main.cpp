@@ -30,7 +30,7 @@ void Passes();
 int Quit();
 int Menu();
 
-int main()
+int main(int argc, int *argv[])
 {
      Menu();
      return 0;
@@ -80,31 +80,31 @@ void get_float(float& d, std::string prompt, std::string fail)
     }
 }
 
-float deg2rad(float deg)
+float deg2rad(float Degree)
 {
-    return ((deg) * (PI / 180));
+    return ((Degree) * (PI / 180));
 }
 
-float rad2deg(float deg)
+float rad2deg(float Degree)
 {
-    return ((deg) / (PI / 180));
-
-}
-
-float dcos(float deg)
-{
-    return cos(deg2rad(deg));
+    return ((Degree) / (PI / 180));
 
 }
 
-float dsin(float deg)
+float dcos(float Degree)
 {
-    return sin(deg2rad(deg));
+    return cos(deg2rad(Degree));
+
 }
 
-float dcsc(float deg)
+float dsin(float Degree)
 {
-    return 1/sin(deg2rad(deg));
+    return sin(deg2rad(Degree));
+}
+
+float dcsc(float Degree)
+{
+    return 1/sin(deg2rad(Degree));
 }
 
 void cosout(float R)
@@ -141,21 +141,21 @@ float StickAngle(float da, float aa)
 }
 
 
-float MeasuredAngle (float mw, float mh)
+float MeasuredAngle (float MWidth, float MHeight)
 {
     float ans;
     float ang;
-    ans = ((mw/2)/mh);
+    ans = ((MWidth/2)/MHeight);
     ang = asin(ans);
     return rad2deg(ang);
 }
 
 
 
-float AbsoluteVal(float abv)
+float AbsoluteVal(float AbsoluteValue)
 {
 
-    return std::abs(abv);
+    return std::abs(AbsoluteValue);
 }
 
 float MetricCon(float met)
@@ -293,7 +293,7 @@ void Passes()
     else
     {
     std::cout << "Please enter a number 10 or greater\n";
-    main();
+    //main();
     }
     std::cout << std::endl << "Press Enter" << std::endl;
     std::cin.ignore().get();
