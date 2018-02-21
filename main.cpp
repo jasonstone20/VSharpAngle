@@ -9,16 +9,17 @@
 
 void get_int(int& d, std::string prompt, std::string fail);
 void get_float(float& d, std::string prompt, std::string fail);
-float deg2rad(float deg);
-float rad2deg(float deg);
-float dcos(float deg);
-float dsin(float deg);
-float dcsc(float deg);
+float deg2rad(float Degree);
+float rad2deg(float Degree);
+float dcos(float Degree);
+float dsin(float Degree);
+float dcsc(float Degree);
 void cosout(float R);
 void sinout(float D, float A);
 void dEst();
-float StickAngle(float da, float aa);
-float MeasuredAngle (float mw, float mh);
+float StickAngle(float Length, float Height);
+float SideAngle(float SideA, float SideB, float SideC);
+float MeasuredAngle (float MWidth, float MHeight);
 float AbsoluteVal(float abv);
 float MetricCon();
 int DisplayTotal();
@@ -132,14 +133,28 @@ void dEst()
     }
 }
 
-float StickAngle(float da, float aa)
+float StickAngle(float Length, float Height)
 {
 
-    return (da - aa) * (0.125);
+    return (Length - Height) * (0.125);
 
 
 }
 
+float SideAngle (float SideA, float SideB, float SideC)
+{
+    float PowA = pow(SideA, 2);
+    float PowB = pow(SideB, 2);
+    float PowC = pow(SideC, 2);
+    float Top (PowB+PowC-PowA);
+    float Bottom (2*SideB*SideC);
+    float Answer = (Top/Bottom);
+    float ACosAnswer = 1/cos(Answer);
+    float Inclusive = rad2deg(ACosAnswer);
+    float PerSide = Inclusive/2;
+    std::cout <<  "Inclusive: \n" << Inclusive << "\nPer Side: \n";
+    return PerSide;
+}
 
 float MeasuredAngle (float MWidth, float MHeight)
 {
@@ -268,16 +283,44 @@ void Angle()
     //std::cin >> MW;
     float MeasuredWidth;
     float MeasuredHeight;
+    float SideA;
+    float SideB;
+    float SideC;
+    int sel = 0;
 
-    get_float(MeasuredWidth, "Enter Measured Width: ", "Sorry, that's not number. \n");
-    std::cout << std::endl;
-    //std::cout << "Enter Measured Height: ";
-    //std::cin >> MH;
-    get_float(MeasuredHeight, "Enter Measured Height: ", "Sorry, that's not an number. \n");
-    std::cout << MeasuredAngle(MeasuredWidth,MeasuredHeight);
+    get_int(sel, "2 or 3 sides?: ", "Please enter 2 or 3. \n");
+
+    switch (sel)
+    {
+        case 2:
+        {
+            get_float(MeasuredWidth, "Enter Measured Width: ", "Sorry, that's not number. \n");
+            std::cout << std::endl;
+            get_float(MeasuredHeight, "Enter Measured Height: ", "Sorry, that's not an number. \n");
+            std::cout << MeasuredAngle(MeasuredWidth,MeasuredHeight);
+            std::cout << std::endl;
+            break;
+        }
+        case 3:
+        {
+            get_float(SideA, "Enter Side A: ", "Sorry, that's not number. \n");
+            std::cout << std::endl;
+            get_float(SideB, "Enter Side B: ", "Sorry, that's not number. \n");
+            std::cout << std::endl;
+            get_float(SideC, "Enter Measured Width: ", "Sorry, that's not number. \n");
+            std::cout << std::endl;
+            std::cout << SideAngle(SideA, SideB, SideC);
+            break;
+        }
+        default:
+        {
+        std::cout << "Enter 2 or 3" << std::endl;
+        }
+    }
     std::cout << std::endl << "Press Enter" << std::endl;
     std::cin.ignore().get();
 }
+
 
 void Passes()
 {
