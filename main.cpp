@@ -146,11 +146,13 @@ float SideAngle (float SideA, float SideB, float SideC)
     float PowA = pow(SideA, 2);
     float PowB = pow(SideB, 2);
     float PowC = pow(SideC, 2);
-    float Top (PowB+PowC-PowA);
-    float Bottom (2*SideB*SideC);
+    float Top (PowA+PowB-PowC);
+    float Bottom (2*SideA*SideB);
+
     float Answer = (Top/Bottom);
-    float ACosAnswer = 1/cos(Answer);
-    float Inclusive = rad2deg(ACosAnswer);
+    float ACosAnswer = acos(Answer);
+    //float ACosAnswer = (CosAnswer);
+    float Inclusive =  rad2deg(ACosAnswer);
     float PerSide = Inclusive/2;
     std::cout <<  "Inclusive: \n" << Inclusive << "\nPer Side: \n";
     return PerSide;
@@ -288,7 +290,7 @@ void Angle()
     float SideC;
     int sel = 0;
 
-    get_int(sel, "2 or 3 sides?: ", "Please enter 2 or 3. \n");
+    get_int(sel, "2 or 3 known sides?: ", "Please enter 2 or 3. \n");
 
     switch (sel)
     {
@@ -303,12 +305,13 @@ void Angle()
         }
         case 3:
         {
-            get_float(SideA, "Enter Side A: ", "Sorry, that's not number. \n");
-            std::cout << std::endl;
-            get_float(SideB, "Enter Side B: ", "Sorry, that's not number. \n");
-            std::cout << std::endl;
             get_float(SideC, "Enter Measured Width: ", "Sorry, that's not number. \n");
             std::cout << std::endl;
+            get_float(SideA, "Enter Side 1: ", "Sorry, that's not number. \n");
+            std::cout << std::endl;
+            get_float(SideB, "Enter Side 2: ", "Sorry, that's not number. \n");
+            std::cout << std::endl;
+
             std::cout << SideAngle(SideA, SideB, SideC);
             break;
         }
