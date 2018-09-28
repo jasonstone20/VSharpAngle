@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<meta charset="utf-8">
+
+<script src="http://code.jquery.com/jquery-latest.js" ></script>
+<title>VSharpAngle</title>
+
+<style>
+.container {
+    background: black;
+    display: flex;
+}
+
+.left {
+    width: 50%;
+    background:white;
+}
+
+.right {
+    background:white;
+    width: 50%;
+}
+#js20-out {
+    height: 100%;
+    width: 100%;
+    white-space: pre-wrap; 
+    overflow: scroll;
+}
+
+</style>
+
+<div class="container">
+  <div class="left">
+
+<div oninput="measureAngle() ;">
+Measure the angle with calipers 
+    <div> Bevel width: <input id="js20-measureAngle-width" size=3></div>
+    <div> Bevel height: <input id="js20-measureAngle-height" size=3></div>
+    <div> Angle: <span id="js20-measureAngle-out" ></span> </div>
+</div>
+
+<hr>
+
+<div oninput="sharpmakerElevation() ;">
+Get height to raise V-Stick for desired angle 
+    <div> Desired Angle <input id="js20-sharpmakerElevation-desiredAngle" size=3> </div>
+    <div> Angle setting (ex 15/20)
+        <select id="js20-sharpmakerElevation-sharpenerAngle">
+            <option value="15" selected>15</option>
+            <option value="20" >20</option>
+            <option value="25" >25</option>
+        </select>
+    </div>
+
+    <div> Height <span id="js20-sharpmakerElevation-out" ></span> </div>
+</div>
+
+<hr>
+
+<div oninput="sharpmakerRotation() ;">
+The angle yout get when you Rotate sharpmaker
+    <div> Desired Angle  <input id="rotationAngle" size=3> </div>
+    <div> Angle setting (ex 15/20)
+        <select id="rotationSharpener">
+            <option value="15" selected>15</option>
+            <option value="20" >20</option>
+            <option value="25" >25</option>
+        </select>
+    </div>
+    <div> Rotate base by <span id="id-out-sharpmakerRotation" ></span> degrees </div>
+</div>
+
+<hr>
+
+<div oninput="passCount()">
+    Enter Number of Passes <input id="numberOfPasses" type="number" size=4 value=9>
+    = <span id="id-out-passCount" ></span>
+    </div>
+
+<!--
+</div>
+    <div class="right">
+        <div><button onclick="$('#js20-out').text('');"> [x] clear  </button></div>
+        <div  id="js20-out"  > </div>
+    </div>
+</div>
+-->
+
+
+<script>
+function deg2rad(deg) {
+  return deg * Math.PI / 180;
+}
+
+function rad2deg(deg) {
+  return deg / (Math.PI / 180) ;
+}
+
+function dcos(deg) {
+  return Math.cos(deg * Math.PI / 180) ;
+}
+
+function dsin(deg) {
+  return Math.sin(deg * Math.PI / 180) ;
+}
+
+function asin(ans) {
+  return Math.asin(ans) ;
+}
+   
+function acos(ans) {
+  return Math.acos(ans) ;
+  
+}
+  
+function dcsc(deg){
+  return 1/Math.sin(deg2rad(deg)) ;
+}
+
+
+function idVal( id ) {
+  return $('#'+id).val() ;
+}
+
+function idOut( id, val ) {
+  return $('#'+id).text( val ) ;
+}
+
+
+function dOut( s){
+  $('#js20-out').append("\n" ) ;
+  $('#js20-out').append(Array.from(arguments) ) ;
+}
+
+function sharpmakerElevation() {
+  var desiredAngle   = idVal( "js20-sharpmakerElevation-desiredAngle" ) ;
+  var sharpenerAngle = idVal( "js20-sharpmakerElevation-sharpenerAngle" ) ;
+  var answer         = ( ( desiredAngle - sharpenerAngle ) * ( 0.125 ) ) ;
+  //dOut(  "sharpmakerElevation = " + answer ) ;
+  idOut( "js20-sharpmakerElevation-out", answer ) ;
+}
+
+function measureAngle() {
+  var width     = idVal( "js20-measureAngle-width" ) ;
+  var height    = idVal( "js20-measureAngle-height" ) ;
+  var ans       = (((width)/2)/height) ;
+  var ang       = rad2deg( asin(ans) ) ;
+  //dOut(  "measureAngle = " + ang ) ;
+  $('#js20-measureAngle-out').text( ang ) ;
+}
+    
+    
+function sharpmakerRotation() {
+  var rotationAngle     = idVal( "rotationAngle" ) ;
+  var rotationSharpener = idVal( "rotationSharpener" ) ;
+  var deg               = rad2deg(acos(dcsc(rotationSharpener )*dsin(rotationAngle )) ) ;
+  //dOut( ' ?  sharpmakerRotation ' + deg) ;
+  idOut( 'id-out-sharpmakerRotation', ' ? ' +deg ) ;
+}
+
+
+
+function passCount() {
+  var numberOfPasses = idVal( "numberOfPasses" ) ;
+  var y              = (numberOfPasses / 10 ) + 1;
+  var x              = (numberOfPasses * y ) ;
+  var startingNumber = (numberOfPasses * 2 ) ;
+  var total          = ( x + 2 ) + startingNumber;
+  var xStrokes       = total * 2;
+  //dOut( "passCount" );
+  for( startingNumber; numberOfPasses >= 9; numberOfPasses -= 10 ){
+    //  dOut(  "\t-----" + numberOfPasses + "-----\n" );
+  }
+  
+  //dOut(  "\t-----05-----\n" );
+  //dOut(  "\t-----03-----\n" );
+  //dOut(  "\t-----02-----\n" );
+  //dOut(  "\t-----01-----\n" );
+  //dOut(  "\t     " + total + " Total Passes Per Side Counted\n"  );
+  //dOut(  "\t     " + xStrokes + " Total X-Strokes\n"  );
+  
+  //dOut(  '? passCount = ' + total ) ;
+  idOut('id-out-passCount', total ) ;
+}
+
+</script>

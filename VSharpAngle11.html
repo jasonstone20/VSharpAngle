@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>VSharpAngle</title>
+</head>
+<body>
+    <table>
+        <tr><th> Enter Edge Bevel Width: </th>
+             <td><input id="width" onselect="measureAngle() ; "</td></tr>
+        <tr><th> Enter Edge Bevel Height </th>
+             <td><input id="height" onchange="measureAngle() ; "</td></tr>
+        <tr><th> Enter Desired Angle (Elevation)</th>
+             <td><input id="desiredAngle" onselect="sharpmakerElevation() ; "</td></tr>
+        <tr><th> Enter Sharpener Angle </th>
+            <td><input id="sharpenerAngle" onchange="sharpmakerElevation() ; "</td></tr>
+      <tr><th> Enter Desired Angle (Rotation) </th>
+            <td><input id="rotationAngle" onselect="sharpmakerRotation() ; "</td></tr>
+        <tr><th> Enter Sharpener Angle </th>
+            <td><input id="rotationSharpener" onchange="sharpmakerRotation() ; "</td></tr>
+        <tr><th> Enter Number of Passes </th>
+            <td><input id="numberOfPasses" onselect="passCount() ; "</td></tr>
+    
+    <form name="demoForm">
+       
+                   
+         <!--       
+           --> 
+           <h1> V-Sharp-Angle </h1>
+        <p> Select Measure Angle, Elevation of Sharpmaker, Rotation of Sharpmaker, Pass Count</p>
+        <select name="demoSelect" onchange="menuChoice() ">
+            <option value="zilch">Select:</option>
+            <option value="A">Measure Angle</option>
+            <option value="B">Elevation of Sharpmaker</option>
+            <option value="C">Rotation of Sharpmaker</option>
+            <option value="D">Pass Count</option>
+        </select>
+    </form>
+
+    <p id="firstP">&nbsp;</p>
+    <p id="secondP">&nbsp;</p>
+    <p id="thirdP">&nbsp;</p>
+    
+
+    <script>
+    function menuChoice() {
+       var theSelect = demoForm.demoSelect;
+        var firstP = document.getElementById('firstP' ) ;
+       // var secondP = document.getElementById('secondP');
+       // var thirdP = document.getElementById('thirdP');
+     
+    //   firstP.innerHTML = ('This option\'s index number is: ' + theSelect.selectedIndex);
+     //   secondP.innerHTML = ('Its value is: ' + theSelect[theSelect.selectedIndex].value);
+     //   thirdP.innerHTML = ('Its text is: ' + theSelect[theSelect.selectedIndex].text);
+      
+    
+    
+    
+      
+     //  var optionChoice = document.getElementById('secondP');
+        var optionChoice = theSelect.selectedIndex;
+        switch (optionChoice) {
+            case 1:
+                //document.write("Run Measure Angle");
+                measureAngle() ;
+                break;
+            
+            case 2:
+                //document.write("Run Sharpmaker Elevation");
+                sharpmakerElevation() ; 
+                break;
+            
+            case 3:
+                //document.write("Run Sharpmaker Rotation");
+                sharpmakerRotation() ;
+                break;
+                        
+            case 4:
+                //document.write("Pass Count");
+                passCount() ;
+                break;
+            
+            default:
+               alert("Please Choose a Selection" ) ;
+               break;       
+        }
+    }         
+        
+    function measureAngle() {
+        
+       //alert("Run Measure Angle");
+        
+        var width = document.getElementById("width" ) ;
+        var height = document.getElementById("height" ) ;
+        var ans;
+        var ang;
+        ans = (((width.value)/2)/height.value ) ;
+        ang = asin(ans ) ;
+        alert(rad2deg(ang) ) ;
+        
+    }
+        
+    function sharpmakerElevation() {
+        
+        //alert("Run Sharpmaker Elevation");
+        var desiredAngle = document.getElementById("desiredAngle" ) ;
+        var sharpenerAngle = document.getElementById("sharpenerAngle" ) ;
+        var deg;
+        deg = ((desiredAngle.value - sharpenerAngle.value) * (0.125) ) ;
+        alert(deg) ;
+    }
+    
+    function sharpmakerRotation() {
+        
+        //alert("Run Sharpmaker Rotation");
+        var rotationAngle = document.getElementById("rotationAngle" ) ;
+        var rotationSharpener = document.getElementById("rotationSharpener" ) ;
+        var deg = rad2deg(acos(dcsc(rotationSharpener.value)*dsin(rotationAngle.value)) ) ;
+        alert(deg) ;
+        
+    }
+    
+    function passCount() {
+        
+        //alert("Run Pass Count");
+        var x;
+        var y;
+        var total;
+        var xStrokes;
+        var startingNumber;
+        var numberOfPasses = document.getElementById("numberOfPasses" )
+        
+        y = (numberOfPasses.value / 10 ) + 1;
+        x = (numberOfPasses.value * y ) ;
+        startingNumber = (numberOfPasses.value * 2 ) ;
+        total = ( x + 2 ) + startingNumber;
+        xStrokes = total * 2;
+        //console.log(x);
+        //console.log(y);
+        //console.log(startingNumber);
+        //console.log(total);
+        alert(total) ;
+    }
+    
+    function deg2rad(deg) {
+        return deg * Math.PI / 180;
+    }
+
+    function rad2deg(deg) {
+        return deg / (Math.PI / 180 ) ;
+    }
+
+    function dcos(deg) {
+        return Math.cos(deg * Math.PI / 180 ) ;
+    }
+
+    function dsin(deg) {
+        return Math.sin(deg * Math.PI / 180 ) ;
+    }
+
+    function asin(ans) {
+        return Math.asin(ans ) ;
+    }
+         
+    function acos(ans) {
+        return Math.acos(ans ) ;
+        
+    }
+        
+        function dcsc(deg){
+    return 1/Math.sin(deg2rad(deg) ) ;
+    }        
+        
+    function dOut() {
+        $('#debuggerytextarea').append(Array.from(arguments) ) ;
+        return;
+    }
+
+    function CosOut(R) {
+        dOut('COS(R=', R, ') = ', dcos(R) ) ;
+    }
+
+    function SinOut(D, A) {
+    dOut('SIN(D=', D,
+           ') / SIN(A=', A,
+           ') = ', ( dsin(D) / dsin(A) )
+     );
+    }
+
+            
+    </script>
+</body>
+</html>
