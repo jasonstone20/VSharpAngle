@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<meta charset="utf-8">
+
+<script src="http://code.jquery.com/jquery-latest.js" ></script>
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<title>VSharpAngle 2019-11-29T18:40:06 </title>
+<style>
+.container {
+    background: black;
+    display: flex;
+}
+
+.left {
+    width: 50%;
+    background:white;
+}
+
+.right {
+    background:white;
+    width: 50%;
+}
+#js20-out {
+    height: 100%;
+    width: 100%;
+    white-space: pre-wrap; 
+    overflow: scroll;
+}
+#example , #example th, #example td {
+    border-spacing: 0;
+    font-family: monospace;
+}
+#example input {
+    width: 3em;
+}
+#example td {
+ text-align: center;
+}
+#example_filter { float: left !important; }
+#example_filter input { width: 10em; }
+</style>
+<!---->
+<div class="container">
+  <div class="left">
+
+<div oninput="measureAngle() ;">
+Measure the angle with calipers 
+    <div> Bevel width: <input id="js20-measureAngle-width" size=3></div>
+    <div> Bevel height: <input id="js20-measureAngle-height" size=3></div>
+    <div> Angle (DPS): <span id="js20-measureAngle-out" ></span> </div>
+</div>
+
+<hr>
+
+<div oninput="sharpmakerElevation() ;">
+Get height to raise V-Stick for desired angle 
+    <div> Desired Angle <input id="js20-sharpmakerElevation-desiredAngle" size=3> </div>
+    <div> Angle setting (ex 15/20)
+        <select id="js20-sharpmakerElevation-sharpenerAngle">
+            <option value="15" selected>15</option>
+            <option value="20" >20</option>
+            <option value="25" >25</option>
+        </select>
+    </div>
+
+    <div> Height <span id="js20-sharpmakerElevation-out" ></span> </div>
+</div>
+
+<hr>
+
+<div oninput="sharpmakerRotation() ;">
+The angle yout get when you Rotate sharpmaker
+    <div> Desired Angle  <input id="rotationAngle" size=3> </div>
+    <div> Angle setting (ex 15/20)
+        <select id="rotationSharpener">
+            <option value="15" selected>15</option>
+            <option value="20" >20</option>
+            <option value="25" >25</option>
+        </select>
+    </div>
+    <div> Rotate base by <span id="id-out-sharpmakerRotation" ></span> degrees </div>
+</div>
+
+<hr>
+
+<div oninput="passCount()">
+    Enter Number of Passes <input id="numberOfPasses" type="number" size=4 value=9>
+    = <span id="id-out-passCount" ></span>
+    </div>
+
+</div>
+    <div class="right">
+        <div><button onclick="$('#js20-out').text('');"> [x] clear  </button></div>
+        <div  id="js20-out"  > </div>
+    </div>
+</div>
+
+<hr>
+
+<div oninput="edgeRetention()">
+	Enter Carbide Content, Hardness, and Inclusive Edge Angle For Steel Edge Retention
+	<div>Hardness <input id="hardness" size=3> </div>
+	<div>edgeAngle <input id="edgeAngle" size=3> </div>
+	<div>CrC <input id="CrC" size=3> </div>
+	<div>CrCV <input id="CrCV" size=3> </div>
+	<div>MC <input id="MC" size=3> </div>
+	<div>M6C <input id="M6C" size=3> </div>
+	<div>MN <input id="MN" size=3> </div>
+	<div>CrN <input id="CrN" size=3> </div>
+	<div>Fe3C6 <input id="Fe3C6" size=3 </div>
+	<div>TCC = <span id="id-out-edgeRetention" ></span></div>
+	<div>Volume = <span id="id-out-carbideVolume" ></span>%</div>
+	<div>Stability = <span id="id-out-stability" ></span></div>
+</div>
+<button type="button" onclick="steelTable(this)">Steel Table</button>
+<table id="example" width="100%" border=1></table>
+<p> &nbsp;
+
+<script>
+function deg2rad(deg) {
+  return deg * Math.PI / 180;
+}
+
+function rad2deg(deg) {
+  return deg / (Math.PI / 180) ;
+}
+
+function dcos(deg) {
+  return Math.cos(deg * Math.PI / 180) ;
+}
+
+function dsin(deg) {
+  return Math.sin(deg * Math.PI / 180) ;
+}
+
+function asin(ans) {
+  return Math.asin(ans) ;
+}
+   
+function acos(ans) {
+  return Math.acos(ans) ;
+  
+}
+  
+function dcsc(deg){
+  return 1/Math.sin(deg2rad(deg)) ;
+}
+
+
+function idVal( id ) {
+  return $('#'+id).val() ;
+}
+
+  
+
+
+
+function dOut( s){
+  $('#js20-out').append("\n" ) ;
+  $('#js20-out').append(Array.from(arguments) ) ;
+}
+
+function sharpmakerElevation() {
+  var desiredAngle   = idVal( "js20-sharpmakerElevation-desiredAngle" ) ;
+  var sharpenerAngle = idVal( "js20-sharpmakerElevation-sharpenerAngle" ) ;
+  var answer         = ( ( desiredAngle - sharpenerAngle ) * ( 0.125 ) ) ;
+  //dOut(  "sharpmakerElevation = " + answer ) ;
+  idOut( "js20-sharpmakerElevation-out", Math.floor(answer) ) ;
+}
+
+function measureAngle() {
+  var width     = idVal( "js20-measureAngle-width" ) ;
+  var height    = idVal( "js20-measureAngle-height" ) ;
+  var ans       = (((width)/2)/height) ;
+  var ang       = rad2deg( asin(ans) ) ;
+  //dOut(  "measureAngle = " + ang ) ;
+  $('#js20-measureAngle-out').text( Math.floor(ang) ) ;
+}
+    
+    
+function sharpmakerRotation() {
+  var rotationAngle     = idVal( "rotationAngle" ) ;
+  var rotationSharpener = idVal( "rotationSharpener" ) ;
+  var deg               = (rad2deg(acos(dcsc(rotationSharpener )*dsin(rotationAngle ))) ) ;
+  //dOut( ' ?  sharpmakerRotation ' + deg) ;
+  idOut( 'id-out-sharpmakerRotation', ' ? ' + Math.floor(deg) ) ;
+}
+
+
+
+function passCount() {
+  var numberOfPasses = idVal( "numberOfPasses" ) ;
+  var y              = (numberOfPasses / 10 ) + 1;
+  var x              = (numberOfPasses * y ) ;
+  var startingNumber = (numberOfPasses * 2 ) ;
+  var total          = ( x + 2 ) + startingNumber;
+  var xStrokes       = total * 2;
+  //dOut( "passCount" );
+  for( startingNumber; numberOfPasses >= 9; numberOfPasses -= 10 ){
+      dOut(  "\t-----" + numberOfPasses + "-----\n" );
+  }
+  
+  dOut(  "\t-----05-----\n" );
+  dOut(  "\t-----03-----\n" );
+  dOut(  "\t-----02-----\n" );
+  dOut(  "\t-----01-----\n" );
+  dOut(  "\t     " + total + " Total Passes Per Side Counted\n"  );
+  dOut(  "\t     " + xStrokes + " Total X-Strokes\n"  );
+  
+  dOut(  '? passCount = ' + total ) ;
+  idOut('id-out-passCount', total ) ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+function idValN( id ){
+  return Number( idVal( id ) );
+}
+function idOut( id, val ) {
+  var el  = $('#'+id);
+  var tagname = el.prop('tagName');
+  if( ['INPUT','SELECT','TEXTAREA'].filter( x => x==tagname ).length ){
+    return el.val( val ) ;
+  }
+  return el.text( val ) ;
+}
+
+function edgeRetention() {
+	var hardness = idValN( "hardness" ) ;
+	var edgeAngle = idValN( "edgeAngle" ) ;
+	var CrC = idValN( "CrC" ) ;
+	var CrCV = idValN( "CrCV" ) ;
+	var MC = idValN( "MC" ) ;
+	var M6C = idValN( "M6C" ) ;
+	var MN = idValN( "MN" ) ;
+	var CrN = idValN( "CrN" ) ;
+	var Fe3C6 = idValN( "Fe3C6" ) ;
+	var TCC = (( -157 ) + (( 15.8 ) * ( hardness )) - (( 17.8 ) * ( edgeAngle )) + ((11.2) * (CrC)) + ( (14.6) * ( CrCV )) +((26.2) * (MC)) + ((9.5) * (M6C)) + ((20.9) * (MN)) + ((19.4) * (CrN)) + ((5.0) * (Fe3C6))) ;
+	var volume = CrC+CrCV+MC+M6C+MN+CrN+Fe3C6;
+	idOut('id-out-edgeRetention', TCC ) ; 
+	idOut('id-out-carbideVolume', volume ) ; 
+	idOut('id-out-stability', 
+        volume > 15
+        ? '20°-30°dps'
+        : volume > 5
+          ? '12.5°-20°dps'
+          : '8°-12.5°dps' 
+    );
+}
+function steelTable(button){
+//~     $(button).prop("disabled",true);
+    $("#example").prop("border",1); /* ick */
+    dataSet = [
+        ["CPM M4",0,0,5.5,5,0,0,0],
+        ["M2",0,0,2.2,12,0,0,0],
+        ["410",3,0,0,0,0,0,0],
+        ["420",3,0,0,0,0,0,0],
+        ["AEB-L",6,0,0,0,0,0,0],
+        ["DC53",8,0,0,0,0,0,0],
+        ["440A",10,0,0,0,0,0,0],
+        ["440C",12,0,0,0,0,0,0],
+        ["D2",15.5,0,0,0,0,0,0],
+        ["154CM",17.5,0,0,0,0,0,0],
+        ["ATS-34",17.5,0,0,0,0,0,0],
+        ["CPM154",17.5,0,0,0,0,0,0],
+        ["ZDP-189",36,0,0,0,0,0,0],
+        ["Cruwear",0,5.9,3.4,0,0,0,0],
+        ["S35VN",0,10.5,3.5,0,0,0,0],
+        ["BD-30P",0,10.5,4,0,0,0,0],
+        ["S30V",0,10.5,4,0,0,0,0],
+        ["S90V",0,13,9,0,0,0,0],
+        ["CTS 20CP",0,13,9,0,0,0,0],
+        ["S125V",0,16,12.5,0,0,0,0],
+        ["BG-42",0,16,0,0,0,0,0],
+        ["Elmax",0,16,2,0,0,0,0],
+        ["20CV",0,17.5,2.5,0,0,0,0],
+        ["CTS-204P",0,17.5,2.5,0,0,0,0],
+        ["S60V",0,21.5,2.1,0,0,0,0],
+        ["Vanax 35",0,0,0,0,9,0,0],
+        ["Cronidur 30",0,0,0,0,0,4.5,0],
+        ["3V",0,0,5.1,0,0,0,0],
+        ["Vanadis 4E",0,0,8.2,0,0,0,0],
+        ["N690",16,0,0,0,0,0,0],
+        ["Rex 45",0,0,2.5,5.3,0,0,0],
+        ["5160",0,0,0,0,0,0,0],
+        ["1095",0,0,0,0,0,0,3],
+        ["O1",0,0,0,0,0,0,3],
+        ["O2",0,0,0,0,0,0,3],
+        ["52100",0,0,0,0,0,0,6],
+        ["File steel",0,0,0,0,0,0,6],
+        ["A2",6,0,0,0,0,0,0],
+        ["19C27",8,0,0,0,0,0,0],
+        ["Niolox",8,0,1,0,0,0,0],
+        ["XHP/440XH",22,0,0,0,0,0,0],
+        ["D7",24,0,0,0,0,0,0],
+        ["K190",0,20,3,0,0,0,0],
+        ["Vanadis 8",0,0,15,0,0,0,0],
+        ["10V",0,0,17.5,0,0,0,0],
+        ["Vanax",0,0,0,0,13,0,0],
+        ["Nitrobe77",0,0,0,0,2,4,0],
+        ["15V",0,0,23,0,0,0,0],
+        ["Rex121",0,0,24.5,6,0,0,0],
+        ["S45VN",0,12.6,2.6,0,0,0,0],
+        ["O7",0,0,1.7,0,0,0,4.9],
+        ["F2",0,0,3.5,0,0,0,3.8],
+        ["1.2442",0,0,1.9,0,0,0,3.2],
+        ["1.2519",0,0,1.3,0,0,0,4.8],
+        ["1.2562",0,0,3.4,0,0,0,7.8],
+        ["Blue #1",0,0,1.6,0,0,0,6.3],
+        ["Blue #2",0,0,1.1,0,0,0,3.4],
+        ["Blue Super",0,0,2.7,0,0,0,7.1],
+        ["V-Toku 1",0,0,2.1,0,0,0,3.3],
+        ["V-Toku 2",0,0,1.1,0,0,0,2.6]
+    ];
+
+    var hardness  = idValN( "hardness" )  || 60;
+    var edgeAngle = idValN( "edgeAngle" ) || 30;
+    for(var row of dataSet ){
+        var volume = row.slice(1).reduce( (sum,val) => sum+val, 0 );
+        var stability = volume > 15
+                        ? '20°-30°dps'
+                        : volume > 5
+                          ? '12.5°-20°dps'
+                          : '8°-12.5°dps' ;
+        row.push(volume.toFixed(1)+'%<br>'+stability);
+
+        var CrC   =  row[1];
+        var CrCV  =  row[2];
+        var MC    =  row[3];
+        var M6C   =  row[4];
+        var MN    =  row[5];
+        var CrN   =  row[6];
+        var Fe3C6 =  row[7];
+        var TCC = (( -157 ) + (( 15.8 ) * ( hardness )) - (( 17.8 ) * ( edgeAngle )) + ((11.2) * (CrC)) + ( (14.6) * ( CrCV )) +((26.2) * (MC)) + ((9.5) * (M6C)) + ((20.9) * (MN)) + ((19.4) * (CrN)) + ((5.0) * (Fe3C6))) ;
+        row.push( TCC.toFixed(0) );
+    }
+
+    $('#example').DataTable( {
+        data: dataSet,
+        columns: [
+            { title: "Steel" },
+            { title: "CrC" },
+            { title: "CrV" },
+            { title: "MC" },
+            { title: "M6C" },
+            { title: "MN" },
+            { title: "CrN" },
+            { title: "Fe3C" },
+/* ick */
+            { title: 'Vol%<br>&nbsp;&nbsp;Stability&nbsp;&nbsp;' },
+            { title: '<div style="width: 6em;">est.TCC<br>@<input size="3" id="id-fudgeout2-hrc" value="60" type="number" width="3">HRC<br>@<input id="id-fudgeout2-angle" size="3" value="30" type="number">°<br>@<span id="id-fudgeout2-dps">15dps</span>', },
+        ],
+        "paging": false,
+        "columnDefs": [
+            {
+                "searchable": false , 
+                "targets": [1,2,3,4,5,6,7]
+            }, /* only search by 0 steel name */
+        ]
+    } );
+
+    $('#example td').click(function(event){
+        var hardness  = Number( idVal( "hardness" ) || 60 );
+        var edgeAngle = Number( idVal( "edgeAngle" ) || 30 ) ;
+        var tds = $(event.target).parent().find('td').toArray()
+                .map(
+                /* leftover */
+                    td => $(td).text().trim().replace(/^-|-$/g,'')
+                );
+        tds.shift(); /* steel name */
+        tds = tds.map(td => Number(td||0) );
+        var CrC   =  tds[0];
+        var CrCV  =  tds[1];
+        var MC    =  tds[2];
+        var M6C   =  tds[3];
+        var MN    =  tds[4];
+        var CrN   =  tds[5];
+        var Fe3C6 =  tds[6];
+//~         var TCC = (( -157 ) + (( 15.8 ) * ( hardness )) - (( 17.8 ) * ( edgeAngle )) + ((11.2) * (CrC)) + ( (14.6) * ( CrCV )) +((26.2) * (MC)) + ((9.5) * (M6C)) + ((20.9) * (MN)) + ((19.4) * (CrN)) + ((5.0) * (Fe3C6))) ;
+//~         idOut('id-out-edgeRetention', TCC ) ; 
+        idOut( "hardness", hardness);
+        idOut( "edgeAngle", edgeAngle );
+        idOut( "CrC", CrC );
+        idOut( "CrCV", CrCV );
+        idOut( "MC", MC );
+        idOut( "M6C", M6C );
+        idOut( "MN", MN );
+        idOut( "CrN", CrN );
+        idOut( "Fe3C6", Fe3C6 );
+        edgeRetention();
+    });
+
+    $("#id-fudgeout2-hrc,#id-fudgeout2-angle").click(function(e){
+        /* no sorting column when hrc/angle changes */
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        return false;
+    });
+    $("#id-fudgeout2-hrc,#id-fudgeout2-angle").change(function(e){
+        var hardness  = Number( idVal( "id-fudgeout2-hrc" ) );
+        var edgeAngle = Number( idVal( "id-fudgeout2-angle" ) );
+        idOut( 'id-fudgeout2-dps', (edgeAngle/2)+'dps');
+        $("#example tbody tr").each(function(ix,tr){
+
+            var tds = $(tr).find('td').toArray();
+            tds.shift(); /* steel td */
+            var tcctd = tds.pop();
+            tds.pop(); /* stability */
+            tds = tds.map( td => Number( $( td ).text() || 0 ) ); /* digitize */
+            var CrC       = tds[0];
+            var CrCV      = tds[1];
+            var MC        = tds[2];
+            var M6C       = tds[3];
+            var MN        = tds[4];
+            var CrN       = tds[5];
+            var Fe3C6     = tds[6];
+            var tcc = (( -157 ) + (( 15.8 ) * ( hardness )) - (( 17.8 ) * ( edgeAngle )) + ((11.2) * (CrC)) + ( (14.6) * ( CrCV )) +((26.2) * (MC)) + ((9.5) * (M6C)) + ((20.9) * (MN)) + ((19.4) * (CrN)) + ((5.0) * (Fe3C6))) ;
+            $( tcctd ).text(Math.round(tcc));
+        });
+        e.stopPropagation(); /* eh? */
+        e.stopImmediatePropagation();
+        return false;
+    });
+    $('#example').removeClass();
+    $('#example').width(0);
+    $('#example').show();
+    
+}
+
+</script>

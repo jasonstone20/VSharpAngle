@@ -4,42 +4,80 @@
     <meta charset="utf-8">
     <title>VSharpAngle</title>
 </head>
+
+<script src="http://code.jquery.com/jquery-latest.js" ></script>
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+
+
 <body>
     <table>
+            <tr><th> -----Edge Angle----- </th></tr>
         <tr><th> Enter Edge Bevel Width: </th>
              <td><input id="width" onselect="measureAngle() ; "</td></tr>
         <tr><th> Enter Edge Bevel Height </th>
              <td><input id="height" onchange="measureAngle() ; "</td></tr>
+           <!--  <tr><th> ------------------------- </th></tr> -->
+             <tr><th> ----Elevate SharpMaker---- </th></tr>
         <tr><th> Enter Desired Angle (Elevation)</th>
              <td><input id="desiredAngle" onselect="sharpmakerElevation() ; "</td></tr>
         <tr><th> Enter Sharpener Angle </th>
             <td><input id="sharpenerAngle" onchange="sharpmakerElevation() ; "</td></tr>
-      <tr><th> Enter Desired Angle (Rotation) </th>
+         <!--   <tr><th> ------------------------- </th></tr> -->
+            <tr><th> -----Rotate SharpMaker---- </th></tr>
+        <tr><th> Enter Desired Angle (Rotation) </th>
             <td><input id="rotationAngle" onselect="sharpmakerRotation() ; "</td></tr>
         <tr><th> Enter Sharpener Angle </th>
             <td><input id="rotationSharpener" onchange="sharpmakerRotation() ; "</td></tr>
+         <!--   <tr><th> ------------------------- </th></tr> -->
+            <tr><th> -------Decenting Passes Counter------ </th></tr>
         <tr><th> Enter Number of Passes </th>
-            <td><input id="numberOfPasses" onselect="passCount() ; "</td></tr>
-    
-    <form name="demoForm">
-       
-                   
+            <td><input id="numberOfPasses" onchange="passCount() ; "</td></tr>    
+           <!-- <tr><th> ------------------------- </th></tr> -->
+            <tr><th> ---CATRA TCC Edge Retention------- </th></tr>
+            <tr><th> Enter Hardness </th>
+        <td><input id="Hardness" onselect="edgeRetention() ;"</td></tr>
+                <tr><th> Enter Inclusive Edge Angle </th>
+        <td><input id="edgeAngle" onchange="edgeRetention() ;"</td></tr>
+                <tr><th> Enter CrC </th>
+        <td><input id="CrC" onchange="edgeRetention() ;"</td></tr>
+                <tr><th> Enter CrCV </th>
+        <td><input id="CrCV" onchange="edgeRetention() ;"</td></tr>
+                <tr><th> Enter MC </th>
+        <td><input id="MC" onchange="edgeRetention() ;"</td></tr>
+                <tr><th> Enter M6C </th>
+        <td><input id="M6C" onchange="edgeRetention() ;"</td></tr>
+                <tr><th> Enter MN </th>       
+        <td><input id="MN" onchange="edgeRetention() ;"</td></tr>
+                <tr><th> Enter CrN </th>
+        <td><input id="CrN" onchange="edgeRetention() ;"</td></tr>
+                <tr><th> Enter Fe3C6 </th>
+        <td><input id="Fe3C6" onchange="edgeRetention() ;"</td></tr>
+
+       <!-- <tr><th> ------------------------- </th></tr> -->           
+
+<table id="example" class="display" width="100%"></table>
+	
+<form name="demoForm">
+ 
          <!--       
            --> 
-           <h1> V-Sharp-Angle </h1>
-        <p> Select Measure Angle, Elevation of Sharpmaker, Rotation of Sharpmaker, Pass Count</p>
+           <h0> V-Sharp-Angle </h1>
+         Select Measure Angle, Elevation of Sharpmaker, Rotation of Sharpmaker, Pass Count
         <select name="demoSelect" onchange="menuChoice() ">
             <option value="zilch">Select:</option>
             <option value="A">Measure Angle</option>
             <option value="B">Elevation of Sharpmaker</option>
             <option value="C">Rotation of Sharpmaker</option>
             <option value="D">Pass Count</option>
-        </select>
+	    <option value="E">Display Steels</option>	        
+	    <option value="F">TCC Edge Retention</option>	
+	</select>
     </form>
 
-    <p id="firstP">&nbsp;</p>
-    <p id="secondP">&nbsp;</p>
-    <p id="thirdP">&nbsp;</p>
+    <p id="firstP">&nbsp;
+    <p id="secondP">&nbsp;
+    <p id="thirdP">&nbsp;
     
 
     <script>
@@ -60,34 +98,40 @@
      //  var optionChoice = document.getElementById('secondP');
         var optionChoice = theSelect.selectedIndex;
         switch (optionChoice) {
-            case 1:
+            
+	case 1:
                 //document.write("Run Measure Angle");
                 measureAngle() ;
                 break;
             
-            case 2:
+	case 2:
                 //document.write("Run Sharpmaker Elevation");
                 sharpmakerElevation() ; 
-                break;
+                break;CrC
             
-            case 3:
+	case 3:
                 //document.write("Run Sharpmaker Rotation");
                 sharpmakerRotation() ;
                 break;
                         
-            case 4:
+	case 4:
                 //document.write("Pass Count");
                 passCount() ;
                 break;
+         
+	case 5:
+		steelTable() ;
+		break;
             
-            default:
-               alert("Please Choose a Selection" ) ;
-               break;       
+	case 6:
+		edgeRetention();
+		break;
+	default:
+        alert("Please Choose a Selection" ) ;
+        break;       
         }
     }         
-        
     function measureAngle() {
-        
        //alert("Run Measure Angle");
         
         var width = document.getElementById("width" ) ;
@@ -96,7 +140,7 @@
         var ang;
         ans = (((width.value)/2)/height.value ) ;
         ang = asin(ans ) ;
-        alert(rad2deg(ang) ) ;
+        alert(Math.floor(rad2deg(ang)) + " - DPS" ) ;
         
     }
         
@@ -111,15 +155,16 @@
     }
     
     function sharpmakerRotation() {
-        
+        edgeAngle
         //alert("Run Sharpmaker Rotation");
         var rotationAngle = document.getElementById("rotationAngle" ) ;
         var rotationSharpener = document.getElementById("rotationSharpener" ) ;
         var deg = rad2deg(acos(dcsc(rotationSharpener.value)*dsin(rotationAngle.value)) ) ;
-        alert(deg) ;
+        alert(Math.floor(deg)) ;
         
     }
-    
+
+
     function passCount() {
         
         //alert("Run Pass Count");
@@ -127,21 +172,52 @@
         var y;
         var total;
         var xStrokes;
-        var startingNumber;
+        var startingNedgeAngleumber;
         var numberOfPasses = document.getElementById("numberOfPasses" )
-        
         y = (numberOfPasses.value / 10 ) + 1;
         x = (numberOfPasses.value * y ) ;
         startingNumber = (numberOfPasses.value * 2 ) ;
         total = ( x + 2 ) + startingNumber;
         xStrokes = total * 2;
-        //console.log(x);
+        //console.log(xCrC);
         //console.log(y);
         //console.log(startingNumber);
         //console.log(total);
         alert(total) ;
-    }
-    
+    }edgeAngle
+	
+	function edgeRetention() {
+		
+		var hardness; 
+		var edgeAngle; 
+		var CrC;
+		var CrCV; 
+		var MC;
+		var M6C;
+		var MN;
+		var CrN;
+		var Fe3C6;
+        hardness = document.getElementById("Hardness" )
+		edgeAngle = document.getElementById("edgeAngle" )
+		CrC = document.getElementById("CrC" )
+		CrCV = document.getElementById("CrCV" )
+		MC = document.getElementById("MC" )
+		M6C = document.getElementById("M6C") 
+		MN 	= document.getElementById("MN")
+		CrN = document.getElementById("CrN" )
+		Fe3C6 = document.getElementById("Fe3C6" )
+
+		var temp1 = (( -157 ) + (( 15.8 ) * (hardness)));
+		var TCC = (( -157 ) + (( 15.8 ) * ( hardness.value)) - (( 17.8 ) * ( edgeAngle.value )) + ((11.2) * (CrC.value)) + ( (14.6) * ( CrCV.value )) +((26.2) * (MC.value)) + ((9.5) * (M6C.value)) + ((20.9) * (MN.value)) + ((19.4) * (CrN.value)) + ((5.0) * (Fe3C6.value))) ;
+        //alert(TCC);
+		//alert(( -157 ) + (( 15.8 ) * ( hardness )) - (( 17.8 ) * ( edgeAngle )) + ((11.2) * (CrC)) + ( (14.6) * ( CrCV )) +((26.2) * (MC)) + ((9.5) * (M6C)) + ((20.9) * (MN)) + ((19.4) * (CrN)) + ((5.0) * (Fe3C6)))
+        //alert(hardness, edgeAngle, CrC, CrCV, MC, M6C, MN, CrN, Fe3C6) ;
+		//dOut(hardness);
+        //dOut(TCC);
+		alert(TCC);
+		
+		}
+
     function deg2rad(deg) {
         return deg * Math.PI / 180;
     }
@@ -186,8 +262,81 @@
            ') = ', ( dsin(D) / dsin(A) )
      );
     }
+function steelTable(){
+	var dataSet = [
+    ["CPM M4", "-", "-", "-5.5-", "-5-", "-", "-", "-"],
+	["410", "-3-", "-", "-", "-", "-", "-", "-"],
+	["420", "-3-", "-", "-", "-", "-", "-","-"],
+	["AEB-L","-6-","-","-","-","-","-","-"],
+    ["440C","-12-","-","-","-","-","-","-"], 
+    ["D2","-15.5-","-","-","-","-","-","-"], 
+    ["154CM","-17.5-","-","-","-","-","-","-"], 
+    ["ATS34","-17.5-","-","-","-","-","-","-"], 
+	["CPM154","-17.5-","-","-","-","-","-","-"], 
+	["ZDP-189","-36-","-","-","-","-","-","-"],    
+	["Cruwear","-","-5.9-","-3.4-","-","-","-","-"], 
+	["S35VN","-","-10.5","-3.5-","-","-","-","-"],
+	["BD 30P","-","-10.5-","-4-","-","-","-","-"], 
+	["S30V","-","-10.5-","-4-","-","-","-","-"], 
+	["S90V","-","-13-","-9-","-","-","-","-"], 
+	["CTS 20CP","-","-13-","-9-","-","-","-","-"],   
+	["S125V","-","-16","-12.5-","-","-","-","-"],  
+	["BG42","-","-16-","-","-","-","-","-"], 
+	["Elmax","-","-16","-2-","-","-","-","-"],    
+	["20CV","-","-17.5-","-2.5-","-","-","-","-"],  
+	["CTS-204P","-","-17.5-","-2.5-","-","-","-","-"], 
+	["S60V","-","-21.5-","-2.1-","-","-","-","-"],    
+	["Vanax 35","-","-","-","-","-9-","-","-"],  
+	["Cronidur 30","-","-","-","-","-","-4.5-","-"], 
+	["3V","-","-","-5.1","-","-","-","-","-"],    
+	["Vandis 4E","-","-","-8.2-","-","-","-","-"],  
+	["N690","-16-","-","-","-","-","-","-"], 
+	["Rex 45","-","-","-2.5-","-5.3-","-","-","-"],    
+	["5160","-","-","-","-","-","-","-0-"],  
+	["1095","-","-","-","-","-","-","-3-"], 
+	["O1","-","-","-","-","-","-","-3-"],    
+	["O2","-","-","-","-","-","-","-3-"],  
+	["52100","-","-","-","-","-","-","-6-"], 
+	["File Steel","-","-","-","-","-","-","-6-"],    
+	["A2","-6-","-","-","-","-","-","-"],  
+	["19C27","-8-","-","-","-","-","-","-"], 
+	["Niolox","-8-","-1-","-","-","-","-","-"],  
+	["XHP/440V","-22-","-","-","-","-","-","-"], 
+	["D7","-34-","-","-","-","-","-","-"], 
+	["K190","-","-20-","-3-","-","-","-","-"], 
+	["Vandis 8","-","-","-15-","-","-","-","-"], 
+	["10V","-","-","-17.5","-","-","-","-"], 
+	["Vanax","-","-","-","-","-13-","-","-"],   
+	["15V","-","-","-23-","-","-","-","-"], 
+	["Rex 121","-","-","-24.5-","-6-","-","-","-"], 
+];
 
-            
+$(document).ready(function() {
+    $('#example').DataTable( {
+        data: dataSet,
+        columns: [
+            { title: "Steel" },
+            { title: "CrC" },
+            { title: "CrV" },
+            { title: "MC" },
+            { title: "M6C" },
+            { title: "MN" },
+			 { title: "CrN" },
+			 { title: "FeC" }
+
+        ]
+    } );
+} );
+}
+
+   // function Steels() {
+// alert(' Steel|  CrC  |  CrV  |  MC  |  M6C  |  MN  |  CrN  |   FeC |     CPM M4     |   -   |   -   |  5.5 |   5   |   -  |   -   |   -    |     410        |   3   |   -   |   -  |   -   |   -  |   -   |   -   |              420        |   3   |   -   |   -  |   -   |   -  |   -   |   -   |                   AEB-L      |   6   |   -   |   -  |   -   |   -  |   -   |   -   |              DC53       |   8   |   -   |   -  |   -   |   -  |   -   |   -   |               440A       |  10   |   -   |   -  |   -   |   -  |   -   |   -   |              440C       |  12   |   -   |   -  |   -   |   -  |   -   |   -   |              D2         |  15.5 |   -   |   -  |   -   |   -  |   -   |   -   |              154CM      |  17.5 |   -   |   -  |   -   |   -  |   -   |   -   |           ATS34      |  17.5 |   -   |   -  |   -   |   -  |   -   |   -   |        CPM154     |  17.5 |   -   |   -  |   -   |   -  |   -   |   -   |           ZDP-189    |  36   |   -   |   -  |   -   |   -  |   -   |   -   |             Cruwear    |   -   |  5.9  |  3.4 |   -   |   -  |   -   |   -   |           S35VN      |   -   |  10.5 |  3.5 |   -   |   -  |   -   |   -   |                BD-30P     |   -   |  10.5 |   4  |   -   |   -  |   -   |   -   |           S30V       |   -   |  10.5 |   4  |   -   |   -  |   -   |   -   |                S45VN      |   -   |  12.6 |  2.6 |   -   |   -  |   -   |   -   |           S90V       |   -   |   13  |   9  |   -   |   -  |   -   |   -   |                CTS 20CP   |   -   |   13  |   9  |   -   |   -  |   -   |   -   |           S125V      |   -   |   16  | 12.5 |   -   |   -  |   -   |   -   |        BG42       |   -   |   16  |   -  |   -   |   -  |   -   |   -              Elmax      |   -   |   16  |   2  |   -   |   -  |   -   |   -   |        ');
+// alert(' Steel|  CrC  |  CrV  |  MC  |  M6C  |  MN  |  CrN  |   FeC |     20CV       |   -   |  17.5 |  2.5 |   -   |   -  |   -   |   -   |      CTS-204P   |   -   |  17.5 |  2.5 |   -   |   -  |   -   |   -   |              S60V       |   -   |  21.5 |  2.1 |   -   |   -  |                                   Vanax 35   |   -   |   -   |   -  |   -   |   9  |   -   |   -   |              Cronidur 30|   -   |   -   |   -  |   -   |   -  |  4.5  |   -   |               3V         |   -   |   -   |  5.1 |   -   |   -  |   -   |   -   |              Vandis 4E  |   -   |   -   |  8.2 |   -   |   -  |   -   |   -   |                       N690       |   16  |   -   |   -  |   -   |   -  |   -   |   -   |            Rex 45     |   -   |   -   |  2.5 |  5.3  |   -  |   -   |   -   |               5160       |   -   |   -   |   -  |   -   |   -  |   -   |   0   |              1095       |   -   |   -   |   -  |   -   |   -  |   -   |   3   |               O1         |   -   |   -   |   -  |   -   |   -  |   -   |   3   |             O2         |   -   |   -   |   -  |   -   |   -  |   -   |   3   |     	     52100      |   -   |   -   |   -  |   -   |   -  |   -   |   6   |             File Steel |   -   |   -   |   -  |   -   |   -  |   -   |   6   |                     A2         |   6   |   -   |   -  |   -   |   -  |   -   |   -   |             19C27      |   8   |   -   |   -  |   -   |   -  |   -   |   -   |         Niolox     |   8   |   1   |   -  |   -   |   -  |   -   |   -   |                         XHP/440V   |  22   |   -   |   -  |   -   |   -  |   -   |   -   |          D7         |  24   |   -   |   -  |   -   |   -  |   -   |   -   |                         K190       |   -   |  20   |   3  |   -   |   -  |   -   |   -   | ')          
+// alert(' Steel|  CrC  |  CrV  |  MC  |  M6C  |  MN  |  CrN  |   FeC |     Vandis 8   |   -   |   -   |  15  |   -   |   -  |   -   |   -   |      10V        |   -   |   -   | 17.5 |   -   |   -  |   -   |   -   |              Vanax      |   -   |   -   |   -  |   -   |   13 |   -   |   -   |       	          Nitrobe77  |   -   |   -   |   -  |   -   |   2  |   4   |   -   |              15V        |   -   |   -   |  23  |   -   |   -  |   -   |   -   |               Rex 121    |   -   |   -   | 24.5 |   6   |   -  |   -   |   -   |              Steel  |  CrC  |  CrV  |  MC  |  M6C  |  MN  |  CrN  |  FeC  | ' );
+
+       
+                   
     </script>
+
 </body>
 </html>
