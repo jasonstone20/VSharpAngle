@@ -3,7 +3,7 @@ A program written to run in a GNU/Linux Bash Terminal, that helps you adjust and
 
 This is a program for V-Stick/CrockStick/Spyderco Sharpmaker type knife sharpeners. I also added a Passes Per Side function that counts the total passes per side when using a decreasing passes per side ei 30, 20, 10 ect.
 
-This program does five things.
+This program does Six things.
 
 Calculate how to change the angle of the V-Sticks by rotating the base of the sharpener.
 
@@ -14,6 +14,8 @@ Display a chart of rotation angles.
 Calculate the angle of the edge bevel, per side, of the knife.
 
 Counts the total passes per side when using a decreasing passes per side ei 30, 20, 10 ect.
+
+Calculates CATRA TCC for knife steel type, hardness, and edge angle.
 
 Use:
 
@@ -39,3 +41,8 @@ Then measure the height of the edge bevel.
 
 5) 
 Enter the starting number of passes per side. The number should be larger than 10.
+
+6) Enter the steel carbide type from the chart or your own information, hardness, and edge angle to Calculate the CATRA TCC for a knife steel.
+
+
+Thank you to Larrin Thomas for the use of his CATRA TCC formula, and to ShaperAndMower from the Towards 0.1 Micron forum for the help with the JavaScript version, and the new features on the steel table chart.
