@@ -133,7 +133,7 @@ class VsaAppShell extends LitElement {
       transition: background 0.15s, border-color 0.15s;
     }
     .card-link:hover {
-      background: #6d92ff
+      background: #6d92ff;
       border-color: var(--sl-color-primary-500);
     }
     .card-link:focus-visible {
@@ -514,12 +514,12 @@ class VsaAppShell extends LitElement {
   _num(ev: Event, key: string) {
     const target = ev.target as HTMLInputElement;
     const val = Number(target.value);
-    (this as any)[key] = isNaN(val) ? null : val;
+    (this as any)[key] = val;
   }
   _carbide(ev: Event, key: string) {
     const target = ev.target as HTMLInputElement;
     const val = Number(target.value);
-    this.carbides = { ...this.carbides, [key]: isNaN(val) ? 0 : val };
+    this.carbides = { ...this.carbides, [key]: val };
   }
   render() {
     return html`<header>

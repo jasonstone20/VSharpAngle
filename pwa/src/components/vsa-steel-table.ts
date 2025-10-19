@@ -163,10 +163,10 @@ class VsaSteelTable extends LitElement {
     this.filter = (e.target as HTMLInputElement).value.trim().toLowerCase();
   }
   _setHardness(e: Event) {
-    this.hardness = Number((e.target as HTMLInputElement).value) || 60;
+    this.hardness = Number((e.target as HTMLInputElement).value);
   }
   _setEdgeAngle(e: Event) {
-    this.edgeAngle = Number((e.target as HTMLInputElement).value) || 30;
+    this.edgeAngle = Number((e.target as HTMLInputElement).value);
   }
 
   _toggleSort(key: string) {
