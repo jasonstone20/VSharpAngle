@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "lib": ["DOM", "ES2022"],
+    "types": ["node"],
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "useDefineForClassFields": false
+  },
+  "include": ["src/**/*.ts", "service-worker.ts"],
+  "exclude": ["dist", "node_modules"]
+}

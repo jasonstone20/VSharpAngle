@@ -1,0 +1,31 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>VSharpAngle</title>
+    <link rel="manifest" href="/assets/manifest-BTizgNza.json" />
+  <!-- Theme color primarily used by Chromium-based browsers; fallback styling handled via CSS vars -->
+  <meta name="theme-color" content="#0d6efd" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/cdn/themes/light.css" />
+  <!-- Optional dark theme will be lazy loaded if user toggles -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/cdn/shoelace.js"></script>
+    <style>
+      :root { --vsa-gap:1rem; --vsa-bg:#f7f9fb; --vsa-surface:#ffffff; --vsa-border:#d9dde3; --vsa-accent:#0d6efd; color-scheme: light dark; }
+      html.dark { --vsa-bg:#121212; --vsa-surface:#1e1e1e; --vsa-border:#2a2a2a; color-scheme: dark light; }
+      body { margin:0; font-family: system-ui, Arial, sans-serif; background: var(--vsa-bg); color:#1f2b35; display:flex; min-height:100vh; flex-direction:column; }
+      html.dark body { color:#e6e6e6; }
+      vsa-app-shell { flex:1; }
+      .no-js-warning { padding:.75rem; background:#b00020; color:#fff; text-align:center; }
+    </style>
+    <script type="module" crossorigin src="/assets/main-DgbmXk5Z.js"></script>
+  </head>
+  <body>
+    <!-- Application built by ShaperAndMower and J.D. Stone -->
+    <noscript><div class="no-js-warning">JavaScript is required for VSharpAngle to function.</div></noscript>
+  <vsa-app-shell></vsa-app-shell>
+  </body>
+</html>
+            --vsa-surface: #1e1e1e;

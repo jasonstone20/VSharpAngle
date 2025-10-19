@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>VSharpAngle</title>
+    <link rel="manifest" href="./manifest.json" />
+  <!-- Theme color primarily used by Chromium-based browsers; fallback styling handled via CSS vars -->
+  <meta name="theme-color" content="#0d6efd" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/cdn/themes/light.css" />
+  <!-- Optional dark theme will be lazy loaded if user toggles -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/cdn/shoelace.js"></script>
+    <style>
+      /* Use Shoelace design tokens for global colors */
+      :root {
+        --app-gap: 1rem;
+        --app-bg: var(--sl-color-neutral-50);
+        --app-surface: var(--sl-color-neutral-0);
+        --app-border: var(--sl-color-neutral-200);
+        --app-accent: var(--sl-color-primary-600);
+        /* VSA tokens (light) */
+        --vsa-surface: var(--app-surface);
+        --vsa-border: var(--app-border);
+        --vsa-row-alt: var(--sl-color-neutral-50);
+        
+        --vsa-row-focus: var(--sl-color-neutral-150);
+        --vsa-card-bg: var(--sl-color-neutral-0);
+        --vsa-card-border: var(--app-border);
+        --vsa-card-border-strong: var(--sl-color-neutral-300);
+        /* Global edit control background (antique white, both themes) */
+        --sl-input-background-color: #faebd7;
+        color-scheme: light dark;
+      }
+      html.dark {
+        --app-bg: var(--sl-color-neutral-900);
+        --app-surface: var(--sl-color-neutral-850, var(--sl-color-neutral-800));
+        --app-border: var(--sl-color-neutral-700);
+        /* VSA tokens (dark) */
+        --vsa-surface: var(--app-surface);
+        --vsa-border: var(--app-border);
+        --vsa-row-alt: var(--sl-color-neutral-800);
+        
+        --vsa-row-focus: var(--sl-color-neutral-700);
+        --vsa-card-bg: var(--sl-color-neutral-850, var(--sl-color-neutral-800));
+        --vsa-card-border: var(--app-border);
+        --vsa-card-border-strong: var(--sl-color-neutral-650);
+        --sl-input-background-color: #faebd7; /* maintain antique white in dark mode */
+        color-scheme: dark light;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, Arial, sans-serif;
+        background: var(--app-bg);
+        color: var(--sl-color-neutral-900);
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+      }
+      html.dark body {
+        color: var(--sl-color-neutral-50);
+      }
+      vsa-app-shell { flex: 1; }
+      .no-js-warning {
+        padding: 0.75rem;
+        background: var(--sl-color-danger-600);
+        color: var(--sl-color-neutral-0);
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Application built by ShaperAndMower and J.D. Stone -->
+    <noscript><div class="no-js-warning">JavaScript is required for VSharpAngle to function.</div></noscript>
+  <vsa-app-shell></vsa-app-shell>
+    <script type="module">
+      import './src/components/vsa-app-shell.ts';
+      // Import the TS service worker so Vite bundles it to /service-worker.js
+      import './service-worker.ts';
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./service-worker.js').catch(err => console.error('SW registration failed', err));
+        });
+      }
+    </script>
+  </body>
+</html>
+
