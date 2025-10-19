@@ -4,7 +4,7 @@ import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
   build: {
-    outDir: 'build',
+    outDir: 'dist',
     emptyOutDir: true,
     rollupOptions: {
       input: {
@@ -12,5 +12,5 @@ export default defineConfig({
       }
     }
   },
-  plugins: [visualizer({ filename: 'build/stats.html', template: 'treemap', gzipSize: true })]
+  plugins: [visualizer({ filename: 'dist/stats.html', template: 'treemap', gzipSize: true })]
 });

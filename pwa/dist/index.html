@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>VSharpAngle</title>
-    <link rel="manifest" href="/assets/manifest-BTizgNza.json" />
+    <link rel="manifest" href="/assets/manifest-CVB_CzxZ.json" />
   <!-- Theme color primarily used by Chromium-based browsers; fallback styling handled via CSS vars -->
   <meta name="theme-color" content="#0d6efd" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -13,14 +13,63 @@
   <!-- Optional dark theme will be lazy loaded if user toggles -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/cdn/shoelace.js"></script>
     <style>
-      :root { --vsa-gap:1rem; --vsa-bg:#f7f9fb; --vsa-surface:#ffffff; --vsa-border:#d9dde3; --vsa-accent:#0d6efd; color-scheme: light dark; }
-      html.dark { --vsa-bg:#121212; --vsa-surface:#1e1e1e; --vsa-border:#2a2a2a; color-scheme: dark light; }
-      body { margin:0; font-family: system-ui, Arial, sans-serif; background: var(--vsa-bg); color:#1f2b35; display:flex; min-height:100vh; flex-direction:column; }
-      html.dark body { color:#e6e6e6; }
-      vsa-app-shell { flex:1; }
-      .no-js-warning { padding:.75rem; background:#b00020; color:#fff; text-align:center; }
+      /* Use Shoelace design tokens for global colors */
+      :root {
+        --app-gap: 1rem;
+        --app-bg: var(--sl-color-neutral-50);
+        --app-surface: var(--sl-color-neutral-0);
+        --app-border: var(--sl-color-neutral-200);
+        --app-accent: var(--sl-color-primary-600);
+        /* VSA tokens (light) */
+        --vsa-surface: var(--app-surface);
+        --vsa-border: var(--app-border);
+        --vsa-row-alt: var(--sl-color-neutral-50);
+        
+        --vsa-row-focus: var(--sl-color-neutral-150);
+        --vsa-card-bg: var(--sl-color-neutral-0);
+        --vsa-card-border: var(--app-border);
+        --vsa-card-border-strong: var(--sl-color-neutral-300);
+        /* Global edit control background (antique white, both themes) */
+        --sl-input-background-color: #faebd7;
+        color-scheme: light dark;
+      }
+      html.dark {
+        --app-bg: var(--sl-color-neutral-900);
+        --app-surface: var(--sl-color-neutral-850, var(--sl-color-neutral-800));
+        --app-border: var(--sl-color-neutral-700);
+        /* VSA tokens (dark) */
+        --vsa-surface: var(--app-surface);
+        --vsa-border: var(--app-border);
+        --vsa-row-alt: var(--sl-color-neutral-800);
+        
+        --vsa-row-focus: var(--sl-color-neutral-700);
+        --vsa-card-bg: var(--sl-color-neutral-850, var(--sl-color-neutral-800));
+        --vsa-card-border: var(--app-border);
+        --vsa-card-border-strong: var(--sl-color-neutral-650);
+        --sl-input-background-color: #faebd7; /* maintain antique white in dark mode */
+        color-scheme: dark light;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, Arial, sans-serif;
+        background: var(--app-bg);
+        color: var(--sl-color-neutral-900);
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+      }
+      html.dark body {
+        color: var(--sl-color-neutral-50);
+      }
+      vsa-app-shell { flex: 1; }
+      .no-js-warning {
+        padding: 0.75rem;
+        background: var(--sl-color-danger-600);
+        color: var(--sl-color-neutral-0);
+        text-align: center;
+      }
     </style>
-    <script type="module" crossorigin src="/assets/main-DgbmXk5Z.js"></script>
+    <script type="module" crossorigin src="/assets/main-BqaFd5c3.js"></script>
   </head>
   <body>
     <!-- Application built by ShaperAndMower and J.D. Stone -->
@@ -28,4 +77,4 @@
   <vsa-app-shell></vsa-app-shell>
   </body>
 </html>
-            --vsa-surface: #1e1e1e;
+
