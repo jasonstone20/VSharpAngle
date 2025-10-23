@@ -9,6 +9,7 @@ Modern Progressive Web App for rod ("V-stick") knife sharpeners. Provides calcul
 - Pass Counter: Generate descending stroke sets (e.g. 30 → 20 → 10) with totals & X-strokes.
 - Edge Retention Estimator: Approximate CATRA TCC, material removal volume, and stability from hardness, edge angle, carbide fractions.
 - Steel Database: Load preset compositions and push values directly into the estimator.
+- Geometry Builder: Stack inclusive angle + thickness wedges to visualize a composite knife cross section with zoom focused at the apex.
 - Offline Support: Fully functional after first visit; caches shell + data.
 - Update Awareness: Header shows an "Update Available" button when a new service worker is ready.
 - Mobile Friendly: Responsive layout, standalone install, dark mode toggle.
@@ -55,7 +56,7 @@ Visit http://localhost:5173 (default Vite port). The service worker registers on
 ```bash
 npm run build
 ```
-Outputs to `build/`. Deploy `index.html`, `build/assets`, `manifest.json`, `service-worker.js`, and `data/steels.json`.
+Outputs to `dist/`. Deploy `index.html`, `dist/assets`, `manifest.json`, `service-worker.js`, and `data/steels.json`.
 
 ## Testing (Planned)
 Will add unit tests for math utilities (angle, elevation, rotation domain, pass sequencing, edge retention calculations). Run with a lightweight test harness or integrate a framework (Vitest) if desired.

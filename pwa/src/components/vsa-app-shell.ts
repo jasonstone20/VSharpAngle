@@ -9,6 +9,8 @@ import {
 import type { SteelSelectedDetail } from "../types";
 // Eager import steel table so collapsible section always renders immediately
 import "./vsa-steel-table";
+import "./vsa-geometry-builder";
+import { property } from "lit/decorators.js";
 
 class VsaAppShell extends LitElement {
   static styles = css`
@@ -131,6 +133,9 @@ class VsaAppShell extends LitElement {
       color: inherit;
       cursor: pointer;
       transition: background 0.15s, border-color 0.15s;
+    }
+    .hidden {
+      display: none;
     }
     .card-link:hover {
       background: #6d92ff;
@@ -393,63 +398,34 @@ class VsaAppShell extends LitElement {
     }
   `;
 
-  static properties = {
-    page: { type: String },
-    width: { type: Number },
-    height: { type: Number },
-    desiredAngle: { type: Number },
-    sharpenerAngle: { type: Number },
-    rotationAngle: { type: Number },
-    rotationSharpener: { type: Number },
-    passes: { type: Number },
-    hardness: { type: Number },
-    edgeAngle: { type: Number },
-    carbides: { type: Object },
-    dark: { type: Boolean },
-    online: { type: Boolean },
-    updateReady: { type: Boolean },
+  @property({ type: String }) page = "home";
+  @property({ type: Number }) width = 3;
+  @property({ type: Number }) height = 2;
+  @property({ type: Number }) desiredAngle = 20;
+  @property({ type: Number }) sharpenerAngle = 15;
+  @property({ type: Number }) rotationAngle = 12;
+  @property({ type: Number }) rotationSharpener = 15;
+  @property({ type: Number }) passes = 19;
+  @property({ type: Number }) hardness = 60;
+  @property({ type: Number }) edgeAngle = 30;
+  @property({ attribute: false }) carbides: { [k: string]: number } = {
+    CrC: 0,
+    CrCV: 0,
+    MC: 5.5,
+    M6C: 5,
+    MN: 0,
+    CrN: 0,
+    Fe3C: 0,
   };
-
-  width?: number;
-  height?: number;
-  desiredAngle?: number;
-  sharpenerAngle?: number;
-  rotationAngle?: number;
-  rotationSharpener?: number;
-  passes?: number;
-  hardness?: number;
-  edgeAngle?: number;
-  carbides: { [k: string]: number };
-  page: string;
-  dark: boolean;
-  online: boolean;
-  updateReady: boolean;
+  @property({ type: Boolean }) dark = false;
+  @property({ type: Boolean }) online = navigator.onLine;
+  @property({ type: Boolean }) updateReady = false;
+  @property({ type: Boolean }) geometryFullScreen = false;
 
   constructor() {
     super();
-    this.page = "home";
-    this.dark = false;
-    // Safe default values (produce valid initial results on all calculators)
-    this.width = 3; // width/(2*height) = 3/(4)=0.75 valid
-    this.height = 2;
-    this.desiredAngle = 20; // elevation difference positive
-    this.sharpenerAngle = 15;
-    this.rotationAngle = 12; // sin(12)*csc(15) within [-1,1]
-    this.rotationSharpener = 15;
-    this.passes = 19; // longer initial sequence but still valid
-    this.hardness = 60;
-    this.edgeAngle = 30;
-    this.carbides = {
-      CrC: 0,
-      CrCV: 0,
-      MC: 5.5,
-      M6C: 5,
-      MN: 0,
-      CrN: 0,
-      Fe3C: 0,
-    };
-    this.online = navigator.onLine;
-    this.updateReady = false;
+    // Field initializers already set; no need for manual requestUpdate.
+
     this.addEventListener("steel-selected", (e) =>
       this._onSteelSelected(e as CustomEvent<SteelSelectedDetail>)
     );
@@ -495,10 +471,21 @@ class VsaAppShell extends LitElement {
         });
       });
       navigator.serviceWorker.addEventListener("controllerchange", () => {
-        // Page reload after activation to use new assets
-        window.location.reload();
+        // Only reload once; guard with a flag on window
+        if (!(window as any).__vsaReloaded) {
+          (window as any).__vsaReloaded = true;
+          // Use requestAnimationFrame to allow pending rendering to settle
+          requestAnimationFrame(() => window.location.reload());
+        }
       });
     }
+
+    // Listen for fullscreen toggle from geometry builder
+    this.addEventListener("geometry-fullscreen-changed", (e: Event) => {
+      const detail = (e as CustomEvent).detail as { fullScreen: boolean };
+      this.geometryFullScreen = !!detail?.fullScreen;
+      this.requestUpdate();
+    });
   }
 
   _applyRoute() {
@@ -522,34 +509,39 @@ class VsaAppShell extends LitElement {
     this.carbides = { ...this.carbides, [key]: val };
   }
   render() {
-    return html`<header>
-        <h1>VSharpAngle</h1>
-        <sl-switch
-          ?checked=${this.dark}
-          @sl-change=${() => this._toggleTheme()}
-          aria-label="Toggle dark mode"
-          >Dark Mode</sl-switch
-        >
-        ${this.online
-          ? html`<sl-badge variant="success" pill>Online</sl-badge>`
-          : html`<sl-badge variant="danger" pill>Offline</sl-badge>`}
-        ${this.updateReady
-          ? html`<sl-button
-              size="small"
-              variant="primary"
-              @click=${() => this._updateSw()}
-              aria-label="Update available"
+    return html`${this.geometryFullScreen
+        ? html``
+        : html`<header
+            class="app-header ${this.geometryFullScreen ? "hidden" : ""}"
+          >
+            <h1>VSharpAngle</h1>
+            <sl-switch
+              ?checked=${this.dark}
+              @sl-change=${() => this._toggleTheme()}
+              aria-label="Toggle dark mode"
+              >Dark Mode</sl-switch
             >
-              Update Available
-            </sl-button>`
-          : ""}
-      </header>
+            ${this.online
+              ? html`<sl-badge variant="success" pill>Online</sl-badge>`
+              : html`<sl-badge variant="danger" pill>Offline</sl-badge>`}
+            ${this.updateReady
+              ? html`<sl-button
+                  size="small"
+                  variant="primary"
+                  @click=${() => this._updateSw()}
+                  aria-label="Update available"
+                >
+                  Update Available
+                </sl-button>`
+              : ""}
+          </header>`}
       <main>
         ${this.page === "home" ? this._renderHome() : this._renderPage()}
       </main>
-      <footer>
+      <footer class="${this.geometryFullScreen ? "hidden" : ""}">
         © ${new Date().getFullYear()} VSharpAngle • (C) J.D Stone,
-        ShaperAndMower, All Rights Reserved. Converted to PWA by Kyley Harris.
+        ShaperAndMower, All Rights Reserved. Converted to PWA and Geometry
+        Builder by Kyley Harris.
       </footer>`;
   }
 
@@ -601,14 +593,21 @@ class VsaAppShell extends LitElement {
         title: "Steel Database",
         desc: "Browse carbide composition & derived metrics.",
       },
+      {
+        page: "geometry",
+        icon: "triangle",
+        title: "Geometry Builder",
+        desc: "Stack inclusive angle wedges into a cross-section.",
+      },
     ];
     return html` <div class="intro-banner">
-        <h2>VSharpAngle Progressive Web App</h2>
+        <h2>VSharpAngle</h2>
         <p>
           A focused, installable sharpening companion for V‑stick / Crock Stick
           systems. Convert desired edge angles into rod adjustments, measure
           existing bevel geometry, plan progressive stroke counts, and
           approximate edge retention from steel data—all offline once loaded.
+          Geometry Builder included for visualizing compound angles.
         </p>
         <sl-button
           size="small"
@@ -649,11 +648,20 @@ class VsaAppShell extends LitElement {
         return this._pageRetention();
       case "steels":
         return this._pageSteels();
+      case "geometry":
+        return this._pageGeometry();
       case "intro":
         return this._pageIntro();
       default:
         return html`<div class="page">Unknown page.</div>`;
     }
+  }
+
+  _pageGeometry() {
+    return html`<div class="page">
+      <div class="back-link">${this._homeLink()}</div>
+      <vsa-geometry-builder></vsa-geometry-builder>
+    </div>`;
   }
 
   _pageIntro() {
@@ -1077,7 +1085,7 @@ class VsaAppShell extends LitElement {
         </div>
         <sl-details summary="Sequence"
           >${passInfo.sequence.map(
-            (n) => html`<span class="badge-seq">${n}</span>`
+            (n) => html`<span class="badge-seq">${n}, </span>`
           )}</sl-details
         >
       </section>
@@ -1313,15 +1321,17 @@ class VsaAppShell extends LitElement {
   }
 
   _homeLink() {
-    return html`<sl-button
-      size="medium"
-      variant="default"
-      @click=${() => this._go("home")}
-      style="gap:.4rem"
-    >
-      <sl-icon name="house" style="font-size:1.1rem"></sl-icon>
-      Home
-    </sl-button>`;
+    return this.geometryFullScreen
+      ? html``
+      : html`<sl-button
+          size="medium"
+          variant="default"
+          @click=${() => this._go("home")}
+          style="gap:.4rem"
+        >
+          <sl-icon name="house" style="font-size:1.1rem"></sl-icon>
+          Home
+        </sl-button>`;
   }
 
   _toggleSteelTable() {
@@ -1331,7 +1341,11 @@ class VsaAppShell extends LitElement {
   _updateSw() {
     navigator.serviceWorker.getRegistration().then((reg) => {
       if (reg && reg.waiting) {
+        // Ask waiting worker to skip waiting; message handled in SW
         reg.waiting.postMessage("vsa-skip-waiting");
+      } else if (reg) {
+        // Trigger update check if no waiting worker yet
+        reg.update();
       }
     });
   }
