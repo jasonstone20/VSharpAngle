@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Apex Caliper Notation</title>
+    <script type="module">
+        import { parseCrossSectionNotation } from './src/model2/cross-section-notation.ts';
+        
+        // Test the new apex caliper notation
+        function testApexCaliper() {
+            console.log('Testing Apex Caliper Notation...');
+            
+            // Test case: 1mm thickness at 10mm apex caliper distance
+            // This should create geometry where sqrt(height^2 + 0.5^2) = 10
+            // So height = sqrt(100 - 0.25) = sqrt(99.75) ≈ 9.987mm
+            const notation = "1w@10acp";
+            const result = parseCrossSectionNotation(notation, "mm");
+            
+            console.log('Input notation:', notation);
+            console.log('Parsed result:', result);
+            console.log('Warnings:', result.warnings);
+            
+            if (result.segments.length > 0) {
+                const segment = result.segments[0];
+                console.log('Generated segment:');
+                console.log('- Angle type:', segment.angleType);
+                console.log('- Angle value:', segment.angleValue);
+                console.log('- Travel type:', segment.travelType);
+                console.log('- Travel value:', segment.travelValue);
+                
+                // Calculate expected height: sqrt(10^2 - 0.5^2) = sqrt(99.75) ≈ 9.987
+                const expectedHeight = Math.sqrt(100 - 0.25);
+                console.log('Expected height:', expectedHeight);
+                console.log('Actual height:', segment.travelValue);
+                console.log('Height match:', Math.abs(segment.travelValue - expectedHeight) < 0.01);
+            }
+        }
+        
+        // Run test when page loads
+        testApexCaliper();
+    </script>
+</head>
+<body>
+    <h1>Apex Caliper Notation Test</h1>
+    <p>Check the browser console for test results.</p>
+    <p>Testing notation: <code>1w@10acp</code></p>
+    <p>This should create geometry where the apex caliper (distance from apex to outer edge) is 10mm at 1mm thickness.</p>
+</body>
+</html>
