@@ -28,6 +28,31 @@ export class VsaGeometryBuilder extends LitElement {
       --vsa-border: #4a2d00;
       --vsa-row-alt: #f3efe7;
       --vsa-card-bg: #fffefa;
+      --vsa-input-bg: #fff;
+      --vsa-warn-color: #c92a2a;
+      --vsa-grid-line-color: #444;
+      --vsa-path-a-color: #0a58ca;
+      --vsa-path-b-color: #c92a2a;
+      --vsa-warning-text-color: #b08900;
+      --vsa-metrics-bg: rgba(0, 0, 0, 0.05);
+      --vsa-stroke-color: #000;
+      --vsa-center-line-color: #000;
+    }
+
+    /* Dark mode overrides */
+    :host-context(.dark) {
+      --vsa-border: var(--sl-color-neutral-700);
+      --vsa-row-alt: var(--sl-color-neutral-800);
+      --vsa-card-bg: var(--sl-color-neutral-900);
+      --vsa-input-bg: var(--sl-color-neutral-800);
+      --vsa-warn-color: #ff6b6b;
+      --vsa-grid-line-color: #666;
+      --vsa-path-a-color: #4dabf7;
+      --vsa-path-b-color: #ff8787;
+      --vsa-warning-text-color: #ffd43b;
+      --vsa-metrics-bg: rgba(255, 255, 255, 0.05);
+      --vsa-stroke-color: #ccc;
+      --vsa-center-line-color: #ffd43b;
     }
     h2 {
       margin: 0 0 0.6rem;
@@ -76,7 +101,7 @@ export class VsaGeometryBuilder extends LitElement {
       padding: 0.22rem 0.3rem;
       border-radius: 4px;
       border: 1px solid var(--vsa-border);
-      background: #fff;
+      background: var(--vsa-input-bg);
       box-sizing: border-box;
     }
     table.segments-edit {
@@ -101,18 +126,18 @@ export class VsaGeometryBuilder extends LitElement {
       overflow: auto;
       border: 1px solid var(--vsa-border);
       border-radius: 6px;
-      background: #fff;
+      background: var(--vsa-input-bg);
     }
     .actions-cell {
       text-align: center;
     }
     .warn {
-      color: #c92a2a;
+      color: var(--vsa-warn-color);
       font-size: 0.6rem;
       margin: 0.4rem 0;
     }
     .svg-wrap {
-      border: 2px solid #4a2d00;
+      border: 2px solid var(--vsa-border);
       background: var(--vsa-card-bg);
       padding: 0.55rem 0.6rem 0.7rem;
       border-radius: 8px;
@@ -224,7 +249,7 @@ export class VsaGeometryBuilder extends LitElement {
       flex-direction: column;
       align-items: center;
       gap: 0.4rem;
-      border: 2px solid #4a2d00;
+      border: 2px solid var(--vsa-border);
       padding: 0.4rem 0.35rem 0.45rem;
       border-radius: 6px;
       background: var(--vsa-card-bg);
@@ -250,7 +275,7 @@ export class VsaGeometryBuilder extends LitElement {
       margin-top: 0.4rem;
       max-height: 24vh;
       overflow: auto;
-      border: 1px solid #4a2d00;
+      border: 1px solid var(--vsa-border);
       border-radius: 6px;
       background: var(--vsa-card-bg);
     }
@@ -268,13 +293,13 @@ export class VsaGeometryBuilder extends LitElement {
     .fs-seglist thead {
       position: sticky;
       top: 0;
-      background: #4a2d00;
-      color: #fff;
+      background: var(--vsa-border);
+      color: var(--sl-color-neutral-0, #fff);
     }
     .metrics {
       margin-top: 0.35rem;
       font-size: 0.58rem;
-      background: rgba(0, 0, 0, 0.05);
+      background: var(--vsa-metrics-bg);
       padding: 0.5rem 0.6rem;
       border-radius: 6px;
       line-height: 1.2;
@@ -324,7 +349,7 @@ export class VsaGeometryBuilder extends LitElement {
       font-size: 0.55rem;
       padding: 0.25rem 0.45rem;
       border: 1px solid var(--vsa-border);
-      background: #fff;
+      background: var(--vsa-input-bg);
       border-radius: 4px;
     }
   `;
@@ -1638,14 +1663,14 @@ export class VsaGeometryBuilder extends LitElement {
           <input
             type="text"
             placeholder="Notation B (e.g. in=>10dps-1h,0.15w@2h,0.22w@4cp)"
-            style="flex:1;min-width:14rem;font-size:.55rem;padding:.25rem .4rem;border:1px solid var(--vsa-border);border-radius:4px;"
+            style="flex:1;min-width:14rem;font-size:.825rem;padding:.375rem .6rem;border:1px solid var(--vsa-border);border-radius:4px;"
             .value=${this.notationB}
             @input=${(e: Event) => {
               this.notationB = (e.target as HTMLInputElement).value;
             }}
           />
           <button
-            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:#fff;border-radius:4px;cursor:pointer;"
+            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--sl-color-neutral-900);border-radius:4px;cursor:pointer;"
             @click=${() => {
               const res = parseCrossSectionNotation(this.notationB, this.units);
               this.notationBWarnings = res.warnings;
@@ -1670,7 +1695,9 @@ export class VsaGeometryBuilder extends LitElement {
           </button>
         </div>
         ${this.notationBWarnings.length
-          ? html`<div style="font-size:.5rem;color:#b08900;line-height:1.2;">
+          ? html`<div
+              style="font-size:.5rem;color:var(--vsa-warning-text-color);line-height:1.2;"
+            >
               ${this.notationBWarnings.map((w) => html`<div>⚠ ${w}</div>`)}
             </div>`
           : ""}
@@ -1824,14 +1851,14 @@ export class VsaGeometryBuilder extends LitElement {
           <input
             type="text"
             placeholder="Notation A (e.g. mm=>15dps-2h,0.3w@3h,0.5w@5cp)"
-            style="flex:1;min-width:14rem;font-size:.55rem;padding:.25rem .4rem;border:1px solid var(--vsa-border);border-radius:4px;"
+            style="flex:1;min-width:14rem;font-size:.825rem;padding:.375rem .6rem;border:1px solid var(--vsa-border);border-radius:4px;"
             .value=${this.notationA}
             @input=${(e: Event) => {
               this.notationA = (e.target as HTMLInputElement).value;
             }}
           />
           <button
-            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:#fff;border-radius:4px;cursor:pointer;"
+            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--sl-color-neutral-900);border-radius:4px;cursor:pointer;"
             @click=${() => {
               const res = parseCrossSectionNotation(this.notationA, this.units);
               this.notationAWarnings = res.warnings;
@@ -1858,14 +1885,14 @@ export class VsaGeometryBuilder extends LitElement {
           <input
             type="text"
             placeholder="Notation B (e.g. in=>10dps-1h,0.15w@2h,0.22w@4cp)"
-            style="flex:1;min-width:14rem;font-size:.55rem;padding:.25rem .4rem;border:1px solid var(--vsa-border);border-radius:4px;"
+            style="flex:1;min-width:14rem;font-size:.825rem;padding:.375rem .6rem;border:1px solid var(--vsa-border);border-radius:4px;"
             .value=${this.notationB}
             @input=${(e: Event) => {
               this.notationB = (e.target as HTMLInputElement).value;
             }}
           />
           <button
-            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:#fff;border-radius:4px;cursor:pointer;"
+            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--sl-color-neutral-900);border-radius:4px;cursor:pointer;"
             @click=${() => {
               const res = parseCrossSectionNotation(this.notationB, this.units);
               this.notationBWarnings = res.warnings;
@@ -1890,12 +1917,16 @@ export class VsaGeometryBuilder extends LitElement {
           </button>
         </div>
         ${this.notationAWarnings.length
-          ? html`<div style="font-size:.5rem;color:#b08900;line-height:1.2;">
+          ? html`<div
+              style="font-size:.5rem;color:var(--vsa-warning-text-color);line-height:1.2;"
+            >
               ${this.notationAWarnings.map((w) => html`<div>⚠ ${w}</div>`)}
             </div>`
           : ""}
         ${this.notationBWarnings.length
-          ? html`<div style="font-size:.5rem;color:#b08900;line-height:1.2;">
+          ? html`<div
+              style="font-size:.5rem;color:var(--vsa-warning-text-color);line-height:1.2;"
+            >
               ${this.notationBWarnings.map((w) => html`<div>⚠ ${w}</div>`)}
             </div>`
           : ""}
@@ -1906,7 +1937,7 @@ export class VsaGeometryBuilder extends LitElement {
           <span style="font-size:.55rem">Units</span>
           <select
             @change=${this._changeUnits}
-            style="font-size:.6rem;padding:.15rem .3rem;border-radius:4px;background:var(--sl-color-neutral-0);"
+            style="font-size:.6rem;padding:.15rem .3rem;border-radius:4px;background:var(--vsa-input-bg);border:1px solid var(--vsa-border);color:var(--sl-color-neutral-900);"
           >
             <option value="mm" ?selected=${this.units === "mm"}>mm</option>
             <option value="in" ?selected=${this.units === "in"}>in</option>
@@ -2275,7 +2306,7 @@ export class VsaGeometryBuilder extends LitElement {
       (Math.abs(strengthA - strengthB) / Math.max(strengthA, strengthB || 1)) *
       100;
     return html`<div
-      style="margin-top:.4rem;font-size:.6rem;background:rgba(0,0,0,0.05);padding:.55rem .7rem;border-radius:6px;line-height:1.2;"
+      style="margin-top:.4rem;font-size:.6rem;background:var(--vsa-metrics-bg);padding:.55rem .7rem;border-radius:6px;line-height:1.2;"
     >
       <div style="font-weight:600;margin-bottom:.35rem;">
         Cross Section Metrics
@@ -2307,10 +2338,12 @@ export class VsaGeometryBuilder extends LitElement {
         ? html`<div style="margin-top:.35rem;font-weight:600;">Warnings</div>`
         : ""}
       ${this.notationAWarnings.map(
-        (w) => html`<div style="color:#b08900;">A ⚠ ${w}</div>`
+        (w) =>
+          html`<div style="color:var(--vsa-warning-text-color);">A ⚠ ${w}</div>`
       )}
       ${this.notationBWarnings.map(
-        (w) => html`<div style="color:#b08900;">B ⚠ ${w}</div>`
+        (w) =>
+          html`<div style="color:var(--vsa-warning-text-color);">B ⚠ ${w}</div>`
       )}
     </div>`;
   }
@@ -2335,10 +2368,10 @@ export class VsaGeometryBuilder extends LitElement {
     const geometryGroup = this.overlayMode
       ? html`
           ${pathA
-            ? svg`<path d="${pathA}" fill="none" stroke="#0a58ca" stroke-width="${STROKE_PX}" vector-effect="non-scaling-stroke"></path>`
+            ? svg`<path d="${pathA}" fill="none" stroke="var(--vsa-path-a-color)" stroke-width="${STROKE_PX}" vector-effect="non-scaling-stroke"></path>`
             : ""}
           ${pathB
-            ? svg`<path d="${pathB}" fill="none" stroke="#c92a2a" stroke-width="${STROKE_PX}" vector-effect="non-scaling-stroke"></path>`
+            ? svg`<path d="${pathB}" fill="none" stroke="var(--vsa-path-b-color)" stroke-width="${STROKE_PX}" vector-effect="non-scaling-stroke"></path>`
             : ""}
           ${(() => {
             const boundaryStroke = STROKE_PX * 0.6;
@@ -2357,7 +2390,7 @@ export class VsaGeometryBuilder extends LitElement {
               const wB = this._widthAtY(computedB, y);
               const w = Math.max(wA, wB);
               const half = w / 2;
-              return svg`<line x1="${-half}" y1="${y}" x2="${half}" y2="${y}" stroke="#444" stroke-width="${boundaryStroke}" vector-effect="non-scaling-stroke" stroke-dasharray="${strokeDash}" opacity="0.5" />`;
+              return svg`<line x1="${-half}" y1="${y}" x2="${half}" y2="${y}" stroke="var(--vsa-grid-line-color)" stroke-width="${boundaryStroke}" vector-effect="non-scaling-stroke" stroke-dasharray="${strokeDash}" opacity="0.5" />`;
             })}`;
           })()}
         `
@@ -2383,11 +2416,11 @@ export class VsaGeometryBuilder extends LitElement {
                 (d, i) =>
                   svg`<path d="${d}" fill="${
                     palette[i % palette.length]
-                  }" stroke="#000" stroke-width="${STROKE_PX}" vector-effect="non-scaling-stroke" opacity="0.95"></path>`
+                  }" stroke="var(--vsa-stroke-color)" stroke-width="${STROKE_PX}" vector-effect="non-scaling-stroke" opacity="0.95"></path>`
               )}
               ${
                 pathA
-                  ? svg`<path d="${pathA}" fill="none" stroke="#0a58ca" stroke-width="${STROKE_PX}" vector-effect="non-scaling-stroke"></path>`
+                  ? svg`<path d="${pathA}" fill="none" stroke="var(--vsa-path-a-color)" stroke-width="${STROKE_PX}" vector-effect="non-scaling-stroke"></path>`
                   : ""
               }
             </g>
@@ -2396,11 +2429,11 @@ export class VsaGeometryBuilder extends LitElement {
                 (d, i) =>
                   svg`<path d="${d}" fill="${
                     palette[i % palette.length]
-                  }" stroke="#000" stroke-width="${STROKE_PX}" vector-effect="non-scaling-stroke" opacity="0.95"></path>`
+                  }" stroke="var(--vsa-stroke-color)" stroke-width="${STROKE_PX}" vector-effect="non-scaling-stroke" opacity="0.95"></path>`
               )}
               ${
                 pathB
-                  ? svg`<path d="${pathB}" fill="none" stroke="#c92a2a" stroke-width="${STROKE_PX}" vector-effect="non-scaling-stroke"></path>`
+                  ? svg`<path d="${pathB}" fill="none" stroke="var(--vsa-path-b-color)" stroke-width="${STROKE_PX}" vector-effect="non-scaling-stroke"></path>`
                   : ""
               }
             </g>`;
@@ -2417,7 +2450,7 @@ export class VsaGeometryBuilder extends LitElement {
       const dashA = (STROKE_PX * 0.6).toFixed(0);
       const dashB = (STROKE_PX * 0.4).toFixed(0);
       return svg`<g class="center-line-group" pointer-events="none">
-        <line x1="${-half}" y1="${centerYGeom}" x2="${half}" y2="${centerYGeom}" stroke="#000" stroke-width="${STROKE_PX}" vector-effect="non-scaling-stroke" stroke-dasharray="${dashA} ${dashB}" />
+        <line x1="${-half}" y1="${centerYGeom}" x2="${half}" y2="${centerYGeom}" stroke="var(--vsa-center-line-color)" stroke-width="${STROKE_PX}" vector-effect="non-scaling-stroke" stroke-dasharray="${dashA} ${dashB}" />
       </g>`;
     })();
 
