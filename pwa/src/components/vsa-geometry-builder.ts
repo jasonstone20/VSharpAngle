@@ -20,6 +20,184 @@ interface ComputedSegment {
   endY: number;
 }
 
+class GeometryModel {
+  private segments: SegmentSpec[] = [];
+  public apexMacro: boolean = false;
+  private maxApexHeight: number = 3;
+
+  constructor(
+    segments: SegmentSpec[] = [],
+    apexMacro: boolean = false,
+    maxApexHeight: number = 3
+  ) {
+    this.segments = [...segments];
+    this.apexMacro = apexMacro;
+    this.maxApexHeight = maxApexHeight;
+  }
+
+  setSegments(segments: SegmentSpec[]): void {
+    this.segments = [...segments];
+  }
+
+  getSegments(): SegmentSpec[] {
+    return [...this.segments];
+  }
+
+  setApexMacro(enabled: boolean): void {
+    this.apexMacro = enabled;
+  }
+
+  private _createApexModel(segments: SegmentSpec[]): SegmentSpec[] {
+    if (!segments.length || !this.apexMacro) return segments;
+
+    // First recompute to get the actual heights
+    const recomputed = this._recomputeSegments(segments);
+    const apexSegments: SegmentSpec[] = [];
+    let currentHeight = 0;
+
+    for (let i = 0; i < recomputed.length; i++) {
+      const seg = recomputed[i];
+      const segEndHeight = seg.derivedHeight ?? currentHeight;
+
+      if (currentHeight >= this.maxApexHeight) {
+        break;
+      }
+
+      if (segEndHeight <= this.maxApexHeight) {
+        apexSegments.push({ ...seg });
+        currentHeight = segEndHeight;
+      } else {
+        // Segment goes beyond maxApexHeight, need to truncate
+        const modifiedSeg: SegmentSpec = { ...seg };
+
+        if (seg.travelType === "height") {
+          // For height travel, reduce the travel value to stop at maxApexHeight
+          modifiedSeg.travelValue = this.maxApexHeight - currentHeight;
+          modifiedSeg.derivedHeight = this.maxApexHeight;
+        } else {
+          // For width travel, calculate proportional reduction
+          const heightTravel = segEndHeight - currentHeight;
+          const neededHeightTravel = this.maxApexHeight - currentHeight;
+          const ratio = neededHeightTravel / heightTravel;
+          modifiedSeg.travelValue = seg.travelValue * ratio;
+        }
+
+        apexSegments.push(modifiedSeg);
+        break;
+      }
+    }
+
+    return apexSegments;
+  }
+
+  private _recomputeSegments(segments: SegmentSpec[]): SegmentSpec[] {
+    let prevWidth = 0;
+    let prevHeight = 0;
+    return segments.map((seg) => {
+      const angleInclusive =
+        seg.angleType === "dps" ? seg.angleValue * 2 : seg.angleValue;
+      const half = (angleInclusive * Math.PI) / 360; // (angle/2) degrees to radians
+      let endWidth = prevWidth;
+      let endHeight = prevHeight;
+      if (seg.travelType === "width") {
+        const targetWidth = seg.travelValue;
+        if (angleInclusive === 0) {
+          // invalid combination width + zero angle; keep previous width
+          endWidth = prevWidth;
+          endHeight = prevHeight; // no change
+        } else {
+          endWidth = targetWidth;
+          const deltaH =
+            prevWidth === 0
+              ? endWidth / 2 / Math.tan(half)
+              : (endWidth - prevWidth) / (2 * Math.tan(half));
+          endHeight = prevHeight + deltaH;
+        }
+      } else {
+        // height
+        const targetHeight = seg.travelValue; // absolute
+        if (targetHeight < prevHeight) {
+          endHeight = prevHeight; // ignore invalid
+        } else {
+          endHeight = targetHeight;
+        }
+        const deltaH = endHeight - prevHeight;
+        if (angleInclusive === 0) {
+          endWidth = prevWidth; // parallel bar
+        } else {
+          if (prevWidth === 0) {
+            // apex start: w/2 / tan = absolute height => w = 2*H*tan
+            endWidth = 2 * endHeight * Math.tan(half);
+          } else {
+            endWidth = prevWidth + 2 * deltaH * Math.tan(half);
+          }
+        }
+      }
+      const updated: SegmentSpec = {
+        ...seg,
+        angleInclusive,
+        derivedWidth: endWidth,
+        derivedHeight: endHeight,
+      };
+      prevWidth = endWidth;
+      prevHeight = endHeight;
+      return updated;
+    });
+  }
+
+  compute(): ComputedSegment[] {
+    // Apply apex truncation if enabled, then recompute the final segments
+    const workingSegments = this._createApexModel(this.segments);
+    const recomputed = this._recomputeSegments(workingSegments);
+
+    let yPrev = 0;
+    let wPrev = 0;
+    const out: ComputedSegment[] = [];
+
+    for (const seg of recomputed) {
+      const wNew = seg.derivedWidth ?? wPrev;
+      const endY = seg.derivedHeight ?? yPrev;
+      out.push({
+        angleInclusive:
+          seg.angleInclusive ??
+          (seg.angleType === "dps" ? seg.angleValue * 2 : seg.angleValue),
+        startWidth: wPrev,
+        endWidth: wNew,
+        startY: yPrev,
+        endY,
+      });
+      yPrev = endY;
+      wPrev = wNew;
+    }
+    return out;
+  }
+
+  getTotalHeight(): number {
+    const computed = this.compute();
+    return computed.length ? computed[computed.length - 1].endY : 5;
+  }
+
+  getMaxWidth(): number {
+    const computed = this.compute();
+    return computed.length ? computed[computed.length - 1].endWidth : 2;
+  }
+
+  widthAtY(computed: ComputedSegment[], y: number): number {
+    if (!computed.length) return 0;
+    if (y <= 0) return 0;
+
+    for (const seg of computed) {
+      if (y <= seg.endY) {
+        if (seg.startY === seg.endY) return seg.endWidth;
+        const ratio = (y - seg.startY) / (seg.endY - seg.startY);
+        return seg.startWidth + (seg.endWidth - seg.startWidth) * ratio;
+      }
+    }
+
+    return computed[computed.length - 1].endWidth;
+  }
+}
+
 export class VsaGeometryBuilder extends LitElement {
   static styles = css`
     :host {
@@ -364,8 +542,28 @@ export class VsaGeometryBuilder extends LitElement {
   @property({ type: String }) travelInputTypeB: "width" | "height" = "width";
   @property({ type: Number }) zoom = 1;
   @property({ type: Number }) pan = 0; // retained for compatibility
-  @property({ type: Array, attribute: false }) segments: SegmentSpec[] = [];
-  @property({ type: Array, attribute: false }) segmentsB: SegmentSpec[] = [];
+
+  // Geometry models for A and B
+  private _geometryA: GeometryModel = new GeometryModel();
+  private _geometryB: GeometryModel = new GeometryModel();
+
+  // Legacy properties for compatibility - these will sync with the geometry models
+  @property({ type: Array, attribute: false })
+  get segments(): SegmentSpec[] {
+    return this._geometryA.getSegments();
+  }
+  set segments(value: SegmentSpec[]) {
+    this._geometryA.setSegments(value);
+  }
+
+  @property({ type: Array, attribute: false })
+  get segmentsB(): SegmentSpec[] {
+    return this._geometryB.getSegments();
+  }
+  set segmentsB(value: SegmentSpec[]) {
+    this._geometryB.setSegments(value);
+  }
+
   @state() warning: string | null = null;
   private _storageKey = "vsa-geometry-builder-state";
   @property({ type: String }) units: "mm" | "in" = "mm";
@@ -392,6 +590,17 @@ export class VsaGeometryBuilder extends LitElement {
   private _userAdjustingCenter = false;
   @property({ type: Number }) strokePxMin = 5; // legacy (constant strokes now)
   @property({ type: Boolean }) showDebug = true;
+
+  @property({ type: Boolean })
+  get apexMacro(): boolean {
+    return this._geometryA.apexMacro;
+  }
+  set apexMacro(value: boolean) {
+    this._geometryA.setApexMacro(value);
+    this._geometryB.setApexMacro(value);
+    this.requestUpdate();
+  }
+
   @state() thinStrokes = true;
   @state() adaptiveZoomMode: "idle" | "expand" | "shrink" = "idle";
   private _activeShrink = false;
@@ -421,6 +630,8 @@ export class VsaGeometryBuilder extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     this._restore();
+    // Ensure initial computation even if no saved data
+    this._syncSegmentsToModels();
     // Removed dynamic height sampling.
   }
   constructor() {
@@ -481,6 +692,7 @@ export class VsaGeometryBuilder extends LitElement {
         this.fullScreen = data.fullScreen;
       if (typeof data.showProfile === "boolean")
         this.showProfile = data.showProfile;
+      if (typeof data.apexMacro === "boolean") this.apexMacro = data.apexMacro;
       if (
         data.customViewBox &&
         typeof data.customViewBox.x === "number" &&
@@ -493,6 +705,9 @@ export class VsaGeometryBuilder extends LitElement {
       }
       if (typeof data.notationA === "string") this.notationA = data.notationA;
       if (typeof data.notationB === "string") this.notationB = data.notationB;
+
+      // Sync segments to models and compute initial cached results
+      this._syncSegmentsToModels();
     } catch {}
   }
 
@@ -519,6 +734,7 @@ export class VsaGeometryBuilder extends LitElement {
         customViewBox: this._customViewBox,
         fullScreen: this.fullScreen,
         showProfile: this.showProfile,
+        apexMacro: this.apexMacro,
         notationA: this.notationA,
         notationB: this.notationB,
       };
@@ -680,6 +896,13 @@ export class VsaGeometryBuilder extends LitElement {
     this._persist();
   }
 
+  // Helper method to sync segments back to geometry models after in-place modifications
+  private _syncSegmentsToModels(): void {
+    this._geometryA.setSegments(this.segments);
+    this._geometryB.setSegments(this.segmentsB);
+    this._recomputeAll();
+  }
+
   private _getSegments(side: "A" | "B"): SegmentSpec[] {
     return side === "A" ? this.segments : this.segmentsB;
   }
@@ -707,7 +930,8 @@ export class VsaGeometryBuilder extends LitElement {
     } else {
       this.warning = "";
     }
-    this._compute();
+    this._syncSegmentsToModels();
+    this.requestUpdate();
   }
 
   private _updateAngleValue(side: "A" | "B", index: number, newVal: number) {
@@ -725,7 +949,8 @@ export class VsaGeometryBuilder extends LitElement {
     } else {
       this.warning = "";
     }
-    this._compute();
+    this._syncSegmentsToModels();
+    this.requestUpdate();
   }
 
   private _updateTravelType(
@@ -737,7 +962,14 @@ export class VsaGeometryBuilder extends LitElement {
     const seg = list[index];
     if (!seg || seg.travelType === newType) return;
     // capture derived widths/heights before recompute for mapping
-    const derived = this._recomputeSegments(list.map((s) => ({ ...s }))); // copy to compute current derived values
+    const model = side === "A" ? this._geometryA : this._geometryB;
+    const computed = model.compute();
+    // Convert ComputedSegment[] back to SegmentSpec[] with derived values
+    const derived = computed.map((comp, i) => ({
+      ...list[i],
+      derivedWidth: comp.endWidth,
+      derivedHeight: comp.endY,
+    }));
     const derivedSeg = derived[index];
     // Switch and map travel value to maintain same resulting geometry endpoint.
     if (newType === "height") {
@@ -756,7 +988,8 @@ export class VsaGeometryBuilder extends LitElement {
       seg.travelValue = derivedSeg.derivedWidth ?? 0;
     }
     this.warning = "";
-    this._compute();
+    this._syncSegmentsToModels();
+    this.requestUpdate();
   }
 
   private _updateTravelValue(side: "A" | "B", index: number, newVal: number) {
@@ -794,7 +1027,8 @@ export class VsaGeometryBuilder extends LitElement {
       return;
     }
     this.warning = "";
-    this._compute();
+    this._syncSegmentsToModels();
+    this.requestUpdate();
   }
 
   // Unit conversion helpers (internal storage always mm)
@@ -823,84 +1057,23 @@ export class VsaGeometryBuilder extends LitElement {
     } catch {}
   }
 
-  private _recomputeSegments(list: SegmentSpec[]): SegmentSpec[] {
-    let prevWidth = 0;
-    let prevHeight = 0;
-    return list.map((seg) => {
-      const angleInclusive =
-        seg.angleType === "dps" ? seg.angleValue * 2 : seg.angleValue;
-      const half = (angleInclusive * Math.PI) / 360; // (angle/2) degrees to radians
-      let endWidth = prevWidth;
-      let endHeight = prevHeight;
-      if (seg.travelType === "width") {
-        const targetWidth = seg.travelValue;
-        if (angleInclusive === 0) {
-          // invalid combination width + zero angle; keep previous width
-          endWidth = prevWidth;
-          endHeight = prevHeight; // no change
-        } else {
-          endWidth = targetWidth;
-          const deltaH =
-            prevWidth === 0
-              ? endWidth / 2 / Math.tan(half)
-              : (endWidth - prevWidth) / (2 * Math.tan(half));
-          endHeight = prevHeight + deltaH;
-        }
-      } else {
-        // height
-        const targetHeight = seg.travelValue; // absolute
-        if (targetHeight < prevHeight) {
-          endHeight = prevHeight; // ignore invalid
-        } else {
-          endHeight = targetHeight;
-        }
-        const deltaH = endHeight - prevHeight;
-        if (angleInclusive === 0) {
-          endWidth = prevWidth; // parallel bar
-        } else {
-          if (prevWidth === 0) {
-            // apex start: w/2 / tan = absolute height => w = 2*H*tan
-            endWidth = 2 * endHeight * Math.tan(half);
-          } else {
-            endWidth = prevWidth + 2 * deltaH * Math.tan(half);
-          }
-        }
-      }
-      const updated: SegmentSpec = {
-        ...seg,
-        angleInclusive,
-        derivedWidth: endWidth,
-        derivedHeight: endHeight,
-      };
-      prevWidth = endWidth;
-      prevHeight = endHeight;
-      return updated;
-    });
+  // Cached computed results
+  private _computedA: ComputedSegment[] = [];
+  private _computedB: ComputedSegment[] = [];
+
+  private _recomputeAll() {
+    this._computedA = this._geometryA.compute();
+    this._computedB = this._geometryB.compute();
   }
 
-  private _compute(): ComputedSegment[] {
-    // Ensure stored derived values up to date
-    const recomputed = this._recomputeSegments(this.segments);
-    if (recomputed !== this.segments) this.segments = recomputed;
-    let yPrev = 0;
-    let wPrev = 0;
-    const out: ComputedSegment[] = [];
-    for (const seg of recomputed) {
-      const wNew = seg.derivedWidth ?? wPrev;
-      const endY = seg.derivedHeight ?? yPrev;
-      out.push({
-        angleInclusive:
-          seg.angleInclusive ??
-          (seg.angleType === "dps" ? seg.angleValue * 2 : seg.angleValue),
-        startWidth: wPrev,
-        endWidth: wNew,
-        startY: yPrev,
-        endY,
-      });
-      yPrev = endY;
-      wPrev = wNew;
+  // Convenience method for getting computed segments for current side
+  private _computeWithCurrentSegments(): ComputedSegment[] {
+    // Return the appropriate cached computation
+    if (this.segments === this._geometryA.getSegments()) {
+      return this._computedA;
+    } else {
+      return this._computedB;
     }
-    return out;
   }
 
   private _path(computed: ComputedSegment[]): string {
@@ -1035,10 +1208,7 @@ export class VsaGeometryBuilder extends LitElement {
     if (this._customViewBox) {
       // translate custom viewBox vertically relative to base extents if available
       if (this._baseViewBox) {
-        const totalHeight = this._compute().reduce(
-          (acc, seg) => Math.max(acc, seg.endY),
-          0
-        );
+        const totalHeight = this._geometryA.getTotalHeight();
         const vbH = this._customViewBox.h;
         const maxScroll = Math.max(0, totalHeight - vbH);
         this._customViewBox.y = maxScroll * this.pan;
@@ -1062,8 +1232,7 @@ export class VsaGeometryBuilder extends LitElement {
     this._userAdjustingCenter = true;
     const raw = Number((e.target as HTMLInputElement).value);
     // Raw slider value is height from apex in current units; convert to mm
-    const totalHeightMm =
-      this._compute().reduce((acc, seg) => Math.max(acc, seg.endY), 0) || 0;
+    const totalHeightMm = this._geometryA.getTotalHeight();
     const valueInMm = this.units === "mm" ? raw : raw * 25.4;
     const clamped = Math.max(0, Math.min(totalHeightMm, valueInMm));
     const newCenter = totalHeightMm === 0 ? 0 : clamped / totalHeightMm;
@@ -1101,13 +1270,8 @@ export class VsaGeometryBuilder extends LitElement {
     this.adaptiveZoomMode = "idle";
   }
   private _geometryMaxWidthMm(): number {
-    const compA = this._compute();
-    const originalSegs = this.segments;
-    this.segments = this.segmentsB;
-    const compB = this._compute();
-    this.segments = originalSegs;
-    const maxA = compA.length ? compA[compA.length - 1].endWidth : 1;
-    const maxB = compB.length ? compB[compB.length - 1].endWidth : 1;
+    const maxA = this._geometryA.getMaxWidth();
+    const maxB = this._geometryB.getMaxWidth();
     return Math.max(maxA, maxB) * 1.1; // +10%
   }
 
@@ -1126,18 +1290,10 @@ export class VsaGeometryBuilder extends LitElement {
     fromWheel: boolean = false
   ) {
     if (!this._customViewBox) return;
-    const computedA = this._compute();
-    // compute other geometry without altering segments permanently
-    const originalSegments = this.segments;
-    this.segments = this.segmentsB;
-    const computedB = this._compute();
-    this.segments = originalSegments;
-    const totalHeightA = computedA.length
-      ? computedA[computedA.length - 1].endY
-      : 5;
-    const totalHeightB = computedB.length
-      ? computedB[computedB.length - 1].endY
-      : 5;
+    const computedA = this._geometryA.compute();
+    const computedB = this._geometryB.compute();
+    const totalHeightA = this._geometryA.getTotalHeight();
+    const totalHeightB = this._geometryB.getTotalHeight();
     const totalHeight = Math.max(totalHeightA, totalHeightB);
     const vb = this._customViewBox;
     // Raw mode: viewBox width & height already equal content width & height; no margins.
@@ -1178,11 +1334,8 @@ export class VsaGeometryBuilder extends LitElement {
     if (prevCenter !== undefined && this.overlayCenter <= prevCenter) return;
     // Skip auto expansion very near apex to avoid jitter (threshold 2% of height)
     if (this.overlayCenter < 0.02) return;
-    const computedA = preCompA ?? this._compute();
-    const originalSegments = this.segments;
-    this.segments = this.segmentsB;
-    const computedB = preCompB ?? this._compute();
-    this.segments = originalSegments;
+    const computedA = preCompA ?? this._computedA;
+    const computedB = preCompB ?? this._computedB;
     const totalHeight =
       totalHeightOverride ??
       Math.max(
@@ -1215,11 +1368,8 @@ export class VsaGeometryBuilder extends LitElement {
     if (!this.overlayMode) return;
     if (this._userAdjustingWidth) return; // do not fight manual width adjustments
     // Recompute geometries for sampling
-    const compA = this._compute();
-    const original = this.segments;
-    this.segments = this.segmentsB;
-    const compB = this._compute();
-    this.segments = original;
+    const compA = this._computedA;
+    const compB = this._computedB;
     const totalHeight = Math.max(
       compA.length ? compA[compA.length - 1].endY : 0,
       compB.length ? compB[compB.length - 1].endY : 0
@@ -1304,11 +1454,8 @@ export class VsaGeometryBuilder extends LitElement {
     return Math.max(minW, sampled + added);
   }
   private _logSampledWidth() {
-    const compA = this._compute();
-    const original = this.segments;
-    this.segments = this.segmentsB;
-    const compB = this._compute();
-    this.segments = original;
+    const compA = this._computedA;
+    const compB = this._computedB;
     const totalHeight = Math.max(
       compA.length ? compA[compA.length - 1].endY : 0,
       compB.length ? compB[compB.length - 1].endY : 0
@@ -1335,11 +1482,8 @@ export class VsaGeometryBuilder extends LitElement {
     const pt = this._svgPoint(svgEl, e);
     // Map clicked Y (pt.y) to absolute height fraction (since geometry group is flipped visually).
     // pt.y is in SVG coordinate space with apex at y=0 increasing upward.
-    const computedA = this._compute();
-    const originalSegs = this.segments;
-    this.segments = this.segmentsB;
-    const computedB = this._compute();
-    this.segments = originalSegs;
+    const computedA = this._computedA;
+    const computedB = this._computedB;
     const totalHeight = Math.max(
       computedA.length ? computedA[computedA.length - 1].endY : 0,
       computedB.length ? computedB[computedB.length - 1].endY : 0
@@ -1394,11 +1538,8 @@ export class VsaGeometryBuilder extends LitElement {
     } else {
       this._pendingTap = { x: pt.x, y: pt.y };
       // Single tap: set overlayCenter immediately (without zoom) for quicker feedback
-      const computedA = this._compute();
-      const originalSegs = this.segments;
-      this.segments = this.segmentsB;
-      const computedB = this._compute();
-      this.segments = originalSegs;
+      const computedA = this._computedA;
+      const computedB = this._computedB;
       const totalHeight = Math.max(
         computedA.length ? computedA[computedA.length - 1].endY : 0,
         computedB.length ? computedB[computedB.length - 1].endY : 0
@@ -1463,7 +1604,7 @@ export class VsaGeometryBuilder extends LitElement {
   }
   private _resetZoom() {
     console.log("[Geom] reset zoom");
-    const computed = this._compute();
+    const computed = this._computeWithCurrentSegments();
     const totalHeight = computed.length
       ? computed[computed.length - 1].endY
       : 5;
@@ -1737,23 +1878,22 @@ export class VsaGeometryBuilder extends LitElement {
   }
 
   render() {
-    // Dynamic slider height removed.
-    const computedA = this._compute();
-    // Compute B by temporarily swapping segments reference
-    const originalSegments = this.segments;
-    this.segments = this.segmentsB;
-    const computedB = this._compute();
-    this.segments = originalSegments;
+    // Use GeometryModel instances for clean computation
+    const computedA = this._geometryA.compute();
+    const computedB = this._geometryB.compute();
+
+    console.log("Render - computedA:", computedA);
+    console.log("Render - computedB:", computedB);
+
     const pathA = this._path(computedA);
     const pathB = this._path(computedB);
+
+    console.log("Render - pathA:", pathA);
+    console.log("Render - pathB:", pathB);
     const segmentPathsA = this._segmentPaths(computedA);
     const segmentPathsB = this._segmentPaths(computedB);
-    const totalHeightA = computedA.length
-      ? computedA[computedA.length - 1].endY
-      : 5;
-    const totalHeightB = computedB.length
-      ? computedB[computedB.length - 1].endY
-      : 5;
+    const totalHeightA = this._geometryA.getTotalHeight();
+    const totalHeightB = this._geometryB.getTotalHeight();
     const totalHeight = Math.max(totalHeightA, totalHeightB);
     const maxWidthA = computedA.length
       ? computedA[computedA.length - 1].endWidth
@@ -1770,6 +1910,7 @@ export class VsaGeometryBuilder extends LitElement {
     const marginFracX = 0;
     // Simplified scaling: if overlayMode use overlayTargetWidth to derive zoom, else use user zoom.
     let centerY = this.overlayCenter * totalHeight; // 0=apex always
+
     // Apex epsilon sampling: if extremely close to apex, use a tiny epsilon height for width sampling to avoid zero-width locking
     const apexEpsilon =
       totalHeight > 0 ? Math.min(totalHeight * 0.0005, 0.001) : 0.001; // adaptive epsilon capped at 0.001mm
@@ -1811,6 +1952,13 @@ export class VsaGeometryBuilder extends LitElement {
       if (rect.width > 0 && rect.height > 0) aspect = rect.height / rect.width;
     }
     const viewContentHeight = viewContentWidth * aspect;
+
+    // Apply 5x zoom in apex macro mode to make the 3mm section fill the viewport
+    let effectiveViewContentHeight = viewContentHeight;
+    if (this.apexMacro && !this.showProfile) {
+      effectiveViewContentHeight = viewContentHeight / 5; // 5x zoom
+    }
+
     const vbX = this.showProfile ? -combinedWidth / 2 : -viewContentWidth / 2; // full width when profile
     const geomWidthCurrent = combinedWidth; // geometry extent width (overlay or side-by-side)
     const centerLockActive = true; // always center Y in dynamic width mode
@@ -1820,17 +1968,17 @@ export class VsaGeometryBuilder extends LitElement {
     } else if (centerLockActive) {
       // Geometry group is flipped via translate(0,totalHeight) scale(1,-1), so visual Y for logical centerY is totalHeight - centerY.
       const visualCenterY = totalHeight - centerY;
-      vbY = visualCenterY - viewContentHeight / 2;
+      vbY = visualCenterY - effectiveViewContentHeight / 2;
       // Clamp to keep viewBox within 0..totalHeight - vbH (visual coordinate space: 0=spine/top, totalHeight=apex/bottom)
       if (vbY < 0) vbY = 0;
-      const maxY = Math.max(0, totalHeight - viewContentHeight);
+      const maxY = Math.max(0, totalHeight - effectiveViewContentHeight);
       if (vbY > maxY) vbY = maxY;
     } else {
       // Fallback (unused in dynamic mode): anchor at top (spine) so apex always remains visible when zoomed out.
       vbY = 0;
     }
     const vbW = this.showProfile ? combinedWidth : viewContentWidth;
-    const vbH = this.showProfile ? totalHeight : viewContentHeight;
+    const vbH = this.showProfile ? totalHeight : effectiveViewContentHeight;
     // Base dynamic font size using smaller of width/height; will be constrained per label
     const baseLabelFont = Math.min(
       Math.max(Math.min(vbW, vbH) * 0.06, 0.18),
@@ -1933,6 +2081,50 @@ export class VsaGeometryBuilder extends LitElement {
       </div>
       ${this._renderNotationHelp()}
       <div class="controls-bar">
+        <button
+          style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--sl-color-neutral-900);border-radius:4px;cursor:pointer;"
+          @click=${() => {
+            // Load example geometry
+            this.notationA = "mm=>15dps-2h,0.3w@3h,0.5w@5cp,50H";
+            this.notationB = "mm=>12dps-2h,0.25w@3h,0.45w@5cp,50H";
+            const resA = parseCrossSectionNotation(this.notationA, this.units);
+            const resB = parseCrossSectionNotation(this.notationB, this.units);
+            console.log("Example - ResA segments:", resA.segments);
+            console.log("Example - ResB segments:", resB.segments);
+            if (resA.segments.length) {
+              this.segments = resA.segments.map((s) => ({
+                angleType: s.angleType,
+                angleValue: s.angleValue,
+                travelType: s.travelType,
+                travelValue: s.travelValue,
+              }));
+              console.log("Example - Set segments A:", this.segments);
+              console.log(
+                "Example - GeometryA computed:",
+                this._geometryA.compute()
+              );
+            }
+            if (resB.segments.length) {
+              this.segmentsB = resB.segments.map((s) => ({
+                angleType: s.angleType,
+                angleValue: s.angleValue,
+                travelType: s.travelType,
+                travelValue: s.travelValue,
+              }));
+              console.log("Example - Set segments B:", this.segmentsB);
+              console.log(
+                "Example - GeometryB computed:",
+                this._geometryB.compute()
+              );
+            }
+            this._customViewBox = null;
+            this.overlayTargetWidth = null;
+            this.requestUpdate();
+            this._persist();
+          }}
+        >
+          Load Example
+        </button>
         <label style="display:flex;align-items:center;gap:.25rem">
           <span style="font-size:.55rem">Units</span>
           <select
@@ -1978,6 +2170,21 @@ export class VsaGeometryBuilder extends LitElement {
             }}
           />
           Debug
+        </label>
+        <label
+          style="display:flex;align-items:center;gap:.3rem;font-size:.55rem;"
+        >
+          <input
+            type="checkbox"
+            .checked=${this.apexMacro}
+            @change=${() => {
+              this.apexMacro = !this.apexMacro;
+              this._customViewBox = null; // Clear custom viewBox when switching modes
+              this.requestUpdate();
+              this._persist();
+            }}
+          />
+          Apex Macro
         </label>
         <label
           style="display:flex;align-items:center;gap:.3rem;font-size:.55rem;"
@@ -2227,7 +2434,10 @@ export class VsaGeometryBuilder extends LitElement {
   private _renderVerticalSlider(totalHeight: number) {
     const digits = this._displayDigits();
     const unitLabel = this.units;
+
+    // totalHeight is already truncated to 3mm when apex-macro is enabled
     const centerYGeom = this.overlayCenter * totalHeight;
+
     const dispHeight = (
       this.units === "mm" ? centerYGeom : centerYGeom / 25.4
     ).toFixed(digits);
@@ -2244,7 +2454,10 @@ export class VsaGeometryBuilder extends LitElement {
         ? "height:100%;"
         : ""}"
     >
-      <span style="font-size:.5rem;opacity:.7;">Height (${unitLabel})</span>
+      <span style="font-size:.5rem;opacity:.7;"
+        >Height
+        (${unitLabel})${this.apexMacro ? " - Apex Macro (0-3mm)" : ""}</span
+      >
       <input
         type="range"
         min="0"
@@ -2268,19 +2481,16 @@ export class VsaGeometryBuilder extends LitElement {
   }
 
   private _renderDebug(apexEpsilon: number) {
-    const compA = this._compute();
-    const origSegs = this.segments;
-    this.segments = this.segmentsB;
-    const compB = this._compute();
-    this.segments = origSegs;
+    const compA = this._geometryA.compute();
+    const compB = this._geometryB.compute();
     const totalHeightLocal = Math.max(
-      compA.length ? compA[compA.length - 1].endY : 0,
-      compB.length ? compB[compB.length - 1].endY : 0
+      this._geometryA.getTotalHeight(),
+      this._geometryB.getTotalHeight()
     );
     const centerYGeom = this.overlayCenter * totalHeightLocal;
     const sampleY = centerYGeom < apexEpsilon * 4 ? apexEpsilon : centerYGeom;
-    const tA = this._widthAtY(compA, sampleY);
-    const tB = this._widthAtY(compB, sampleY);
+    const tA = this._geometryA.widthAtY(compA, sampleY);
+    const tB = this._geometryB.widthAtY(compB, sampleY);
     const digits = this._displayDigits();
     const unitLabel = this.units;
     const dispHeight = (
