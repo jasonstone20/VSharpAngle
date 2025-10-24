@@ -2373,6 +2373,16 @@ export class VsaGeometryBuilder extends LitElement {
                 >
               </div>
               <div>
+                <strong>Apex Caliper Measurement:</strong>
+                <code>{thickness}w@{distance}acp</code> — thickness where total
+                caliper distance from apex to outer edge equals the specified
+                value. Geometry is calculated to achieve this global measurement
+                constraint. <br />Example: <code>0.5w@8acp</code> <br /><em
+                  >Useful for working backwards from required caliper
+                  specifications to blade geometry.</em
+                >
+              </div>
+              <div>
                 <strong>Overall Height:</strong> <code>{value}H</code> or
                 <code>{value}oa</code> — optional total height. If larger than
                 last segment, a zero-angle height extension is appended (no
@@ -2405,6 +2415,10 @@ export class VsaGeometryBuilder extends LitElement {
                     From caliper: ΔW = 2 * s * sin²(α) / cos(α), α = θ/2 (solved
                     numerically).
                   </li>
+                  <li>
+                    From apex caliper: height = √(distance² - (thickness/2)²),
+                    then angle derived from geometry.
+                  </li>
                 </ul>
               </div>
               <div>
@@ -2415,6 +2429,13 @@ export class VsaGeometryBuilder extends LitElement {
                     >Apex to 2mm height via 15 dps, then set thickness 0.30 at
                     3mm, then caliper to 0.40 after 5mm slant, final overall
                     height 50mm.</em
+                  >
+                </div>
+                <div style="margin-top:.35rem;">
+                  <code>mm=>0.5w@8acp,0.8w@12cp,25H</code><br />
+                  <em
+                    >Start with 0.5mm thickness where apex caliper is 8mm, then
+                    0.8mm after 12mm face caliper, finish at 25mm height.</em
                   >
                 </div>
                 <div style="margin-top:.35rem;">

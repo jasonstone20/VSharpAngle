@@ -15,6 +15,8 @@
  *     example: 0.25w@3h
  *   CALIPER: {thickness}w@{distance}cp  (thickness reached after slant distance along face from previous segment end)
  *     example: 0.12w@5cp
+ *   APEX CALIPER: {thickness}w@{distance}acp  (thickness reached after total distance from apex to outer edge)
+ *     example: 0.15w@8acp
  *   OVERALL HEIGHT: {value}H | {value}oa
  *     example: 50H
  *
@@ -51,6 +53,7 @@ const RE_ANGLE_TRAVEL =
 const RE_THICKNESS_AT_HEIGHT =
   /^([0-9]*\.?[0-9]+)w@([0-9]*\.?[0-9]+)(h|height)$/i;
 const RE_CALIPER = /^([0-9]*\.?[0-9]+)w@([0-9]*\.?[0-9]+)cp$/i;
+const RE_APEX_CALIPER = /^([0-9]*\.?[0-9]+)w@([0-9]*\.?[0-9]+)acp$/i;
 
 function toNumber(str: string): number {
   return parseFloat(str);
@@ -315,6 +318,87 @@ export function parseCrossSectionNotation(
       // Update state
       ctx.currWidth = targetWidth;
       ctx.currHeight += deltaH;
+      ctx.lastInclusiveAngleDeg = inclusiveAngle;
+      continue;
+    }
+
+    // APEX CALIPER measurement (from apex to outer edge)
+    m = token.match(RE_APEX_CALIPER);
+    if (m) {
+      const thickness = toNumber(m[1]) * unitFactor;
+      const apexDistance = toNumber(m[2]) * unitFactor; // total distance from apex to outer edge
+      if (thickness <= ctx.currWidth) {
+        warnings.push(
+          `Segment ${
+            i + 1
+          }: apex caliper thickness not greater than previous width.`
+        );
+        continue;
+      }
+
+      // For apex caliper, we need to solve for geometry that gives us:
+      // sqrt(height^2 + (thickness/2)^2) = apexDistance
+      // So: height^2 + (thickness/2)^2 = apexDistance^2
+      // Therefore: height = sqrt(apexDistance^2 - (thickness/2)^2)
+
+      const halfThickness = thickness / 2;
+      const heightSquared =
+        apexDistance * apexDistance - halfThickness * halfThickness;
+
+      if (heightSquared <= 0) {
+        warnings.push(
+          `Segment ${i + 1}: apex caliper distance ${apexDistance.toFixed(
+            4
+          )} too small for thickness ${thickness.toFixed(4)}.`
+        );
+        continue;
+      }
+
+      const targetHeight = Math.sqrt(heightSquared);
+
+      // Calculate the angle needed to reach this thickness at this height
+      let inclusiveAngle: number;
+      if (ctx.currWidth === 0 && ctx.currHeight === 0) {
+        // Starting from apex: thickness = 2 * height * tan(inclusive/2)
+        const halfAngle = Math.atan(halfThickness / targetHeight);
+        inclusiveAngle = deg(halfAngle * 2);
+      } else {
+        // From current position: need to calculate delta
+        const deltaW = thickness - ctx.currWidth;
+        const deltaH = targetHeight - ctx.currHeight;
+        if (deltaH <= 0) {
+          warnings.push(
+            `Segment ${
+              i + 1
+            }: apex caliper target height ${targetHeight.toFixed(
+              4
+            )} not greater than current height ${ctx.currHeight.toFixed(4)}.`
+          );
+          continue;
+        }
+        const halfAngle = Math.atan(deltaW / (2 * deltaH));
+        inclusiveAngle = deg(halfAngle * 2);
+      }
+
+      if (!isFinite(inclusiveAngle) || inclusiveAngle <= 0) {
+        warnings.push(
+          `Segment ${
+            i + 1
+          }: could not derive angle from apex caliper measurement.`
+        );
+        continue;
+      }
+
+      segments.push({
+        angleType: "inclusive",
+        angleValue: inclusiveAngle,
+        travelType: "height",
+        travelValue: targetHeight,
+      });
+
+      // Update state
+      ctx.currHeight = targetHeight;
+      ctx.currWidth = thickness;
       ctx.lastInclusiveAngleDeg = inclusiveAngle;
       continue;
     }
