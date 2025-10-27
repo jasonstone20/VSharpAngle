@@ -1,8 +1,8 @@
-(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const s of document.querySelectorAll('link[rel="modulepreload"]'))i(s);new MutationObserver(s=>{for(const r of s)if(r.type==="childList")for(const n of r.addedNodes)n.tagName==="LINK"&&n.rel==="modulepreload"&&i(n)}).observe(document,{childList:!0,subtree:!0});function t(s){const r={};return s.integrity&&(r.integrity=s.integrity),s.referrerPolicy&&(r.referrerPolicy=s.referrerPolicy),s.crossOrigin==="use-credentials"?r.credentials="include":s.crossOrigin==="anonymous"?r.credentials="omit":r.credentials="same-origin",r}function i(s){if(s.ep)return;s.ep=!0;const r=t(s);fetch(s.href,r)}})();const Qe="modulepreload",et=function(o){return"/"+o},Se={},tt=function(e,t,i){let s=Promise.resolve();if(t&&t.length>0){document.getElementsByTagName("link");const n=document.querySelector("meta[property=csp-nonce]"),l=(n==null?void 0:n.nonce)||(n==null?void 0:n.getAttribute("nonce"));s=Promise.allSettled(t.map(a=>{if(a=et(a),a in Se)return;Se[a]=!0;const c=a.endsWith(".css"),h=c?'[rel="stylesheet"]':"";if(document.querySelector(`link[href="${a}"]${h}`))return;const d=document.createElement("link");if(d.rel=c?"stylesheet":Qe,c||(d.as="script"),d.crossOrigin="",d.href=a,l&&d.setAttribute("nonce",l),document.head.appendChild(d),c)return new Promise((g,A)=>{d.addEventListener("load",g),d.addEventListener("error",()=>A(new Error(`Unable to preload CSS for ${a}`)))})}))}function r(n){const l=new Event("vite:preloadError",{cancelable:!0});if(l.payload=n,window.dispatchEvent(l),!l.defaultPrevented)throw n}return s.then(n=>{for(const l of n||[])l.status==="rejected"&&r(l.reason);return e().catch(r)})};/**
+(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const s of document.querySelectorAll('link[rel="modulepreload"]'))i(s);new MutationObserver(s=>{for(const r of s)if(r.type==="childList")for(const n of r.addedNodes)n.tagName==="LINK"&&n.rel==="modulepreload"&&i(n)}).observe(document,{childList:!0,subtree:!0});function t(s){const r={};return s.integrity&&(r.integrity=s.integrity),s.referrerPolicy&&(r.referrerPolicy=s.referrerPolicy),s.crossOrigin==="use-credentials"?r.credentials="include":s.crossOrigin==="anonymous"?r.credentials="omit":r.credentials="same-origin",r}function i(s){if(s.ep)return;s.ep=!0;const r=t(s);fetch(s.href,r)}})();const Qe="modulepreload",et=function(o){return"/"+o},Ae={},tt=function(e,t,i){let s=Promise.resolve();if(t&&t.length>0){document.getElementsByTagName("link");const n=document.querySelector("meta[property=csp-nonce]"),l=(n==null?void 0:n.nonce)||(n==null?void 0:n.getAttribute("nonce"));s=Promise.allSettled(t.map(a=>{if(a=et(a),a in Ae)return;Ae[a]=!0;const c=a.endsWith(".css"),h=c?'[rel="stylesheet"]':"";if(document.querySelector(`link[href="${a}"]${h}`))return;const d=document.createElement("link");if(d.rel=c?"stylesheet":Qe,c||(d.as="script"),d.crossOrigin="",d.href=a,l&&d.setAttribute("nonce",l),document.head.appendChild(d),c)return new Promise((f,S)=>{d.addEventListener("load",f),d.addEventListener("error",()=>S(new Error(`Unable to preload CSS for ${a}`)))})}))}function r(n){const l=new Event("vite:preloadError",{cancelable:!0});if(l.payload=n,window.dispatchEvent(l),!l.defaultPrevented)throw n}return s.then(n=>{for(const l of n||[])l.status==="rejected"&&r(l.reason);return e().catch(r)})};/**
  * @license
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */const ne=globalThis,fe=ne.ShadowRoot&&(ne.ShadyCSS===void 0||ne.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,be=Symbol(),Ae=new WeakMap;let Fe=class{constructor(e,t,i){if(this._$cssResult$=!0,i!==be)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=e,this.t=t}get styleSheet(){let e=this.o;const t=this.t;if(fe&&e===void 0){const i=t!==void 0&&t.length===1;i&&(e=Ae.get(t)),e===void 0&&((this.o=e=new CSSStyleSheet).replaceSync(this.cssText),i&&Ae.set(t,e))}return e}toString(){return this.cssText}};const it=o=>new Fe(typeof o=="string"?o:o+"",void 0,be),ye=(o,...e)=>{const t=o.length===1?o[0]:e.reduce((i,s,r)=>i+(n=>{if(n._$cssResult$===!0)return n.cssText;if(typeof n=="number")return n;throw Error("Value passed to 'css' function must be a 'css' function result: "+n+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(s)+o[r+1],o[0]);return new Fe(t,o,be)},st=(o,e)=>{if(fe)o.adoptedStyleSheets=e.map(t=>t instanceof CSSStyleSheet?t:t.styleSheet);else for(const t of e){const i=document.createElement("style"),s=ne.litNonce;s!==void 0&&i.setAttribute("nonce",s),i.textContent=t.cssText,o.appendChild(i)}},ze=fe?o=>o:o=>o instanceof CSSStyleSheet?(e=>{let t="";for(const i of e.cssRules)t+=i.cssText;return it(t)})(o):o;/**
+ */const ne=globalThis,fe=ne.ShadowRoot&&(ne.ShadyCSS===void 0||ne.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,be=Symbol(),Se=new WeakMap;let Fe=class{constructor(e,t,i){if(this._$cssResult$=!0,i!==be)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=e,this.t=t}get styleSheet(){let e=this.o;const t=this.t;if(fe&&e===void 0){const i=t!==void 0&&t.length===1;i&&(e=Se.get(t)),e===void 0&&((this.o=e=new CSSStyleSheet).replaceSync(this.cssText),i&&Se.set(t,e))}return e}toString(){return this.cssText}};const it=o=>new Fe(typeof o=="string"?o:o+"",void 0,be),ye=(o,...e)=>{const t=o.length===1?o[0]:e.reduce((i,s,r)=>i+(n=>{if(n._$cssResult$===!0)return n.cssText;if(typeof n=="number")return n;throw Error("Value passed to 'css' function must be a 'css' function result: "+n+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(s)+o[r+1],o[0]);return new Fe(t,o,be)},st=(o,e)=>{if(fe)o.adoptedStyleSheets=e.map(t=>t instanceof CSSStyleSheet?t:t.styleSheet);else for(const t of e){const i=document.createElement("style"),s=ne.litNonce;s!==void 0&&i.setAttribute("nonce",s),i.textContent=t.cssText,o.appendChild(i)}},ze=fe?o=>o:o=>o instanceof CSSStyleSheet?(e=>{let t="";for(const i of e.cssRules)t+=i.cssText;return it(t)})(o):o;/**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
@@ -10,13 +10,13 @@
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */const ee=globalThis,oe=ee.trustedTypes,Me=oe?oe.createPolicy("lit-html",{createHTML:o=>o}):void 0,De="$lit$",H=`lit$${Math.random().toFixed(9).slice(2)}$`,Le="?"+H,ct=`<${Le}>`,Y=document,te=()=>Y.createComment(""),ie=o=>o===null||typeof o!="object"&&typeof o!="function",xe=Array.isArray,pt=o=>xe(o)||typeof(o==null?void 0:o[Symbol.iterator])=="function",ue=`[ 	
-\f\r]`,X=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,Be=/-->/g,Ee=/>/g,F=RegExp(`>|${ue}(?:([^\\s"'>=/]+)(${ue}*=${ue}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`,"g"),We=/'/g,Ve=/"/g,qe=/^(?:script|style|textarea|title)$/i,Ye=o=>(e,...t)=>({_$litType$:o,strings:e,values:t}),p=Ye(1),I=Ye(2),Z=Symbol.for("lit-noChange"),E=Symbol.for("lit-nothing"),Ie=new WeakMap,D=Y.createTreeWalker(Y,129);function Oe(o,e){if(!xe(o)||!o.hasOwnProperty("raw"))throw Error("invalid template strings array");return Me!==void 0?Me.createHTML(e):e}const ut=(o,e)=>{const t=o.length-1,i=[];let s,r=e===2?"<svg>":e===3?"<math>":"",n=X;for(let l=0;l<t;l++){const a=o[l];let c,h,d=-1,g=0;for(;g<a.length&&(n.lastIndex=g,h=n.exec(a),h!==null);)g=n.lastIndex,n===X?h[1]==="!--"?n=Be:h[1]!==void 0?n=Ee:h[2]!==void 0?(qe.test(h[2])&&(s=RegExp("</"+h[2],"g")),n=F):h[3]!==void 0&&(n=F):n===F?h[0]===">"?(n=s??X,d=-1):h[1]===void 0?d=-2:(d=n.lastIndex-h[2].length,c=h[1],n=h[3]===void 0?F:h[3]==='"'?Ve:We):n===Ve||n===We?n=F:n===Be||n===Ee?n=X:(n=F,s=void 0);const A=n===F&&o[l+1].startsWith("/>")?" ":"";r+=n===X?a+ct:d>=0?(i.push(c),a.slice(0,d)+De+a.slice(d)+H+A):a+H+(d===-2?l:A)}return[Oe(o,r+(o[t]||"<?>")+(e===2?"</svg>":e===3?"</math>":"")),i]};class se{constructor({strings:e,_$litType$:t},i){let s;this.parts=[];let r=0,n=0;const l=e.length-1,a=this.parts,[c,h]=ut(e,t);if(this.el=se.createElement(c,i),D.currentNode=this.el.content,t===2||t===3){const d=this.el.content.firstChild;d.replaceWith(...d.childNodes)}for(;(s=D.nextNode())!==null&&a.length<l;){if(s.nodeType===1){if(s.hasAttributes())for(const d of s.getAttributeNames())if(d.endsWith(De)){const g=h[n++],A=s.getAttribute(d).split(H),u=/([.?@])?(.*)/.exec(g);a.push({type:1,index:r,name:u[2],strings:A,ctor:u[1]==="."?mt:u[1]==="?"?vt:u[1]==="@"?ft:he}),s.removeAttribute(d)}else d.startsWith(H)&&(a.push({type:6,index:r}),s.removeAttribute(d));if(qe.test(s.tagName)){const d=s.textContent.split(H),g=d.length-1;if(g>0){s.textContent=oe?oe.emptyScript:"";for(let A=0;A<g;A++)s.append(d[A],te()),D.nextNode(),a.push({type:2,index:++r});s.append(d[g],te())}}}else if(s.nodeType===8)if(s.data===Le)a.push({type:2,index:r});else{let d=-1;for(;(d=s.data.indexOf(H,d+1))!==-1;)a.push({type:7,index:r}),d+=H.length-1}r++}}static createElement(e,t){const i=Y.createElement("template");return i.innerHTML=e,i}}function K(o,e,t=o,i){var n,l;if(e===Z)return e;let s=i!==void 0?(n=t._$Co)==null?void 0:n[i]:t._$Cl;const r=ie(e)?void 0:e._$litDirective$;return(s==null?void 0:s.constructor)!==r&&((l=s==null?void 0:s._$AO)==null||l.call(s,!1),r===void 0?s=void 0:(s=new r(o),s._$AT(o,t,i)),i!==void 0?(t._$Co??(t._$Co=[]))[i]=s:t._$Cl=s),s!==void 0&&(e=K(o,s._$AS(o,e.values),s,i)),e}class gt{constructor(e,t){this._$AV=[],this._$AN=void 0,this._$AD=e,this._$AM=t}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(e){const{el:{content:t},parts:i}=this._$AD,s=((e==null?void 0:e.creationScope)??Y).importNode(t,!0);D.currentNode=s;let r=D.nextNode(),n=0,l=0,a=i[0];for(;a!==void 0;){if(n===a.index){let c;a.type===2?c=new re(r,r.nextSibling,this,e):a.type===1?c=new a.ctor(r,a.name,a.strings,this,e):a.type===6&&(c=new bt(r,this,e)),this._$AV.push(c),a=i[++l]}n!==(a==null?void 0:a.index)&&(r=D.nextNode(),n++)}return D.currentNode=Y,s}p(e){let t=0;for(const i of this._$AV)i!==void 0&&(i.strings!==void 0?(i._$AI(e,i,t),t+=i.strings.length-2):i._$AI(e[t])),t++}}class re{get _$AU(){var e;return((e=this._$AM)==null?void 0:e._$AU)??this._$Cv}constructor(e,t,i,s){this.type=2,this._$AH=E,this._$AN=void 0,this._$AA=e,this._$AB=t,this._$AM=i,this.options=s,this._$Cv=(s==null?void 0:s.isConnected)??!0}get parentNode(){let e=this._$AA.parentNode;const t=this._$AM;return t!==void 0&&(e==null?void 0:e.nodeType)===11&&(e=t.parentNode),e}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(e,t=this){e=K(this,e,t),ie(e)?e===E||e==null||e===""?(this._$AH!==E&&this._$AR(),this._$AH=E):e!==this._$AH&&e!==Z&&this._(e):e._$litType$!==void 0?this.$(e):e.nodeType!==void 0?this.T(e):pt(e)?this.k(e):this._(e)}O(e){return this._$AA.parentNode.insertBefore(e,this._$AB)}T(e){this._$AH!==e&&(this._$AR(),this._$AH=this.O(e))}_(e){this._$AH!==E&&ie(this._$AH)?this._$AA.nextSibling.data=e:this.T(Y.createTextNode(e)),this._$AH=e}$(e){var r;const{values:t,_$litType$:i}=e,s=typeof i=="number"?this._$AC(e):(i.el===void 0&&(i.el=se.createElement(Oe(i.h,i.h[0]),this.options)),i);if(((r=this._$AH)==null?void 0:r._$AD)===s)this._$AH.p(t);else{const n=new gt(s,this),l=n.u(this.options);n.p(t),this.T(l),this._$AH=n}}_$AC(e){let t=Ie.get(e.strings);return t===void 0&&Ie.set(e.strings,t=new se(e)),t}k(e){xe(this._$AH)||(this._$AH=[],this._$AR());const t=this._$AH;let i,s=0;for(const r of e)s===t.length?t.push(i=new re(this.O(te()),this.O(te()),this,this.options)):i=t[s],i._$AI(r),s++;s<t.length&&(this._$AR(i&&i._$AB.nextSibling,s),t.length=s)}_$AR(e=this._$AA.nextSibling,t){var i;for((i=this._$AP)==null?void 0:i.call(this,!1,!0,t);e!==this._$AB;){const s=e.nextSibling;e.remove(),e=s}}setConnected(e){var t;this._$AM===void 0&&(this._$Cv=e,(t=this._$AP)==null||t.call(this,e))}}class he{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(e,t,i,s,r){this.type=1,this._$AH=E,this._$AN=void 0,this.element=e,this.name=t,this._$AM=s,this.options=r,i.length>2||i[0]!==""||i[1]!==""?(this._$AH=Array(i.length-1).fill(new String),this.strings=i):this._$AH=E}_$AI(e,t=this,i,s){const r=this.strings;let n=!1;if(r===void 0)e=K(this,e,t,0),n=!ie(e)||e!==this._$AH&&e!==Z,n&&(this._$AH=e);else{const l=e;let a,c;for(e=r[0],a=0;a<r.length-1;a++)c=K(this,l[i+a],t,a),c===Z&&(c=this._$AH[a]),n||(n=!ie(c)||c!==this._$AH[a]),c===E?e=E:e!==E&&(e+=(c??"")+r[a+1]),this._$AH[a]=c}n&&!s&&this.j(e)}j(e){e===E?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,e??"")}}class mt extends he{constructor(){super(...arguments),this.type=3}j(e){this.element[this.name]=e===E?void 0:e}}class vt extends he{constructor(){super(...arguments),this.type=4}j(e){this.element.toggleAttribute(this.name,!!e&&e!==E)}}class ft extends he{constructor(e,t,i,s,r){super(e,t,i,s,r),this.type=5}_$AI(e,t=this){if((e=K(this,e,t,0)??E)===Z)return;const i=this._$AH,s=e===E&&i!==E||e.capture!==i.capture||e.once!==i.once||e.passive!==i.passive,r=e!==E&&(i===E||s);s&&this.element.removeEventListener(this.name,this,i),r&&this.element.addEventListener(this.name,this,e),this._$AH=e}handleEvent(e){var t;typeof this._$AH=="function"?this._$AH.call(((t=this.options)==null?void 0:t.host)??this.element,e):this._$AH.handleEvent(e)}}class bt{constructor(e,t,i){this.element=e,this.type=6,this._$AN=void 0,this._$AM=t,this.options=i}get _$AU(){return this._$AM._$AU}_$AI(e){K(this,e)}}const ge=ee.litHtmlPolyfillSupport;ge==null||ge(se,re),(ee.litHtmlVersions??(ee.litHtmlVersions=[])).push("3.3.1");const yt=(o,e,t)=>{const i=(t==null?void 0:t.renderBefore)??e;let s=i._$litPart$;if(s===void 0){const r=(t==null?void 0:t.renderBefore)??null;i._$litPart$=s=new re(e.insertBefore(te(),r),r,void 0,t??{})}return s._$AI(o),s};/**
+ */const ee=globalThis,oe=ee.trustedTypes,Me=oe?oe.createPolicy("lit-html",{createHTML:o=>o}):void 0,De="$lit$",U=`lit$${Math.random().toFixed(9).slice(2)}$`,Le="?"+U,ct=`<${Le}>`,Y=document,te=()=>Y.createComment(""),ie=o=>o===null||typeof o!="object"&&typeof o!="function",xe=Array.isArray,pt=o=>xe(o)||typeof(o==null?void 0:o[Symbol.iterator])=="function",ue=`[ 	
+\f\r]`,X=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,Be=/-->/g,Ve=/>/g,F=RegExp(`>|${ue}(?:([^\\s"'>=/]+)(${ue}*=${ue}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`,"g"),Ee=/'/g,We=/"/g,qe=/^(?:script|style|textarea|title)$/i,Ye=o=>(e,...t)=>({_$litType$:o,strings:e,values:t}),p=Ye(1),I=Ye(2),Z=Symbol.for("lit-noChange"),V=Symbol.for("lit-nothing"),Ie=new WeakMap,D=Y.createTreeWalker(Y,129);function Oe(o,e){if(!xe(o)||!o.hasOwnProperty("raw"))throw Error("invalid template strings array");return Me!==void 0?Me.createHTML(e):e}const ut=(o,e)=>{const t=o.length-1,i=[];let s,r=e===2?"<svg>":e===3?"<math>":"",n=X;for(let l=0;l<t;l++){const a=o[l];let c,h,d=-1,f=0;for(;f<a.length&&(n.lastIndex=f,h=n.exec(a),h!==null);)f=n.lastIndex,n===X?h[1]==="!--"?n=Be:h[1]!==void 0?n=Ve:h[2]!==void 0?(qe.test(h[2])&&(s=RegExp("</"+h[2],"g")),n=F):h[3]!==void 0&&(n=F):n===F?h[0]===">"?(n=s??X,d=-1):h[1]===void 0?d=-2:(d=n.lastIndex-h[2].length,c=h[1],n=h[3]===void 0?F:h[3]==='"'?We:Ee):n===We||n===Ee?n=F:n===Be||n===Ve?n=X:(n=F,s=void 0);const S=n===F&&o[l+1].startsWith("/>")?" ":"";r+=n===X?a+ct:d>=0?(i.push(c),a.slice(0,d)+De+a.slice(d)+U+S):a+U+(d===-2?l:S)}return[Oe(o,r+(o[t]||"<?>")+(e===2?"</svg>":e===3?"</math>":"")),i]};class se{constructor({strings:e,_$litType$:t},i){let s;this.parts=[];let r=0,n=0;const l=e.length-1,a=this.parts,[c,h]=ut(e,t);if(this.el=se.createElement(c,i),D.currentNode=this.el.content,t===2||t===3){const d=this.el.content.firstChild;d.replaceWith(...d.childNodes)}for(;(s=D.nextNode())!==null&&a.length<l;){if(s.nodeType===1){if(s.hasAttributes())for(const d of s.getAttributeNames())if(d.endsWith(De)){const f=h[n++],S=s.getAttribute(d).split(U),u=/([.?@])?(.*)/.exec(f);a.push({type:1,index:r,name:u[2],strings:S,ctor:u[1]==="."?mt:u[1]==="?"?vt:u[1]==="@"?ft:he}),s.removeAttribute(d)}else d.startsWith(U)&&(a.push({type:6,index:r}),s.removeAttribute(d));if(qe.test(s.tagName)){const d=s.textContent.split(U),f=d.length-1;if(f>0){s.textContent=oe?oe.emptyScript:"";for(let S=0;S<f;S++)s.append(d[S],te()),D.nextNode(),a.push({type:2,index:++r});s.append(d[f],te())}}}else if(s.nodeType===8)if(s.data===Le)a.push({type:2,index:r});else{let d=-1;for(;(d=s.data.indexOf(U,d+1))!==-1;)a.push({type:7,index:r}),d+=U.length-1}r++}}static createElement(e,t){const i=Y.createElement("template");return i.innerHTML=e,i}}function K(o,e,t=o,i){var n,l;if(e===Z)return e;let s=i!==void 0?(n=t._$Co)==null?void 0:n[i]:t._$Cl;const r=ie(e)?void 0:e._$litDirective$;return(s==null?void 0:s.constructor)!==r&&((l=s==null?void 0:s._$AO)==null||l.call(s,!1),r===void 0?s=void 0:(s=new r(o),s._$AT(o,t,i)),i!==void 0?(t._$Co??(t._$Co=[]))[i]=s:t._$Cl=s),s!==void 0&&(e=K(o,s._$AS(o,e.values),s,i)),e}class gt{constructor(e,t){this._$AV=[],this._$AN=void 0,this._$AD=e,this._$AM=t}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(e){const{el:{content:t},parts:i}=this._$AD,s=((e==null?void 0:e.creationScope)??Y).importNode(t,!0);D.currentNode=s;let r=D.nextNode(),n=0,l=0,a=i[0];for(;a!==void 0;){if(n===a.index){let c;a.type===2?c=new re(r,r.nextSibling,this,e):a.type===1?c=new a.ctor(r,a.name,a.strings,this,e):a.type===6&&(c=new bt(r,this,e)),this._$AV.push(c),a=i[++l]}n!==(a==null?void 0:a.index)&&(r=D.nextNode(),n++)}return D.currentNode=Y,s}p(e){let t=0;for(const i of this._$AV)i!==void 0&&(i.strings!==void 0?(i._$AI(e,i,t),t+=i.strings.length-2):i._$AI(e[t])),t++}}class re{get _$AU(){var e;return((e=this._$AM)==null?void 0:e._$AU)??this._$Cv}constructor(e,t,i,s){this.type=2,this._$AH=V,this._$AN=void 0,this._$AA=e,this._$AB=t,this._$AM=i,this.options=s,this._$Cv=(s==null?void 0:s.isConnected)??!0}get parentNode(){let e=this._$AA.parentNode;const t=this._$AM;return t!==void 0&&(e==null?void 0:e.nodeType)===11&&(e=t.parentNode),e}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(e,t=this){e=K(this,e,t),ie(e)?e===V||e==null||e===""?(this._$AH!==V&&this._$AR(),this._$AH=V):e!==this._$AH&&e!==Z&&this._(e):e._$litType$!==void 0?this.$(e):e.nodeType!==void 0?this.T(e):pt(e)?this.k(e):this._(e)}O(e){return this._$AA.parentNode.insertBefore(e,this._$AB)}T(e){this._$AH!==e&&(this._$AR(),this._$AH=this.O(e))}_(e){this._$AH!==V&&ie(this._$AH)?this._$AA.nextSibling.data=e:this.T(Y.createTextNode(e)),this._$AH=e}$(e){var r;const{values:t,_$litType$:i}=e,s=typeof i=="number"?this._$AC(e):(i.el===void 0&&(i.el=se.createElement(Oe(i.h,i.h[0]),this.options)),i);if(((r=this._$AH)==null?void 0:r._$AD)===s)this._$AH.p(t);else{const n=new gt(s,this),l=n.u(this.options);n.p(t),this.T(l),this._$AH=n}}_$AC(e){let t=Ie.get(e.strings);return t===void 0&&Ie.set(e.strings,t=new se(e)),t}k(e){xe(this._$AH)||(this._$AH=[],this._$AR());const t=this._$AH;let i,s=0;for(const r of e)s===t.length?t.push(i=new re(this.O(te()),this.O(te()),this,this.options)):i=t[s],i._$AI(r),s++;s<t.length&&(this._$AR(i&&i._$AB.nextSibling,s),t.length=s)}_$AR(e=this._$AA.nextSibling,t){var i;for((i=this._$AP)==null?void 0:i.call(this,!1,!0,t);e!==this._$AB;){const s=e.nextSibling;e.remove(),e=s}}setConnected(e){var t;this._$AM===void 0&&(this._$Cv=e,(t=this._$AP)==null||t.call(this,e))}}class he{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(e,t,i,s,r){this.type=1,this._$AH=V,this._$AN=void 0,this.element=e,this.name=t,this._$AM=s,this.options=r,i.length>2||i[0]!==""||i[1]!==""?(this._$AH=Array(i.length-1).fill(new String),this.strings=i):this._$AH=V}_$AI(e,t=this,i,s){const r=this.strings;let n=!1;if(r===void 0)e=K(this,e,t,0),n=!ie(e)||e!==this._$AH&&e!==Z,n&&(this._$AH=e);else{const l=e;let a,c;for(e=r[0],a=0;a<r.length-1;a++)c=K(this,l[i+a],t,a),c===Z&&(c=this._$AH[a]),n||(n=!ie(c)||c!==this._$AH[a]),c===V?e=V:e!==V&&(e+=(c??"")+r[a+1]),this._$AH[a]=c}n&&!s&&this.j(e)}j(e){e===V?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,e??"")}}class mt extends he{constructor(){super(...arguments),this.type=3}j(e){this.element[this.name]=e===V?void 0:e}}class vt extends he{constructor(){super(...arguments),this.type=4}j(e){this.element.toggleAttribute(this.name,!!e&&e!==V)}}class ft extends he{constructor(e,t,i,s,r){super(e,t,i,s,r),this.type=5}_$AI(e,t=this){if((e=K(this,e,t,0)??V)===Z)return;const i=this._$AH,s=e===V&&i!==V||e.capture!==i.capture||e.once!==i.once||e.passive!==i.passive,r=e!==V&&(i===V||s);s&&this.element.removeEventListener(this.name,this,i),r&&this.element.addEventListener(this.name,this,e),this._$AH=e}handleEvent(e){var t;typeof this._$AH=="function"?this._$AH.call(((t=this.options)==null?void 0:t.host)??this.element,e):this._$AH.handleEvent(e)}}class bt{constructor(e,t,i){this.element=e,this.type=6,this._$AN=void 0,this._$AM=t,this.options=i}get _$AU(){return this._$AM._$AU}_$AI(e){K(this,e)}}const ge=ee.litHtmlPolyfillSupport;ge==null||ge(se,re),(ee.litHtmlVersions??(ee.litHtmlVersions=[])).push("3.3.1");const yt=(o,e,t)=>{const i=(t==null?void 0:t.renderBefore)??e;let s=i._$litPart$;if(s===void 0){const r=(t==null?void 0:t.renderBefore)??null;i._$litPart$=s=new re(e.insertBefore(te(),r),r,void 0,t??{})}return s._$AI(o),s};/**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */const L=globalThis;class q extends G{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0}createRenderRoot(){var t;const e=super.createRenderRoot();return(t=this.renderOptions).renderBefore??(t.renderBefore=e.firstChild),e}update(e){const t=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(e),this._$Do=yt(t,this.renderRoot,this.renderOptions)}connectedCallback(){var e;super.connectedCallback(),(e=this._$Do)==null||e.setConnected(!0)}disconnectedCallback(){var e;super.disconnectedCallback(),(e=this._$Do)==null||e.setConnected(!1)}render(){return Z}}var Re;q._$litElement$=!0,q.finalized=!0,(Re=L.litElementHydrateSupport)==null||Re.call(L,{LitElement:q});const me=L.litElementPolyfillSupport;me==null||me({LitElement:q});(L.litElementVersions??(L.litElementVersions=[])).push("4.2.1");const wt=o=>o*Math.PI/180,je=o=>o/(Math.PI/180),Ge=o=>Math.sin(wt(o)),xt=o=>1/Ge(o);function _t(o){return Math.asin(Math.min(1,Math.max(-1,o)))}function $t(o){return Math.acos(Math.min(1,Math.max(-1,o)))}function kt(o,e){if(o==null||e==null||e===0)return null;const t=o/2/e;return t<-1||t>1?null:Math.floor(je(_t(t)))}function St(o,e){return o==null||e==null?null:Math.floor((o-e)*.125)}function At(o,e){if(o==null||e==null)return null;const t=xt(e)*Ge(o);return t<-1||t>1?null:Math.floor(je($t(t)))}function zt(o){if(!o||o<1)return{total:0,sequence:[]};const e=o/10+1,t=o*e,i=o*2,s=t+2+i,r=s*2,n=[];for(let l=o;l>=9;l-=10)n.push(l);return n.push(5,3,2,1),{total:s,xStrokes:r,sequence:n}}function Ze(o){const{hardness:e=60,edgeAngle:t=30,CrC:i=0,CrV:s=0,MC:r=0,M6C:n=0,MN:l=0,CrN:a=0,Fe3C:c=0}=o||{},h=-157+15.8*e-17.8*t+11.2*i+14.6*s+26.2*r+9.5*n+20.9*l+19.4*a+5*c,d=i+s+r+n+l+a+c;let g;return d>15?g="20°-30°dps":d>5?g="12.5°-20°dps":g="8°-12.5°dps",{TCC:Math.round(h),volume:d,stability:g}}const de=class de extends q{constructor(){super(),this.steels=[],this.filter="",this.sortKey="name",this.sortDir="asc",this.hardness=60,this.edgeAngle=30,this.selectedName="",this._load()}async _load(){try{const e=await fetch("./data/steels.json");if(!e.ok)throw new Error("Failed steels.json");const t=await e.json();this.steels=t}catch(e){console.error(e)}}_onFilter(e){this.filter=e.target.value.trim().toLowerCase()}_setHardness(e){this.hardness=Number(e.target.value)}_setEdgeAngle(e){this.edgeAngle=Number(e.target.value)}_toggleSort(e){this.sortKey===e?this.sortDir=this.sortDir==="asc"?"desc":"asc":(this.sortKey=e,this.sortDir="asc")}_filtered(){const e=this.filter;let t=this.steels.map(i=>{const{TCC:s,volume:r,stability:n}=Ze({hardness:this.hardness,edgeAngle:this.edgeAngle,...i});return{...i,TCC:s,volume:r,stability:n}});return e&&(t=t.filter(i=>i.name.toLowerCase().includes(e))),t.sort((i,s)=>{const r=this.sortDir==="asc"?1:-1;return this.sortKey==="name"?i.name.localeCompare(s.name)*r:(i[this.sortKey]-s[this.sortKey])*r}),t}_select(e){this.selectedName=e.name;const t={name:e.name,hardness:this.hardness,edgeAngle:this.edgeAngle,carbides:{CrC:e.CrC||0,CrV:e.CrV||0,MC:e.MC||0,M6C:e.M6C||0,MN:e.MN||0,CrN:e.CrN||0,Fe3C:e.Fe3C||0}};this.dispatchEvent(new CustomEvent("steel-selected",{detail:t,bubbles:!0,composed:!0}))}_onRowKey(e,t){(e.key==="Enter"||e.key===" ")&&(e.preventDefault(),this._select(t))}_headerCell(e,t){const i=this.sortKey===e,s=i?this.sortDir==="asc"?"▲":"▼":"",r=i?this.sortDir==="asc"?"ascending":"descending":"none";return p`<th
+ */const L=globalThis;class q extends G{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0}createRenderRoot(){var t;const e=super.createRenderRoot();return(t=this.renderOptions).renderBefore??(t.renderBefore=e.firstChild),e}update(e){const t=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(e),this._$Do=yt(t,this.renderRoot,this.renderOptions)}connectedCallback(){var e;super.connectedCallback(),(e=this._$Do)==null||e.setConnected(!0)}disconnectedCallback(){var e;super.disconnectedCallback(),(e=this._$Do)==null||e.setConnected(!1)}render(){return Z}}var Re;q._$litElement$=!0,q.finalized=!0,(Re=L.litElementHydrateSupport)==null||Re.call(L,{LitElement:q});const me=L.litElementPolyfillSupport;me==null||me({LitElement:q});(L.litElementVersions??(L.litElementVersions=[])).push("4.2.1");const wt=o=>o*Math.PI/180,je=o=>o/(Math.PI/180),Ge=o=>Math.sin(wt(o)),xt=o=>1/Ge(o);function _t(o){return Math.asin(Math.min(1,Math.max(-1,o)))}function $t(o){return Math.acos(Math.min(1,Math.max(-1,o)))}function kt(o,e){if(o==null||e==null||e===0)return null;const t=o/2/e;return t<-1||t>1?null:Math.floor(je(_t(t)))}function At(o,e){return o==null||e==null?null:Math.floor((o-e)*.125)}function St(o,e){if(o==null||e==null)return null;const t=xt(e)*Ge(o);return t<-1||t>1?null:Math.floor(je($t(t)))}function zt(o){if(!o||o<1)return{total:0,sequence:[]};const e=o/10+1,t=o*e,i=o*2,s=t+2+i,r=s*2,n=[];for(let l=o;l>=9;l-=10)n.push(l);return n.push(5,3,2,1),{total:s,xStrokes:r,sequence:n}}function Ze(o){const{hardness:e=60,edgeAngle:t=30,CrC:i=0,CrV:s=0,MC:r=0,M6C:n=0,MN:l=0,CrN:a=0,Fe3C:c=0}=o||{},h=-157+15.8*e-17.8*t+11.2*i+14.6*s+26.2*r+9.5*n+20.9*l+19.4*a+5*c,d=i+s+r+n+l+a+c;return{TCC:Math.round(h),volume:d}}const de=class de extends q{constructor(){super(),this.steels=[],this.filter="",this.sortKey="name",this.sortDir="asc",this.hardnessValues=[60],this.edgeAngleValues=[30],this.selectedName="",this._load()}async _load(){try{const e=await fetch("./data/steels.json");if(!e.ok)throw new Error("Failed steels.json");const t=await e.json();this.steels=t}catch(e){console.error(e)}}_onFilter(e){this.filter=e.target.value.trim().toLowerCase()}_setHardnessValue(e,t){const i=e.target;if(i.value!==""){const s=Number(i.value);if(!isNaN(s)){const r=[...this.hardnessValues];r[t]=s,this.hardnessValues=r}}}_setEdgeAngleValue(e,t){const i=e.target;if(i.value!==""){const s=Number(i.value);if(!isNaN(s)){const r=[...this.edgeAngleValues];r[t]=s,this.edgeAngleValues=r}}}_validateHardnessValue(e,t){const i=e.target,s=Number(i.value),r=[...this.hardnessValues];isNaN(s)||s<=0?(r[t]=60,i.value="60"):r[t]=s,this.hardnessValues=r}_validateEdgeAngleValue(e,t){const i=e.target,s=Number(i.value),r=[...this.edgeAngleValues];isNaN(s)||s<=0?(r[t]=30,i.value="30"):r[t]=s,this.edgeAngleValues=r}_addHardnessInput(){this.hardnessValues.length<3&&(this.hardnessValues=[...this.hardnessValues,60])}_addAngleInput(){this.edgeAngleValues.length<3&&(this.edgeAngleValues=[...this.edgeAngleValues,30])}_removeHardnessInput(e){if(this.hardnessValues.length>1){const t=[...this.hardnessValues];t.splice(e,1),this.hardnessValues=t}}_removeAngleInput(e){if(this.edgeAngleValues.length>1){const t=[...this.edgeAngleValues];t.splice(e,1),this.edgeAngleValues=t}}_toggleSort(e){this.sortKey===e?this.sortDir=this.sortDir==="asc"?"desc":"asc":(this.sortKey=e,this.sortDir="asc")}_filtered(){const e=this.filter;let t=[];const i=this.hardnessValues.filter(r=>r>0),s=this.edgeAngleValues.filter(r=>r>0);i.length===0&&i.push(60),s.length===0&&s.push(30);for(const r of i)for(const n of s)for(const l of this.steels){if(e&&!l.name.toLowerCase().includes(e))continue;const{TCC:a,volume:c}=Ze({hardness:r,edgeAngle:n,...l});t.push({...l,TCC:a,volume:c,hardness:r,edgeAngle:n,combinationId:`${l.name}-${r}-${n}`})}return t.sort((r,n)=>{const l=this.sortDir==="asc"?1:-1;if(this.sortKey==="name"){const a=r.name.localeCompare(n.name);if(a!==0)return a*l;const c=r.hardness-n.hardness;return c!==0?c*l:(r.edgeAngle-n.edgeAngle)*l}return(r[this.sortKey]-n[this.sortKey])*l}),t}_select(e){this.selectedName=e.name;const t={name:e.name,hardness:e.hardness,edgeAngle:e.edgeAngle,carbides:{CrC:e.CrC||0,CrV:e.CrV||0,MC:e.MC||0,M6C:e.M6C||0,MN:e.MN||0,CrN:e.CrN||0,Fe3C:e.Fe3C||0}};this.dispatchEvent(new CustomEvent("steel-selected",{detail:t,bubbles:!0,composed:!0}))}_onRowKey(e,t){(e.key==="Enter"||e.key===" ")&&(e.preventDefault(),this._select(t))}_headerCell(e,t){const i=this.sortKey===e,s=i?this.sortDir==="asc"?"▲":"▼":"",r=i?this.sortDir==="asc"?"ascending":"descending":"none";return p`<th
       @click=${()=>this._toggleSort(e)}
       aria-sort="${r}"
       role="columnheader"
@@ -26,37 +26,112 @@
       ${t} ${s}
     </th>`}render(){const e=this._filtered();return p`
       <div class="toolbar">
-        <sl-input
-          size="small"
-          placeholder="Filter steel…"
-          @input=${this._onFilter}
-        ></sl-input>
-        <sl-input
-          size="small"
-          label="HRC"
-          type="number"
-          .value=${String(this.hardness)}
-          @input=${this._setHardness}
-        ></sl-input>
-        <sl-input
-          size="small"
-          label="Angle"
-          type="number"
-          .value=${String(this.edgeAngle)}
-          @input=${this._setEdgeAngle}
-        ></sl-input>
-        <sl-tooltip content="Click headers to sort"
-          ><sl-badge variant="neutral">Sort Tips</sl-badge></sl-tooltip
-        >
-        <sl-tooltip content="Click a steel row to populate inputs">
-          <sl-badge variant="primary">Row Select Tip</sl-badge>
-        </sl-tooltip>
+        <div class="control-group">
+          <sl-input
+            size="small"
+            placeholder="Filter steel…"
+            @input=${this._onFilter}
+          ></sl-input>
+        </div>
+        <div class="control-group tips">
+          <sl-tooltip content="Click headers to sort"
+            ><sl-badge variant="neutral">Sort Tips</sl-badge></sl-tooltip
+          >
+          <sl-tooltip content="Click a steel row to populate inputs">
+            <sl-badge variant="primary">Row Select Tip</sl-badge>
+          </sl-tooltip>
+        </div>
       </div>
+
+      <div class="steel-controls">
+        <table class="controls-table">
+          <tr>
+            <td>Hardness (HRC)</td>
+            <td>
+              <div class="multi-input">
+                ${this.hardnessValues.map((t,i)=>p`
+                    <div class="input-row">
+                      <sl-input
+                        size="small"
+                        type="number"
+                        value=${String(t)}
+                        @input=${s=>this._setHardnessValue(s,i)}
+                        @blur=${s=>this._validateHardnessValue(s,i)}
+                      ></sl-input>
+                      ${this.hardnessValues.length>1?p`
+                            <sl-button
+                              size="small"
+                              variant="default"
+                              class="remove-button"
+                              @click=${()=>this._removeHardnessInput(i)}
+                            >
+                              <sl-icon name="x"></sl-icon>
+                            </sl-button>
+                          `:""}
+                    </div>
+                  `)}
+                ${this.hardnessValues.length<3?p`
+                      <sl-button
+                        size="small"
+                        variant="default"
+                        class="add-button"
+                        @click=${this._addHardnessInput}
+                      >
+                        <sl-icon name="plus"></sl-icon>
+                      </sl-button>
+                    `:""}
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>Edge Angle (DPS)</td>
+            <td>
+              <div class="multi-input">
+                ${this.edgeAngleValues.map((t,i)=>p`
+                    <div class="input-row">
+                      <sl-input
+                        size="small"
+                        type="number"
+                        value=${String(t)}
+                        @input=${s=>this._setEdgeAngleValue(s,i)}
+                        @blur=${s=>this._validateEdgeAngleValue(s,i)}
+                      ></sl-input>
+                      ${this.edgeAngleValues.length>1?p`
+                            <sl-button
+                              size="small"
+                              variant="default"
+                              class="remove-button"
+                              @click=${()=>this._removeAngleInput(i)}
+                            >
+                              <sl-icon name="x"></sl-icon>
+                            </sl-button>
+                          `:""}
+                    </div>
+                  `)}
+                ${this.edgeAngleValues.length<3?p`
+                      <sl-button
+                        size="small"
+                        variant="default"
+                        class="add-button"
+                        @click=${this._addAngleInput}
+                      >
+                        <sl-icon name="plus"></sl-icon>
+                      </sl-button>
+                    `:""}
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
       ${e.length?p` <div class="table-wrap">
             <table>
               <thead>
                 <tr>
                   ${this._headerCell("name","Steel")}
+                  ${this._headerCell("hardness","HRC")}
+                  ${this._headerCell("edgeAngle","Angle")}
+                  ${this._headerCell("TCC","est.TCC")}
                   ${this._headerCell("CrC","CrC")}
                   ${this._headerCell("CrV","CrV")}
                   ${this._headerCell("MC","MC")}
@@ -65,7 +140,6 @@
                   ${this._headerCell("CrN","CrN")}
                   ${this._headerCell("Fe3C","Fe3C")}
                   ${this._headerCell("volume","Vol%")}
-                  ${this._headerCell("TCC","est.TCC")}
                 </tr>
               </thead>
               <tbody>
@@ -74,10 +148,13 @@
                     @keydown=${s=>this._onRowKey(s,t)}
                     tabindex="0"
                     role="button"
-                    aria-label="Select steel ${t.name}"
+                    aria-label="Select steel ${t.name} at ${t.hardness}HRC, ${t.edgeAngle}°"
                     aria-selected="${this.selectedName===t.name?"true":"false"}"
                   >
                     <td class="name">${t.name}</td>
+                    <td>${t.hardness}</td>
+                    <td>${t.edgeAngle}</td>
+                    <td class="tcc">${t.TCC}</td>
                     <td>${t.CrC||0}</td>
                     <td>${t.CrV||0}</td>
                     <td>${t.MC||0}</td>
@@ -86,9 +163,8 @@
                     <td>${t.CrN||0}</td>
                     <td>${t.Fe3C||0}</td>
                     <td class="vol-cell">
-                      ${(i=t.volume)!=null&&i.toFixed?t.volume.toFixed(1):((t.CrC||0)+(t.CrV||0)+(t.MC||0)+(t.M6C||0)+(t.MN||0)+(t.CrN||0)+(t.Fe3C||0)).toFixed(1)}<br />${t.stability}
+                      ${(i=t.volume)!=null&&i.toFixed?t.volume.toFixed(1):((t.CrC||0)+(t.CrV||0)+(t.MC||0)+(t.M6C||0)+(t.MN||0)+(t.CrN||0)+(t.Fe3C||0)).toFixed(1)}
                     </td>
-                    <td class="tcc">${t.TCC}</td>
                   </tr>`})}
               </tbody>
             </table>
@@ -123,10 +199,99 @@
     }
     .toolbar {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 0.75rem;
+      align-items: stretch;
+      margin-bottom: 1rem;
+    }
+    .control-group {
+      display: flex;
       gap: 0.5rem;
       align-items: center;
-      margin-bottom: 0.5rem;
+    }
+    .control-group.calculation-inputs {
+      justify-content: flex-start;
+    }
+    .control-group.tips {
+      justify-content: center;
+      gap: 1rem;
+    }
+    /* Table-style controls similar to retention estimator */
+    .steel-controls {
+      background: var(--vsa-card-bg);
+      border: 1px solid var(--vsa-card-border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    .controls-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .controls-table td {
+      border-bottom: 1px solid var(--vsa-border, #e5e7eb);
+      padding: 0.5rem 0.75rem;
+      vertical-align: middle;
+    }
+    .controls-table td:first-child {
+      font-weight: 500;
+      width: 25%;
+      background: var(--vsa-surface, #f9fafb);
+      border-right: 1px solid var(--vsa-border, #e5e7eb);
+    }
+    .controls-table td:last-child {
+      width: 75%;
+    }
+    .controls-table tr:last-child td {
+      border-bottom: none;
+    }
+    .multi-input {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: stretch;
+    }
+    .input-row {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .input-row sl-input {
+      flex: 1;
+      min-width: 60px;
+      max-width: 100px;
+    }
+    .input-row sl-button {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+    }
+    .add-button {
+      align-self: flex-start;
+      margin-top: 0.25rem;
+    }
+    .remove-button::part(base) {
+      background-color: var(--sl-color-danger-600);
+      border-color: var(--sl-color-danger-600);
+      color: white;
+    }
+    .remove-button::part(base):hover {
+      background-color: var(--sl-color-danger-700);
+      border-color: var(--sl-color-danger-700);
+    }
+    .add-button::part(base) {
+      background-color: var(--sl-color-success-600);
+      border-color: var(--sl-color-success-600);
+      color: white;
+    }
+    .add-button::part(base):hover {
+      background-color: var(--sl-color-success-700);
+      border-color: var(--sl-color-success-700);
+    }
+    :host-context(.dark) .controls-table td:first-child {
+      background: var(--vsa-surface-dark, #1a1d23);
     }
     table {
       width: 100%;
@@ -208,12 +373,47 @@
       td {
         padding: 0.55rem 0.6rem;
       }
-      .toolbar {
+      .control-group.calculation-inputs {
         flex-direction: column;
         align-items: stretch;
       }
+      .control-group.tips {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .controls-table td {
+        padding: 0.4rem 0.5rem;
+      }
+      .controls-table td:first-child {
+        width: 25%;
+        font-size: 0.85rem;
+      }
+      .controls-table td:last-child {
+        width: 75%;
+      }
+      .multi-input {
+        gap: 0.4rem;
+      }
+      .input-row {
+        gap: 0.3rem;
+      }
+      .input-row sl-input {
+        min-width: 50px;
+        max-width: 100px;
+        flex: 1;
+      }
+      .input-row sl-button {
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+      }
+      .add-button {
+        width: 32px;
+        height: 32px;
+        margin-top: 0.2rem;
+      }
     }
-  `,de.properties={steels:{type:Array},filter:{type:String},sortKey:{type:String},sortDir:{type:String},hardness:{type:Number},edgeAngle:{type:Number},selectedName:{type:String}};let le=de;customElements.define("vsa-steel-table",le);const Ct=Object.freeze(Object.defineProperty({__proto__:null,VsaSteelTable:le},Symbol.toStringTag,{value:"Module"}));/**
+  `,de.properties={steels:{type:Array},filter:{type:String},sortKey:{type:String},sortDir:{type:String},hardnessValues:{type:Array},edgeAngleValues:{type:Array},selectedName:{type:String}};let le=de;customElements.define("vsa-steel-table",le);const Ct=Object.freeze(Object.defineProperty({__proto__:null,VsaSteelTable:le},Symbol.toStringTag,{value:"Module"}));/**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
@@ -221,7 +421,7 @@
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */function B(o){return x({...o,state:!0,attribute:!1})}const Bt=/^(mm|in)=>/i,Et=/^([0-9]*\.?[0-9]+)(h|H|oa)$/i,Wt=/^([0-9]*\.?[0-9]+)(dps|d|inc|inclusive|i)-([0-9]*\.?[0-9]+)(h|height|w|width)$/i,Vt=/^([0-9]*\.?[0-9]+)w@([0-9]*\.?[0-9]+)(h|height)$/i,It=/^([0-9]*\.?[0-9]+)w@([0-9]*\.?[0-9]+)cp$/i,Pt=/^([0-9]*\.?[0-9]+)w@([0-9]*\.?[0-9]+)acp$/i;function N(o){return parseFloat(o)}function Ut(o){return o*2}function Pe(o){return o*Math.PI/180}function J(o){return o*180/Math.PI}function Nt(o,e){if(o<=0||e<=0)return null;let t=Math.min(Math.sqrt(o/(2*e)),Math.PI/3);for(let i=0;i<15;i++){const s=Math.sin(t),r=Math.cos(t);if(Math.abs(r)<1e-6)break;const n=2*e*s*s/r-o,l=4*e*s+2*e*s*s*s/(r*r);if(Math.abs(l)<1e-12)break;const a=t-n/l;if(!isFinite(a)||a<=0)break;if(Math.abs(a-t)<1e-9){t=a;break}if(t=a,t>Math.PI/2-1e-4){t=Math.PI/2-1e-4;break}}return!isFinite(t)||t<=0?null:t}function Ht(o){const e=o.match(Bt);return e?{unit:e[1].toLowerCase(),rest:o.slice(e[0].length)}:{unit:null,rest:o}}function j(o,e){const t=[];let i=o.trim();const{unit:s,rest:r}=Ht(i);s&&(i=r.trim());const n=s??null,l=s??e,a=l==="mm"?1:25.4;if(!i)return{segments:[],warnings:t,normalized:"",unit:e,notationUnits:s??void 0};const c=i.split(",").map(u=>u.trim()).filter(Boolean),h=[],d={currWidth:0,currHeight:0,lastInclusiveAngleDeg:null};let g;for(let u=0;u<c.length;u++){const _=c[u];let w=_.match(Et);if(w){g=N(w[1])*a;continue}if(w=_.match(Wt),w){const y=N(w[1]),$=w[2].toLowerCase(),k=N(w[3])*a,T=w[4].toLowerCase(),m=$.startsWith("inc")||$==="i"?"inclusive":"dps",z=m==="dps"?Ut(y):y;if(T.startsWith("h")){if(k<=d.currHeight){t.push(`Segment ${u+1}: height ${k.toFixed(4)} not greater than previous height.`);continue}h.push({angleType:m,angleValue:y,travelType:"height",travelValue:k}),d.lastInclusiveAngleDeg=z}else{if(k<=d.currWidth){t.push(`Segment ${u+1}: width ${k.toFixed(4)} not greater than previous width.`);continue}if(z===0){t.push(`Segment ${u+1}: zero angle with width travel ignored.`);continue}h.push({angleType:m,angleValue:y,travelType:"width",travelValue:k}),d.lastInclusiveAngleDeg=z}if(h[h.length-1].travelType==="height"){d.currHeight=h[h.length-1].travelValue;const S=Pe(z)/2;d.currWidth===0?d.currWidth=2*d.currHeight*Math.tan(S):d.currWidth=d.currWidth+2*(d.currHeight-d.currHeight)*Math.tan(S)}else{const S=h[h.length-1].travelValue,P=Pe(z)/2,U=S-d.currWidth,ce=d.currWidth===0?S/2/Math.tan(P):U/(2*Math.tan(P));d.currHeight+=ce,d.currWidth=S}continue}if(w=_.match(Vt),w){const y=N(w[1])*a,$=N(w[2])*a;if($<=d.currHeight){t.push(`Segment ${u+1}: target height not greater than previous.`);continue}const k=$-d.currHeight,T=y-d.currWidth;if(T<=0){t.push(`Segment ${u+1}: thickness not greater than previous width.`);continue}let m;if(d.currWidth===0&&d.currHeight===0?m=J(2*Math.atan(y/(2*$))):m=J(2*Math.atan(T/(2*k))),!isFinite(m)||m<=0){t.push(`Segment ${u+1}: could not derive angle from thickness@height.`);continue}h.push({angleType:"inclusive",angleValue:m,travelType:"height",travelValue:$}),d.currHeight=$,d.currWidth=y,d.lastInclusiveAngleDeg=m;continue}if(w=_.match(It),w){const y=N(w[1])*a,$=N(w[2])*a;if(y<=d.currWidth){t.push(`Segment ${u+1}: caliper thickness not greater than previous width.`);continue}const k=y-d.currWidth;let T=Nt(k,$);if(!T&&k>0&&$>0&&(T=Math.sqrt(k/(2*$))),!T||!isFinite(T)){t.push(`Segment ${u+1}: failed to solve angle from caliper.`);continue}const m=J(T*2),z=$*Math.sin(T),S=y;h.push({angleType:"inclusive",angleValue:m,travelType:"width",travelValue:S}),d.currWidth=S,d.currHeight+=z,d.lastInclusiveAngleDeg=m;continue}if(w=_.match(Pt),w){const y=N(w[1])*a,$=N(w[2])*a;if(y<=d.currWidth){t.push(`Segment ${u+1}: apex caliper thickness not greater than previous width.`);continue}const k=y/2,T=$*$-k*k;if(T<=0){t.push(`Segment ${u+1}: apex caliper distance ${$.toFixed(4)} too small for thickness ${y.toFixed(4)}.`);continue}const m=Math.sqrt(T);let z;if(d.currWidth===0&&d.currHeight===0){const S=Math.atan(k/m);z=J(S*2)}else{const S=y-d.currWidth,P=m-d.currHeight;if(P<=0){t.push(`Segment ${u+1}: apex caliper target height ${m.toFixed(4)} not greater than current height ${d.currHeight.toFixed(4)}.`);continue}const U=Math.atan(S/(2*P));z=J(U*2)}if(!isFinite(z)||z<=0){t.push(`Segment ${u+1}: could not derive angle from apex caliper measurement.`);continue}h.push({angleType:"inclusive",angleValue:z,travelType:"height",travelValue:m}),d.currHeight=m,d.currWidth=y,d.lastInclusiveAngleDeg=z;continue}t.push(`Token ${u+1} '${_}' not recognized.`)}if(g!==void 0){const u=d.currHeight;g>u+1e-6&&h.push({angleType:"inclusive",angleValue:0,travelType:"height",travelValue:g})}const A=(n?n+"=>":"")+c.join(",");return{segments:h,warnings:t,overallHeight:g,unit:l,notationUnits:n??void 0,normalized:A}}var Rt=Object.defineProperty,Ft=Object.getOwnPropertyDescriptor,b=(o,e,t,i)=>{for(var s=i>1?void 0:i?Ft(e,t):e,r=o.length-1,n;r>=0;r--)(n=o[r])&&(s=(i?n(e,t,s):n(s))||s);return i&&s&&Rt(e,t,s),s};class Ue{constructor(e=[],t=!1,i=3){this.segments=[],this.apexMacro=!1,this.maxApexHeight=3,this.segments=[...e],this.apexMacro=t,this.maxApexHeight=i}setSegments(e){this.segments=[...e]}getSegments(){return[...this.segments]}setApexMacro(e){this.apexMacro=e}_createApexModel(e){if(!e.length||!this.apexMacro)return e;const t=this._recomputeSegments(e),i=[];let s=0;for(let r=0;r<t.length;r++){const n=t[r],l=n.derivedHeight??s;if(s>=this.maxApexHeight)break;if(l<=this.maxApexHeight)i.push({...n}),s=l;else{const a={...n};if(n.travelType==="height")a.travelValue=this.maxApexHeight-s,a.derivedHeight=this.maxApexHeight;else{const c=l-s,d=(this.maxApexHeight-s)/c;a.travelValue=n.travelValue*d}i.push(a);break}}return i}_recomputeSegments(e){let t=0,i=0;return e.map(s=>{const r=s.angleType==="dps"?s.angleValue*2:s.angleValue,n=r*Math.PI/360;let l=t,a=i;if(s.travelType==="width"){const h=s.travelValue;if(r===0)l=t,a=i;else{l=h;const d=t===0?l/2/Math.tan(n):(l-t)/(2*Math.tan(n));a=i+d}}else{const h=s.travelValue;h<i?a=i:a=h;const d=a-i;r===0?l=t:t===0?l=2*a*Math.tan(n):l=t+2*d*Math.tan(n)}const c={...s,angleInclusive:r,derivedWidth:l,derivedHeight:a};return t=l,i=a,c})}compute(){const e=this._createApexModel(this.segments),t=this._recomputeSegments(e);let i=0,s=0;const r=[];for(const n of t){const l=n.derivedWidth??s,a=n.derivedHeight??i;r.push({angleInclusive:n.angleInclusive??(n.angleType==="dps"?n.angleValue*2:n.angleValue),startWidth:s,endWidth:l,startY:i,endY:a}),i=a,s=l}return r}getTotalHeight(){const e=this.compute();return e.length?e[e.length-1].endY:5}getMaxWidth(){const e=this.compute();return e.length?e[e.length-1].endWidth:2}widthAtY(e,t){if(!e.length||t<=0)return 0;for(const i of e)if(t<=i.endY){if(i.startY===i.endY)return i.endWidth;const s=(t-i.startY)/(i.endY-i.startY);return i.startWidth+(i.endWidth-i.startWidth)*s}return e[e.length-1].endWidth}}const $e=class $e extends q{constructor(){super(),this.angleInput=15,this.thicknessInput=.5,this.angleInputB=15,this.thicknessInputB=.5,this.angleInputType="dps",this.angleInputTypeB="dps",this.travelInputType="width",this.travelInputTypeB="width",this.zoom=1,this.pan=0,this._geometryA=new Ue,this._geometryB=new Ue,this.warning=null,this._storageKey="vsa-geometry-builder-state",this.units="mm",this.regionZoomActive=!1,this.overlayMode=!0,this.overlayCenter=.5,this.overlayTargetWidth=null,this.showProfile=!1,this.notationA="",this.notationB="",this.notationAWarnings=[],this.notationBWarnings=[],this._fullScreen=!1,this._userAdjustingWidth=!1,this._userAdjustingCenter=!1,this.strokePxMin=5,this.showDebug=!0,this.thinStrokes=!0,this.adaptiveZoomMode="idle",this._wizardOpen=!1,this._wizardStep="units",this._wizardUnits="mm",this._wizardNotationType="",this._wizardCurrentValueIndex=0,this._wizardValues={},this._wizardSegments=[],this._wizardCurrentSegmentIndex=0,this._wizardEditingExisting=!1,this._wizardSide="A",this._activeShrink=!1,this._activeExpand=!1,this._prevOverlayCenter=this.overlayCenter,this._customViewBox=null,this._baseViewBox=null,this._dragPanning=!1,this._dragStart=null,this._lastTapTime=0,this._pendingTap=null,this._computedA=[],this._computedB=[],this._onPanMoveBound=e=>this._onPanMove(e),this._onPanEndBound=e=>this._onPanEnd(e)}get segments(){return this._geometryA.getSegments()}set segments(e){this._geometryA.setSegments(e)}get segmentsB(){return this._geometryB.getSegments()}set segmentsB(e){this._geometryB.setSegments(e)}get fullScreen(){return this._fullScreen}set fullScreen(e){this._fullScreen=e,this._dispatchFullScreenChanged()}get apexMacro(){return this._geometryA.apexMacro}set apexMacro(e){this._geometryA.setApexMacro(e),this._geometryB.setApexMacro(e),this.requestUpdate()}connectedCallback(){super.connectedCallback(),this._restore(),this._syncSegmentsToModels()}disconnectedCallback(){super.disconnectedCallback()}_restore(){try{const e=localStorage.getItem(this._storageKey);if(!e)return;const t=JSON.parse(e);Array.isArray(t.segments)&&(this.segments=t.segments),Array.isArray(t.segmentsB)&&(this.segmentsB=t.segmentsB),typeof t.zoom=="number"&&(this.zoom=t.zoom),typeof t.pan=="number"&&(this.pan=t.pan),typeof t.angleInput=="number"&&(this.angleInput=t.angleInput),typeof t.thicknessInput=="number"&&(this.thicknessInput=t.thicknessInput),typeof t.angleInputB=="number"&&(this.angleInputB=t.angleInputB),typeof t.thicknessInputB=="number"&&(this.thicknessInputB=t.thicknessInputB),(t.angleInputType==="dps"||t.angleInputType==="inclusive")&&(this.angleInputType=t.angleInputType),(t.angleInputTypeB==="dps"||t.angleInputTypeB==="inclusive")&&(this.angleInputTypeB=t.angleInputTypeB),(t.travelInputType==="width"||t.travelInputType==="height")&&(this.travelInputType=t.travelInputType),(t.travelInputTypeB==="width"||t.travelInputTypeB==="height")&&(this.travelInputTypeB=t.travelInputTypeB),(t.units==="mm"||t.units==="in")&&(this.units=t.units),typeof t.overlayMode=="boolean"&&(this.overlayMode=t.overlayMode),typeof t.overlayCenter=="number"&&(this.overlayCenter=t.overlayCenter),typeof t.overlayTargetWidth=="number"&&(this.overlayTargetWidth=t.overlayTargetWidth),typeof t.strokePxMin=="number"&&(this.strokePxMin=t.strokePxMin),typeof t.thinStrokes=="boolean"?this.thinStrokes=t.thinStrokes:typeof t._thinStrokes=="boolean"&&(this.thinStrokes=t._thinStrokes),typeof t.fullScreen=="boolean"&&(this.fullScreen=t.fullScreen),typeof t.showProfile=="boolean"&&(this.showProfile=t.showProfile),typeof t.apexMacro=="boolean"&&(this.apexMacro=t.apexMacro),t.customViewBox&&typeof t.customViewBox.x=="number"&&typeof t.customViewBox.y=="number"&&typeof t.customViewBox.w=="number"&&typeof t.customViewBox.h=="number"&&(this._customViewBox=t.customViewBox,this.regionZoomActive=!0),typeof t.notationA=="string"&&(this.notationA=t.notationA),typeof t.notationB=="string"&&(this.notationB=t.notationB),this._syncSegmentsToModels()}catch{}}_persist(){try{const e=this.fullScreen,t={angleInput:this.angleInput,thicknessInput:this.thicknessInput,angleInputB:this.angleInputB,thicknessInputB:this.thicknessInputB,segments:this.segments,segmentsB:this.segmentsB,angleInputType:this.angleInputType,angleInputTypeB:this.angleInputTypeB,travelInputType:this.travelInputType,travelInputTypeB:this.travelInputTypeB,units:this.units,overlayMode:this.overlayMode,overlayCenter:this.overlayCenter,overlayTargetWidth:this.overlayTargetWidth,strokePxMin:this.strokePxMin,thinStrokes:this.thinStrokes,customViewBox:this._customViewBox,fullScreen:this.fullScreen,showProfile:this.showProfile,apexMacro:this.apexMacro,notationA:this.notationA,notationB:this.notationB};localStorage.setItem(this._storageKey,JSON.stringify(t)),this.fullScreen?(document.documentElement.style.overflow="hidden",document.body.style.overflow="hidden"):(document.documentElement.style.overflow="",document.body.style.overflow=""),e!==this.fullScreen&&this._dispatchFullScreenChanged()}catch{}}_dispatchFullScreenChanged(){this.dispatchEvent(new CustomEvent("geometry-fullscreen-changed",{detail:{fullScreen:this.fullScreen},bubbles:!0,composed:!0}))}_toggleFullScreen(){this.fullScreen=!this.fullScreen,this._customViewBox=null,this.requestUpdate(),this._persist()}_editSegment(e,t,i,s){if(s<=0||Number.isNaN(s))return;const r=e==="A"?[...this.segments]:[...this.segmentsB];r[t]&&(r[t]={...r[t],[i]:s},e==="A"?this.segments=r:this.segmentsB=r,this._baseViewBox=null,this._persist())}_deleteSegment(e,t){const i=e==="A"?[...this.segments]:[...this.segmentsB];i[t]&&(i.splice(t,1),e==="A"?this.segments=i:this.segmentsB=i,this._baseViewBox=null,this._persist())}_add(){const e=this.angleInput,t=this.angleInputType,i=t==="inclusive"?e:e*2,s=this.travelInputType,r=this.thicknessInput,n=this.segments[this.segments.length-1],l=(n==null?void 0:n.derivedWidth)??0,a=(n==null?void 0:n.derivedHeight)??0;if(s==="width"){if(r<=l){const h=this._displayDigits();this.warning=`Width ${this._toDisplayLength(r).toFixed(h)}${this.units} must exceed previous ${this._toDisplayLength(l).toFixed(h)}${this.units}.`,this.requestUpdate();return}if(i===0){this.warning="Zero angle only valid with height travel.",this.requestUpdate();return}}else if(r<=a){const h=this._displayDigits();this.warning=`Height ${this._toDisplayLength(r).toFixed(h)}${this.units} must exceed previous ${this._toDisplayLength(a).toFixed(h)}${this.units}.`,this.requestUpdate();return}if(i<0)return;const c={angleType:t,angleValue:e,travelType:s,travelValue:r};this.warning=null,this.segments=[...this.segments,c],this._baseViewBox=null,this._persist()}_addB(){const e=this.angleInputB,t=this.angleInputTypeB,i=t==="inclusive"?e:e*2,s=this.travelInputTypeB,r=this.thicknessInputB,n=this.segmentsB[this.segmentsB.length-1],l=(n==null?void 0:n.derivedWidth)??0,a=(n==null?void 0:n.derivedHeight)??0;if(s==="width"){if(r<=l){const h=this._displayDigits();this.warning=`Width ${this._toDisplayLength(r).toFixed(h)}${this.units} must exceed previous ${this._toDisplayLength(l).toFixed(h)}${this.units} (B).`,this.requestUpdate();return}if(i===0){this.warning="Zero angle only valid with height travel.";return}}else if(r<=a){const h=this._displayDigits();this.warning=`Height ${this._toDisplayLength(r).toFixed(h)}${this.units} must exceed previous ${this._toDisplayLength(a).toFixed(h)}${this.units} (B).`,this.requestUpdate();return}if(i<0)return;const c={angleType:t,angleValue:e,travelType:s,travelValue:r};this.warning=null,this.segmentsB=[...this.segmentsB,c],this._baseViewBox=null,this._persist()}_syncSegmentsToModels(){this._geometryA.setSegments(this.segments),this._geometryB.setSegments(this.segmentsB),this._recomputeAll()}_getSegments(e){return e==="A"?this.segments:this.segmentsB}_updateAngleType(e,t,i){const r=this._getSegments(e)[t];if(!r||r.angleType===i)return;i==="inclusive"&&r.angleType==="dps"?r.angleValue=r.angleValue*2:i==="dps"&&r.angleType==="inclusive"&&(r.angleValue=r.angleValue/2),r.angleType=i,(r.angleType==="inclusive"?r.angleValue:r.angleValue*2)===0&&r.travelType==="width"?this.warning="Zero angle only allowed when travel type is height.":this.warning="",this._syncSegmentsToModels(),this.requestUpdate()}_updateAngleValue(e,t,i){const s=this._getSegments(e),r=s[t];if(!r||isNaN(i)||i<0)return;if(s[t-1],r.angleValue=i,(r.angleType==="inclusive"?r.angleValue:r.angleValue*2)===0&&r.travelType==="width"){this.warning="Zero angle only allowed with height travel.";return}else this.warning="";this._syncSegmentsToModels(),this.requestUpdate()}_updateTravelType(e,t,i){const s=this._getSegments(e),r=s[t];if(!r||r.travelType===i)return;const c=(e==="A"?this._geometryA:this._geometryB).compute().map((h,d)=>({...s[d],derivedWidth:h.endWidth,derivedHeight:h.endY}))[t];if(i==="height")r.travelType="height",r.travelValue=c.derivedHeight??0;else{if((r.angleType==="inclusive"?r.angleValue:r.angleValue*2)===0){this.warning="Cannot switch to width travel with zero angle.";return}r.travelType="width",r.travelValue=c.derivedWidth??0}this.warning="",this._syncSegmentsToModels(),this.requestUpdate()}_updateTravelValue(e,t,i){const s=this._getSegments(e),r=s[t];if(!r||isNaN(i)||i<=0)return;const n=s[t-1];if(r.travelType==="width"){const a=(n==null?void 0:n.derivedWidth)??0;if(i<=a){const c=this._displayDigits();this.warning=`Width must exceed previous width (${this._toDisplayLength(a).toFixed(c)}${this.units}).`;return}}else{const a=(n==null?void 0:n.derivedHeight)??0;if(i<=a){const c=this._displayDigits();this.warning=`Height must exceed previous height (${this._toDisplayLength(a).toFixed(c)}${this.units}).`;return}}if(r.travelValue=i,(r.angleType==="inclusive"?r.angleValue:r.angleValue*2)===0&&r.travelType==="width"){this.warning="Zero angle only allowed with height travel.";return}this.warning="",this._syncSegmentsToModels(),this.requestUpdate()}_toDisplayLength(e){return this.units==="mm"?e:e/25.4}_fromDisplayLength(e){return this.units==="mm"?e:e*25.4}_displayDigits(){return this.units==="mm"?3:4}_formatLen(e,t=this._displayDigits()){return this._toDisplayLength(e).toFixed(t)}_clear(){this.segments=[],this.segmentsB=[],this._baseViewBox=null;try{localStorage.removeItem(this._storageKey)}catch{}}_recomputeAll(){this._computedA=this._geometryA.compute(),this._computedB=this._geometryB.compute()}_computeWithCurrentSegments(){return this.segments===this._geometryA.getSegments()?this._computedA:this._computedB}_path(e){if(!e.length)return"";let t="M 0 0";for(const i of e){const s=-i.endWidth/2,r=i.endY;t+=` L ${s} ${r}`}for(let i=e.length-1;i>=0;i--){const s=e[i],r=s.endWidth/2,n=s.endY;t+=` L ${r} ${n}`}return t+=" Z",t}_segmentPaths(e){return e.map(t=>{const{startWidth:i,endWidth:s,startY:r,endY:n}=t;return[`M ${-i/2} ${r}`,`L ${-s/2} ${n}`,`L ${s/2} ${n}`,`L ${i/2} ${r}`,"Z"].join(" ")})}_widthAtY(e,t){if(!e.length||t<=0)return 0;for(const i of e)if(t<=i.endY+1e-9){const s=i.endY-i.startY;if(s<=1e-9)return i.endWidth;const r=(t-i.startY)/s;return i.startWidth+(i.endWidth-i.startWidth)*r}return e[e.length-1].endWidth}_onAngle(e){this.angleInput=Number(e.target.value),this._persist()}_onAngleTypeChange(e){const t=e.target.value;t!==this.angleInputType&&(t==="inclusive"&&this.angleInputType==="dps"?this.angleInput=this.angleInput*2:t==="dps"&&this.angleInputType==="inclusive"&&(this.angleInput=this.angleInput/2),this.angleInputType=t,this._persist())}_onThickness(e){this.thicknessInput=Number(e.target.value),this._persist()}_onAngleB(e){this.angleInputB=Number(e.target.value),this._persist()}_onAngleTypeChangeB(e){const t=e.target.value;t!==this.angleInputTypeB&&(t==="inclusive"&&this.angleInputTypeB==="dps"?this.angleInputB=this.angleInputB*2:t==="dps"&&this.angleInputTypeB==="inclusive"&&(this.angleInputB=this.angleInputB/2),this.angleInputTypeB=t,this._persist())}_onThicknessB(e){this.thicknessInputB=Number(e.target.value),this._persist()}_onTravelTypeChange(e){const t=e.target.value;if(t===this.travelInputType)return;const i=this.segments[this.segments.length-1];if(t==="height"){const s=(i==null?void 0:i.derivedHeight)??0;this.thicknessInput=+(s+.2).toFixed(4)}else{const s=(i==null?void 0:i.derivedWidth)??0;this.thicknessInput=+(s+.1).toFixed(4)}this.travelInputType=t,this._persist()}_onTravelTypeChangeB(e){const t=e.target.value;if(t===this.travelInputTypeB)return;const i=this.segmentsB[this.segmentsB.length-1];if(t==="height"){const s=(i==null?void 0:i.derivedHeight)??0;this.thicknessInputB=+(s+.2).toFixed(4)}else{const s=(i==null?void 0:i.derivedWidth)??0;this.thicknessInputB=+(s+.1).toFixed(4)}this.travelInputTypeB=t,this._persist()}_onZoom(e){this.zoom=Number(e.target.value),this._customViewBox=null,this.regionZoomActive=!1,this._baseViewBox=null,this._persist()}_onPan(e){if(this.pan=Number(e.target.value)/100,this._customViewBox&&this._baseViewBox){const t=this._geometryA.getTotalHeight(),i=this._customViewBox.h,s=Math.max(0,t-i);this._customViewBox.y=s*this.pan}this._persist()}_toggleOverlay(){this.overlayMode=!this.overlayMode,this._persist()}_changeUnits(e){const t=e.target.value;(t==="mm"||t==="in")&&(this.units=t,this._persist())}_onOverlayCenter(e){this._userAdjustingCenter=!0;const t=Number(e.target.value),i=this._geometryA.getTotalHeight(),s=this.units==="mm"?t:t*25.4,r=Math.max(0,Math.min(i,s)),n=i===0?0:r/i;this.overlayCenter=n,this._customViewBox=null,this.regionZoomActive=!1,this._prevOverlayCenter=this.overlayCenter,this._triggerAdaptiveZoom(),this.requestUpdate(),this._persist(),this._userAdjustingCenter=!1}_onOverlayWidth(e){this._userAdjustingWidth=!0;const t=1e4,i=Number(e.target.value),s=Math.min(t,Math.max(0,i))/t,r=this._geometryMaxWidthMm(),n=this.units==="mm"?.001:1e-4*25.4,l=n+(r-n)*s;this.overlayTargetWidth=l,this._customViewBox=null,this.regionZoomActive=!1,this.requestUpdate(),this._persist(),this._userAdjustingWidth=!1,this._activeShrink=!1,this._activeExpand=!1,this.adaptiveZoomMode="idle"}_geometryMaxWidthMm(){const e=this._geometryA.getMaxWidth(),t=this._geometryB.getMaxWidth();return Math.max(e,t)*1.1}_onStrokePxMin(e){const t=Number(e.target.value);this.strokePxMin=Math.max(1,Math.min(500,t)),this.requestUpdate(),this._persist()}_syncOverlayFromViewBox(e=!0,t=!1){if(!this._customViewBox)return;const i=this._geometryA.compute(),s=this._geometryB.compute(),r=this._geometryA.getTotalHeight(),n=this._geometryB.getTotalHeight(),l=Math.max(r,n),a=this._customViewBox;this.overlayMode&&!t&&!this._userAdjustingWidth&&(this.overlayTargetWidth==null||a.w>this.overlayTargetWidth)&&(this.overlayTargetWidth=a.w);const c=a.y+a.h/2;let h=l>0?c/l:0;h<0?h=0:h>1&&(h=1),h<.001&&(h=0);const d=this.overlayCenter;this.overlayCenter=h,this._autoExpandTargetWidthAtCenter(i,s,l,d),this._prevOverlayCenter=this.overlayCenter,this.requestUpdate(),e&&this._persist()}_autoExpandTargetWidthAtCenter(e,t,i,s){if(!this.overlayMode||s!==void 0&&this.overlayCenter<=s||this.overlayCenter<.02)return;const r=e??this._computedA,n=t??this._computedB,l=i??Math.max(r.length?r[r.length-1].endY:0,n.length?n[n.length-1].endY:0),a=this.overlayCenter*l;let c=this._widthAtY(r,a),h=this._widthAtY(n,a),d=Math.max(c,h);if(d<1e-6){const A=Math.min(l,a+.001);c=this._widthAtY(r,A),h=this._widthAtY(n,A),d=Math.max(c,h)}const g=this.overlayTargetWidth??0;d>g*1.01&&(this.overlayTargetWidth=d*1.02,this._customViewBox=null,this.regionZoomActive=!1)}_triggerAdaptiveZoom(){if(!this.overlayMode||this._userAdjustingWidth)return;const e=this._computedA,t=this._computedB,i=Math.max(e.length?e[e.length-1].endY:0,t.length?t[t.length-1].endY:0);if(i<=0)return;const s=this.overlayCenter*i;let r=this._widthAtY(e,s),n=this._widthAtY(t,s),l=Math.max(r,n);if(l<1e-6&&(l=.02),this.overlayTargetWidth==null){this.overlayTargetWidth=l*1.05,this.adaptiveZoomMode="expand",this._activeExpand=!0,this.requestUpdate();return}const a=this.overlayTargetWidth,c=1.01,h=1.005,d=.3,g=.38,A=l/a;let u="idle";if((this._activeExpand||l>a*c)&&(l>a*c||this._activeExpand))if(l>a*h){const _=l*1.03,w=a+(_-a)*.25;this.overlayTargetWidth=w,u="expand",this._activeExpand=l/this.overlayTargetWidth<h}else this._activeExpand=!1;if(u==="idle"&&(this._activeShrink||A<d)&&(A<d||this._activeShrink))if(A<g){const _=l*1.25,w=this.units==="mm"?.001:1e-4*25.4;let y=a+(_-a)*.2;y<l*1.15&&(y=l*1.15),y<w&&(y=w),this.overlayTargetWidth=y,u="shrink",this._activeShrink=l/this.overlayTargetWidth<g}else this._activeShrink=!1;this.adaptiveZoomMode=u,u!=="idle"&&(this._customViewBox=null,this.regionZoomActive=!1,this.requestUpdate(),this._persist())}_dynamicViewportWidth(e){const t=Math.max(e*.4,.4),i=this.units==="mm"?.01:.01*25.4;return Math.max(i,e+t)}_logSampledWidth(){const e=this._computedA,t=this._computedB,i=Math.max(e.length?e[e.length-1].endY:0,t.length?t[t.length-1].endY:0),s=i>0?Math.min(i*5e-4,.001):.001,r=this.overlayCenter*i,n=r<s*4?s:r,l=this._widthAtY(e,n),a=this._widthAtY(t,n),c=Math.max(l,a),h=this._dynamicViewportWidth(c);console.log(`[Geom] sampled ${c.toFixed(5)}mm centerY=${r.toFixed(5)} viewport=${h.toFixed(5)}mm`)}_onSvgDblClick(e){const t=e.currentTarget,i=t.viewBox.baseVal,s=this._svgPoint(t,e),r=this._computedA,n=this._computedB,l=Math.max(r.length?r[r.length-1].endY:0,n.length?n[n.length-1].endY:0);if(l>0){let a=s.y/l;a<0&&(a=0),a>1&&(a=1),this.overlayCenter=a}this.showProfile||this._applyZoomAtPoint(s.x,s.y,.35,i,t,!1),this._persist()}_onSvgShiftDblClick(e){console.log("[Geom] shift dblclick svg","client",e.clientX,e.clientY);const t=e.currentTarget,i=t.viewBox.baseVal,s=this._svgPoint(t,e);this.showProfile||this._applyZoomAtPoint(s.x,s.y,2.857142857142857,i,t,!0)}_onPointerDownTap(e){if(e.pointerType!=="touch"&&e.pointerType!=="pen")return;const t=performance.now(),i=this.renderRoot.querySelector(".svg-wrap svg");if(!i)return;const s=this._svgPoint(i,e),r=t-this._lastTapTime;if(this._lastTapTime=t,r<320&&this._pendingTap){this._pendingTap=null;const n=new MouseEvent("dblclick",{clientX:e.clientX,clientY:e.clientY,bubbles:!0,cancelable:!0});this._onSvgDblClick(n)}else{this._pendingTap={x:s.x,y:s.y};const n=this._computedA,l=this._computedB,a=Math.max(n.length?n[n.length-1].endY:0,l.length?l[l.length-1].endY:0);if(a>0){let c=s.y/a;c<0&&(c=0),c>1&&(c=1),this.overlayCenter=c,this.requestUpdate(),this._persist()}setTimeout(()=>{this._pendingTap&&performance.now()-this._lastTapTime>320&&(this._pendingTap=null)},340)}}_applyZoomAtPoint(e,t,i,s,r,n){this._baseViewBox||(this._baseViewBox={x:s.x,y:s.y,w:s.width,h:s.height});let l=s.width*i,a=s.height*i;const c=.0254;if(!n&&l<c){const g=c/l;l=c,a=a*g}if(n&&(l>=this._baseViewBox.w||a>=this._baseViewBox.h)){this._customViewBox=null,this.regionZoomActive=!1,this.requestUpdate();return}const h=e-l/2,d=t-a/2;this._customViewBox={x:h,y:d,w:l,h:a},this.regionZoomActive=!0,this._syncOverlayFromViewBox(!1,!0),this.requestUpdate()}_resetZoom(){console.log("[Geom] reset zoom");const e=this._computeWithCurrentSegments(),t=e.length?e[e.length-1].endY:5,i=e.length?e[e.length-1].endWidth:2,s=t/this.zoom,r=i/this.zoom,n=r*.15,l=s*.05,a=-r/2-n,c=0,h=r+n*2,d=s+l;this._customViewBox={x:a,y:c,w:h,h:d},this._baseViewBox={x:a,y:c,w:h,h:d},this.regionZoomActive=!0,this.requestUpdate()}_svgPoint(e,t){const i=e.getBoundingClientRect(),s=e.viewBox.baseVal.width/i.width,r=e.viewBox.baseVal.height/i.height;let n=e.viewBox.baseVal.x+(t.clientX-i.left)*s,l=e.viewBox.baseVal.y+(t.clientY-i.top)*r;const a=i.height*.03;i.bottom-t.clientY<=a&&(l=0);const h=Math.abs(t.clientX-(i.left+i.width/2));return l===0&&h<=i.width*.03&&(n=0),{x:n,y:l}}_onWheel(e){if(e.preventDefault(),!this.overlayMode||this.showProfile)return;const t=this._geometryMaxWidthMm(),i=this.units==="mm"?.001:1e-4*25.4;let s=this.overlayTargetWidth??t;const r=e.deltaY>0?1:-1,n=e.altKey?.01:e.shiftKey?.15:.05,l=t-i,a=Math.min(10,Math.max(1,Math.round(Math.abs(e.deltaY)/100))),c=l*n*a*r*-1;let h=s+c;h<i&&(h=i),h>t&&(h=t),console.log("[Geom] wheel width change",{prev:s,next:h,units:this.units,deltaY:e.deltaY,steps:a,modifier:n}),this.overlayTargetWidth=h,this._customViewBox=null,this.regionZoomActive=!0,this.requestUpdate()}_logEvent(e,t){t instanceof MouseEvent?console.log(`[Geom] ${e}`,"type",t.type,"btn",t.button,"client",t.clientX,t.clientY,"shift",t.shiftKey):console.log(`[Geom] ${e}`,"type",t.type)}_onPanStart(e){if(e.button!==0)return;const t=this.renderRoot.querySelector(".svg-wrap svg");if(!t)return;const i=t.viewBox.baseVal;this._dragPanning=!0,this._dragStart={x:e.clientX,y:e.clientY,vbX:i.x,vbY:i.y,vbW:i.width,vbH:i.height},this._baseViewBox||(this._baseViewBox={x:i.x,y:i.y,w:i.width,h:i.height}),this._customViewBox||(this._customViewBox={x:i.x,y:i.y,w:i.width,h:i.height}),this.regionZoomActive=!0,window.addEventListener("mousemove",this._onPanMoveBound),window.addEventListener("mouseup",this._onPanEndBound),this._logEvent("pan-start",e),e.preventDefault()}_onPanMove(e){if(!this._dragPanning||!this._dragStart)return;const t=this.renderRoot.querySelector(".svg-wrap svg");if(!t)return;const i=this._dragStart,s=t.getBoundingClientRect(),r=i.vbW/s.width,n=i.vbH/s.height,l=Math.max(r,n),a=(e.clientX-i.x)*l,c=(e.clientY-i.y)*l,h=i.vbX-a,d=i.vbY-c;this._customViewBox={x:h,y:d,w:i.vbW,h:i.vbH},this._syncOverlayFromViewBox(),this.requestUpdate(),e.buttons===0&&this._onPanEnd(e)}_onPanEnd(e){this._dragPanning&&(this._dragPanning=!1,this._dragStart=null,window.removeEventListener("mousemove",this._onPanMoveBound),window.removeEventListener("mouseup",this._onPanEndBound),this._logEvent("pan-end",e))}_renderWidthSlider(e){const t=this._geometryMaxWidthMm(),i=this.units==="mm"?.001:1e-4*25.4;let s=this.overlayTargetWidth??t;s=Math.max(i,Math.min(t,s));const r=(s-i)/(t-i),n=1e4,l=Math.round(r*n),a=this._displayDigits(),c=(this.units==="mm"?t:t/25.4).toFixed(a),h=(this.units==="mm"?i:i/25.4).toFixed(a);return p`<div
+ */function B(o){return x({...o,state:!0,attribute:!1})}const Bt=/^(mm|in)=>/i,Vt=/^([0-9]*\.?[0-9]+)(h|H|oa)$/i,Et=/^([0-9]*\.?[0-9]+)(dps|d|inc|inclusive|i)-([0-9]*\.?[0-9]+)(h|height|w|width)$/i,Wt=/^([0-9]*\.?[0-9]+)w@([0-9]*\.?[0-9]+)(h|height)$/i,It=/^([0-9]*\.?[0-9]+)w@([0-9]*\.?[0-9]+)cp$/i,Pt=/^([0-9]*\.?[0-9]+)w@([0-9]*\.?[0-9]+)acp$/i;function H(o){return parseFloat(o)}function Nt(o){return o*2}function Pe(o){return o*Math.PI/180}function J(o){return o*180/Math.PI}function Ht(o,e){if(o<=0||e<=0)return null;let t=Math.min(Math.sqrt(o/(2*e)),Math.PI/3);for(let i=0;i<15;i++){const s=Math.sin(t),r=Math.cos(t);if(Math.abs(r)<1e-6)break;const n=2*e*s*s/r-o,l=4*e*s+2*e*s*s*s/(r*r);if(Math.abs(l)<1e-12)break;const a=t-n/l;if(!isFinite(a)||a<=0)break;if(Math.abs(a-t)<1e-9){t=a;break}if(t=a,t>Math.PI/2-1e-4){t=Math.PI/2-1e-4;break}}return!isFinite(t)||t<=0?null:t}function Ut(o){const e=o.match(Bt);return e?{unit:e[1].toLowerCase(),rest:o.slice(e[0].length)}:{unit:null,rest:o}}function j(o,e){const t=[];let i=o.trim();const{unit:s,rest:r}=Ut(i);s&&(i=r.trim());const n=s??null,l=s??e,a=l==="mm"?1:25.4;if(!i)return{segments:[],warnings:t,normalized:"",unit:e,notationUnits:s??void 0};const c=i.split(",").map(u=>u.trim()).filter(Boolean),h=[],d={currWidth:0,currHeight:0,lastInclusiveAngleDeg:null};let f;for(let u=0;u<c.length;u++){const _=c[u];let w=_.match(Vt);if(w){f=H(w[1])*a;continue}if(w=_.match(Et),w){const y=H(w[1]),$=w[2].toLowerCase(),k=H(w[3])*a,T=w[4].toLowerCase(),g=$.startsWith("inc")||$==="i"?"inclusive":"dps",z=g==="dps"?Nt(y):y;if(T.startsWith("h")){if(k<=d.currHeight){t.push(`Segment ${u+1}: height ${k.toFixed(4)} not greater than previous height.`);continue}h.push({angleType:g,angleValue:y,travelType:"height",travelValue:k}),d.lastInclusiveAngleDeg=z}else{if(k<=d.currWidth){t.push(`Segment ${u+1}: width ${k.toFixed(4)} not greater than previous width.`);continue}if(z===0){t.push(`Segment ${u+1}: zero angle with width travel ignored.`);continue}h.push({angleType:g,angleValue:y,travelType:"width",travelValue:k}),d.lastInclusiveAngleDeg=z}if(h[h.length-1].travelType==="height"){d.currHeight=h[h.length-1].travelValue;const A=Pe(z)/2;d.currWidth===0?d.currWidth=2*d.currHeight*Math.tan(A):d.currWidth=d.currWidth+2*(d.currHeight-d.currHeight)*Math.tan(A)}else{const A=h[h.length-1].travelValue,P=Pe(z)/2,N=A-d.currWidth,ce=d.currWidth===0?A/2/Math.tan(P):N/(2*Math.tan(P));d.currHeight+=ce,d.currWidth=A}continue}if(w=_.match(Wt),w){const y=H(w[1])*a,$=H(w[2])*a;if($<=d.currHeight){t.push(`Segment ${u+1}: target height not greater than previous.`);continue}const k=$-d.currHeight,T=y-d.currWidth;if(T<=0){t.push(`Segment ${u+1}: thickness not greater than previous width.`);continue}let g;if(d.currWidth===0&&d.currHeight===0?g=J(2*Math.atan(y/(2*$))):g=J(2*Math.atan(T/(2*k))),!isFinite(g)||g<=0){t.push(`Segment ${u+1}: could not derive angle from thickness@height.`);continue}h.push({angleType:"inclusive",angleValue:g,travelType:"height",travelValue:$}),d.currHeight=$,d.currWidth=y,d.lastInclusiveAngleDeg=g;continue}if(w=_.match(It),w){const y=H(w[1])*a,$=H(w[2])*a;if(y<=d.currWidth){t.push(`Segment ${u+1}: caliper thickness not greater than previous width.`);continue}const k=y-d.currWidth;let T=Ht(k,$);if(!T&&k>0&&$>0&&(T=Math.sqrt(k/(2*$))),!T||!isFinite(T)){t.push(`Segment ${u+1}: failed to solve angle from caliper.`);continue}const g=J(T*2),z=$*Math.sin(T),A=y;h.push({angleType:"inclusive",angleValue:g,travelType:"width",travelValue:A}),d.currWidth=A,d.currHeight+=z,d.lastInclusiveAngleDeg=g;continue}if(w=_.match(Pt),w){const y=H(w[1])*a,$=H(w[2])*a;if(y<=d.currWidth){t.push(`Segment ${u+1}: apex caliper thickness not greater than previous width.`);continue}const k=y/2,T=$*$-k*k;if(T<=0){t.push(`Segment ${u+1}: apex caliper distance ${$.toFixed(4)} too small for thickness ${y.toFixed(4)}.`);continue}const g=Math.sqrt(T);let z;if(d.currWidth===0&&d.currHeight===0){const A=Math.atan(k/g);z=J(A*2)}else{const A=y-d.currWidth,P=g-d.currHeight;if(P<=0){t.push(`Segment ${u+1}: apex caliper target height ${g.toFixed(4)} not greater than current height ${d.currHeight.toFixed(4)}.`);continue}const N=Math.atan(A/(2*P));z=J(N*2)}if(!isFinite(z)||z<=0){t.push(`Segment ${u+1}: could not derive angle from apex caliper measurement.`);continue}h.push({angleType:"inclusive",angleValue:z,travelType:"height",travelValue:g}),d.currHeight=g,d.currWidth=y,d.lastInclusiveAngleDeg=z;continue}t.push(`Token ${u+1} '${_}' not recognized.`)}if(f!==void 0){const u=d.currHeight;f>u+1e-6&&h.push({angleType:"inclusive",angleValue:0,travelType:"height",travelValue:f})}const S=(n?n+"=>":"")+c.join(",");return{segments:h,warnings:t,overallHeight:f,unit:l,notationUnits:n??void 0,normalized:S}}var Rt=Object.defineProperty,Ft=Object.getOwnPropertyDescriptor,b=(o,e,t,i)=>{for(var s=i>1?void 0:i?Ft(e,t):e,r=o.length-1,n;r>=0;r--)(n=o[r])&&(s=(i?n(e,t,s):n(s))||s);return i&&s&&Rt(e,t,s),s};class Ne{constructor(e=[],t=!1,i=3){this.segments=[],this.apexMacro=!1,this.maxApexHeight=3,this.segments=[...e],this.apexMacro=t,this.maxApexHeight=i}setSegments(e){this.segments=[...e]}getSegments(){return[...this.segments]}setApexMacro(e){this.apexMacro=e}_createApexModel(e){if(!e.length||!this.apexMacro)return e;const t=this._recomputeSegments(e),i=[];let s=0;for(let r=0;r<t.length;r++){const n=t[r],l=n.derivedHeight??s;if(s>=this.maxApexHeight)break;if(l<=this.maxApexHeight)i.push({...n}),s=l;else{const a={...n};if(n.travelType==="height")a.travelValue=this.maxApexHeight-s,a.derivedHeight=this.maxApexHeight;else{const c=l-s,d=(this.maxApexHeight-s)/c;a.travelValue=n.travelValue*d}i.push(a);break}}return i}_recomputeSegments(e){let t=0,i=0;return e.map(s=>{const r=s.angleType==="dps"?s.angleValue*2:s.angleValue,n=r*Math.PI/360;let l=t,a=i;if(s.travelType==="width"){const h=s.travelValue;if(r===0)l=t,a=i;else{l=h;const d=t===0?l/2/Math.tan(n):(l-t)/(2*Math.tan(n));a=i+d}}else{const h=s.travelValue;h<i?a=i:a=h;const d=a-i;r===0?l=t:t===0?l=2*a*Math.tan(n):l=t+2*d*Math.tan(n)}const c={...s,angleInclusive:r,derivedWidth:l,derivedHeight:a};return t=l,i=a,c})}compute(){const e=this._createApexModel(this.segments),t=this._recomputeSegments(e);let i=0,s=0;const r=[];for(const n of t){const l=n.derivedWidth??s,a=n.derivedHeight??i;r.push({angleInclusive:n.angleInclusive??(n.angleType==="dps"?n.angleValue*2:n.angleValue),startWidth:s,endWidth:l,startY:i,endY:a}),i=a,s=l}return r}getTotalHeight(){const e=this.compute();return e.length?e[e.length-1].endY:5}getMaxWidth(){const e=this.compute();return e.length?e[e.length-1].endWidth:2}widthAtY(e,t){if(!e.length||t<=0)return 0;for(const i of e)if(t<=i.endY){if(i.startY===i.endY)return i.endWidth;const s=(t-i.startY)/(i.endY-i.startY);return i.startWidth+(i.endWidth-i.startWidth)*s}return e[e.length-1].endWidth}}const $e=class $e extends q{constructor(){super(),this.angleInput=15,this.thicknessInput=.5,this.angleInputB=15,this.thicknessInputB=.5,this.angleInputType="dps",this.angleInputTypeB="dps",this.travelInputType="width",this.travelInputTypeB="width",this.zoom=1,this.pan=0,this._geometryA=new Ne,this._geometryB=new Ne,this.warning=null,this._storageKey="vsa-geometry-builder-state",this.units="mm",this.regionZoomActive=!1,this.overlayMode=!0,this.overlayCenter=.5,this.overlayTargetWidth=null,this.showProfile=!1,this.notationA="",this.notationB="",this.notationAWarnings=[],this.notationBWarnings=[],this._fullScreen=!1,this._userAdjustingWidth=!1,this._userAdjustingCenter=!1,this.strokePxMin=5,this.showDebug=!0,this.thinStrokes=!0,this.adaptiveZoomMode="idle",this._wizardOpen=!1,this._wizardStep="units",this._wizardUnits="mm",this._wizardNotationType="",this._wizardCurrentValueIndex=0,this._wizardValues={},this._wizardSegments=[],this._wizardCurrentSegmentIndex=0,this._wizardEditingExisting=!1,this._wizardSide="A",this._activeShrink=!1,this._activeExpand=!1,this._prevOverlayCenter=this.overlayCenter,this._customViewBox=null,this._baseViewBox=null,this._dragPanning=!1,this._dragStart=null,this._lastTapTime=0,this._pendingTap=null,this._computedA=[],this._computedB=[],this._onPanMoveBound=e=>this._onPanMove(e),this._onPanEndBound=e=>this._onPanEnd(e)}get segments(){return this._geometryA.getSegments()}set segments(e){this._geometryA.setSegments(e)}get segmentsB(){return this._geometryB.getSegments()}set segmentsB(e){this._geometryB.setSegments(e)}get fullScreen(){return this._fullScreen}set fullScreen(e){this._fullScreen=e,this._dispatchFullScreenChanged()}get apexMacro(){return this._geometryA.apexMacro}set apexMacro(e){this._geometryA.setApexMacro(e),this._geometryB.setApexMacro(e),this.requestUpdate()}connectedCallback(){super.connectedCallback(),this._restore(),this._syncSegmentsToModels()}disconnectedCallback(){super.disconnectedCallback()}_restore(){try{const e=localStorage.getItem(this._storageKey);if(!e)return;const t=JSON.parse(e);Array.isArray(t.segments)&&(this.segments=t.segments),Array.isArray(t.segmentsB)&&(this.segmentsB=t.segmentsB),typeof t.zoom=="number"&&(this.zoom=t.zoom),typeof t.pan=="number"&&(this.pan=t.pan),typeof t.angleInput=="number"&&(this.angleInput=t.angleInput),typeof t.thicknessInput=="number"&&(this.thicknessInput=t.thicknessInput),typeof t.angleInputB=="number"&&(this.angleInputB=t.angleInputB),typeof t.thicknessInputB=="number"&&(this.thicknessInputB=t.thicknessInputB),(t.angleInputType==="dps"||t.angleInputType==="inclusive")&&(this.angleInputType=t.angleInputType),(t.angleInputTypeB==="dps"||t.angleInputTypeB==="inclusive")&&(this.angleInputTypeB=t.angleInputTypeB),(t.travelInputType==="width"||t.travelInputType==="height")&&(this.travelInputType=t.travelInputType),(t.travelInputTypeB==="width"||t.travelInputTypeB==="height")&&(this.travelInputTypeB=t.travelInputTypeB),(t.units==="mm"||t.units==="in")&&(this.units=t.units),typeof t.overlayMode=="boolean"&&(this.overlayMode=t.overlayMode),typeof t.overlayCenter=="number"&&(this.overlayCenter=t.overlayCenter),typeof t.overlayTargetWidth=="number"&&(this.overlayTargetWidth=t.overlayTargetWidth),typeof t.strokePxMin=="number"&&(this.strokePxMin=t.strokePxMin),typeof t.thinStrokes=="boolean"?this.thinStrokes=t.thinStrokes:typeof t._thinStrokes=="boolean"&&(this.thinStrokes=t._thinStrokes),typeof t.fullScreen=="boolean"&&(this.fullScreen=t.fullScreen),typeof t.showProfile=="boolean"&&(this.showProfile=t.showProfile),typeof t.apexMacro=="boolean"&&(this.apexMacro=t.apexMacro),t.customViewBox&&typeof t.customViewBox.x=="number"&&typeof t.customViewBox.y=="number"&&typeof t.customViewBox.w=="number"&&typeof t.customViewBox.h=="number"&&(this._customViewBox=t.customViewBox,this.regionZoomActive=!0),typeof t.notationA=="string"&&(this.notationA=t.notationA),typeof t.notationB=="string"&&(this.notationB=t.notationB),this._syncSegmentsToModels()}catch{}}_persist(){try{const e=this.fullScreen,t={angleInput:this.angleInput,thicknessInput:this.thicknessInput,angleInputB:this.angleInputB,thicknessInputB:this.thicknessInputB,segments:this.segments,segmentsB:this.segmentsB,angleInputType:this.angleInputType,angleInputTypeB:this.angleInputTypeB,travelInputType:this.travelInputType,travelInputTypeB:this.travelInputTypeB,units:this.units,overlayMode:this.overlayMode,overlayCenter:this.overlayCenter,overlayTargetWidth:this.overlayTargetWidth,strokePxMin:this.strokePxMin,thinStrokes:this.thinStrokes,customViewBox:this._customViewBox,fullScreen:this.fullScreen,showProfile:this.showProfile,apexMacro:this.apexMacro,notationA:this.notationA,notationB:this.notationB};localStorage.setItem(this._storageKey,JSON.stringify(t)),this.fullScreen?(document.documentElement.style.overflow="hidden",document.body.style.overflow="hidden"):(document.documentElement.style.overflow="",document.body.style.overflow=""),e!==this.fullScreen&&this._dispatchFullScreenChanged()}catch{}}_dispatchFullScreenChanged(){this.dispatchEvent(new CustomEvent("geometry-fullscreen-changed",{detail:{fullScreen:this.fullScreen},bubbles:!0,composed:!0}))}_toggleFullScreen(){this.fullScreen=!this.fullScreen,this._customViewBox=null,this.requestUpdate(),this._persist()}_editSegment(e,t,i,s){if(s<=0||Number.isNaN(s))return;const r=e==="A"?[...this.segments]:[...this.segmentsB];r[t]&&(r[t]={...r[t],[i]:s},e==="A"?this.segments=r:this.segmentsB=r,this._baseViewBox=null,this._persist())}_deleteSegment(e,t){const i=e==="A"?[...this.segments]:[...this.segmentsB];i[t]&&(i.splice(t,1),e==="A"?this.segments=i:this.segmentsB=i,this._baseViewBox=null,this._persist())}_add(){const e=this.angleInput,t=this.angleInputType,i=t==="inclusive"?e:e*2,s=this.travelInputType,r=this.thicknessInput,n=this.segments[this.segments.length-1],l=(n==null?void 0:n.derivedWidth)??0,a=(n==null?void 0:n.derivedHeight)??0;if(s==="width"){if(r<=l){const h=this._displayDigits();this.warning=`Width ${this._toDisplayLength(r).toFixed(h)}${this.units} must exceed previous ${this._toDisplayLength(l).toFixed(h)}${this.units}.`,this.requestUpdate();return}if(i===0){this.warning="Zero angle only valid with height travel.",this.requestUpdate();return}}else if(r<=a){const h=this._displayDigits();this.warning=`Height ${this._toDisplayLength(r).toFixed(h)}${this.units} must exceed previous ${this._toDisplayLength(a).toFixed(h)}${this.units}.`,this.requestUpdate();return}if(i<0)return;const c={angleType:t,angleValue:e,travelType:s,travelValue:r};this.warning=null,this.segments=[...this.segments,c],this._baseViewBox=null,this._persist()}_addB(){const e=this.angleInputB,t=this.angleInputTypeB,i=t==="inclusive"?e:e*2,s=this.travelInputTypeB,r=this.thicknessInputB,n=this.segmentsB[this.segmentsB.length-1],l=(n==null?void 0:n.derivedWidth)??0,a=(n==null?void 0:n.derivedHeight)??0;if(s==="width"){if(r<=l){const h=this._displayDigits();this.warning=`Width ${this._toDisplayLength(r).toFixed(h)}${this.units} must exceed previous ${this._toDisplayLength(l).toFixed(h)}${this.units} (B).`,this.requestUpdate();return}if(i===0){this.warning="Zero angle only valid with height travel.";return}}else if(r<=a){const h=this._displayDigits();this.warning=`Height ${this._toDisplayLength(r).toFixed(h)}${this.units} must exceed previous ${this._toDisplayLength(a).toFixed(h)}${this.units} (B).`,this.requestUpdate();return}if(i<0)return;const c={angleType:t,angleValue:e,travelType:s,travelValue:r};this.warning=null,this.segmentsB=[...this.segmentsB,c],this._baseViewBox=null,this._persist()}_syncSegmentsToModels(){this._geometryA.setSegments(this.segments),this._geometryB.setSegments(this.segmentsB),this._recomputeAll()}_getSegments(e){return e==="A"?this.segments:this.segmentsB}_updateAngleType(e,t,i){const r=this._getSegments(e)[t];if(!r||r.angleType===i)return;i==="inclusive"&&r.angleType==="dps"?r.angleValue=r.angleValue*2:i==="dps"&&r.angleType==="inclusive"&&(r.angleValue=r.angleValue/2),r.angleType=i,(r.angleType==="inclusive"?r.angleValue:r.angleValue*2)===0&&r.travelType==="width"?this.warning="Zero angle only allowed when travel type is height.":this.warning="",this._syncSegmentsToModels(),this.requestUpdate()}_updateAngleValue(e,t,i){const s=this._getSegments(e),r=s[t];if(!r||isNaN(i)||i<0)return;if(s[t-1],r.angleValue=i,(r.angleType==="inclusive"?r.angleValue:r.angleValue*2)===0&&r.travelType==="width"){this.warning="Zero angle only allowed with height travel.";return}else this.warning="";this._syncSegmentsToModels(),this.requestUpdate()}_updateTravelType(e,t,i){const s=this._getSegments(e),r=s[t];if(!r||r.travelType===i)return;const c=(e==="A"?this._geometryA:this._geometryB).compute().map((h,d)=>({...s[d],derivedWidth:h.endWidth,derivedHeight:h.endY}))[t];if(i==="height")r.travelType="height",r.travelValue=c.derivedHeight??0;else{if((r.angleType==="inclusive"?r.angleValue:r.angleValue*2)===0){this.warning="Cannot switch to width travel with zero angle.";return}r.travelType="width",r.travelValue=c.derivedWidth??0}this.warning="",this._syncSegmentsToModels(),this.requestUpdate()}_updateTravelValue(e,t,i){const s=this._getSegments(e),r=s[t];if(!r||isNaN(i)||i<=0)return;const n=s[t-1];if(r.travelType==="width"){const a=(n==null?void 0:n.derivedWidth)??0;if(i<=a){const c=this._displayDigits();this.warning=`Width must exceed previous width (${this._toDisplayLength(a).toFixed(c)}${this.units}).`;return}}else{const a=(n==null?void 0:n.derivedHeight)??0;if(i<=a){const c=this._displayDigits();this.warning=`Height must exceed previous height (${this._toDisplayLength(a).toFixed(c)}${this.units}).`;return}}if(r.travelValue=i,(r.angleType==="inclusive"?r.angleValue:r.angleValue*2)===0&&r.travelType==="width"){this.warning="Zero angle only allowed with height travel.";return}this.warning="",this._syncSegmentsToModels(),this.requestUpdate()}_toDisplayLength(e){return this.units==="mm"?e:e/25.4}_fromDisplayLength(e){return this.units==="mm"?e:e*25.4}_displayDigits(){return this.units==="mm"?3:4}_formatLen(e,t=this._displayDigits()){return this._toDisplayLength(e).toFixed(t)}_clear(){this.segments=[],this.segmentsB=[],this._baseViewBox=null;try{localStorage.removeItem(this._storageKey)}catch{}}_recomputeAll(){this._computedA=this._geometryA.compute(),this._computedB=this._geometryB.compute()}_computeWithCurrentSegments(){return this.segments===this._geometryA.getSegments()?this._computedA:this._computedB}_path(e){if(!e.length)return"";let t="M 0 0";for(const i of e){const s=-i.endWidth/2,r=i.endY;t+=` L ${s} ${r}`}for(let i=e.length-1;i>=0;i--){const s=e[i],r=s.endWidth/2,n=s.endY;t+=` L ${r} ${n}`}return t+=" Z",t}_segmentPaths(e){return e.map(t=>{const{startWidth:i,endWidth:s,startY:r,endY:n}=t;return[`M ${-i/2} ${r}`,`L ${-s/2} ${n}`,`L ${s/2} ${n}`,`L ${i/2} ${r}`,"Z"].join(" ")})}_widthAtY(e,t){if(!e.length||t<=0)return 0;for(const i of e)if(t<=i.endY+1e-9){const s=i.endY-i.startY;if(s<=1e-9)return i.endWidth;const r=(t-i.startY)/s;return i.startWidth+(i.endWidth-i.startWidth)*r}return e[e.length-1].endWidth}_onAngle(e){this.angleInput=Number(e.target.value),this._persist()}_onAngleTypeChange(e){const t=e.target.value;t!==this.angleInputType&&(t==="inclusive"&&this.angleInputType==="dps"?this.angleInput=this.angleInput*2:t==="dps"&&this.angleInputType==="inclusive"&&(this.angleInput=this.angleInput/2),this.angleInputType=t,this._persist())}_onThickness(e){this.thicknessInput=Number(e.target.value),this._persist()}_onAngleB(e){this.angleInputB=Number(e.target.value),this._persist()}_onAngleTypeChangeB(e){const t=e.target.value;t!==this.angleInputTypeB&&(t==="inclusive"&&this.angleInputTypeB==="dps"?this.angleInputB=this.angleInputB*2:t==="dps"&&this.angleInputTypeB==="inclusive"&&(this.angleInputB=this.angleInputB/2),this.angleInputTypeB=t,this._persist())}_onThicknessB(e){this.thicknessInputB=Number(e.target.value),this._persist()}_onTravelTypeChange(e){const t=e.target.value;if(t===this.travelInputType)return;const i=this.segments[this.segments.length-1];if(t==="height"){const s=(i==null?void 0:i.derivedHeight)??0;this.thicknessInput=+(s+.2).toFixed(4)}else{const s=(i==null?void 0:i.derivedWidth)??0;this.thicknessInput=+(s+.1).toFixed(4)}this.travelInputType=t,this._persist()}_onTravelTypeChangeB(e){const t=e.target.value;if(t===this.travelInputTypeB)return;const i=this.segmentsB[this.segmentsB.length-1];if(t==="height"){const s=(i==null?void 0:i.derivedHeight)??0;this.thicknessInputB=+(s+.2).toFixed(4)}else{const s=(i==null?void 0:i.derivedWidth)??0;this.thicknessInputB=+(s+.1).toFixed(4)}this.travelInputTypeB=t,this._persist()}_onZoom(e){this.zoom=Number(e.target.value),this._customViewBox=null,this.regionZoomActive=!1,this._baseViewBox=null,this._persist()}_onPan(e){if(this.pan=Number(e.target.value)/100,this._customViewBox&&this._baseViewBox){const t=this._geometryA.getTotalHeight(),i=this._customViewBox.h,s=Math.max(0,t-i);this._customViewBox.y=s*this.pan}this._persist()}_toggleOverlay(){this.overlayMode=!this.overlayMode,this._persist()}_changeUnits(e){const t=e.target.value;(t==="mm"||t==="in")&&(this.units=t,this._persist())}_onOverlayCenter(e){this._userAdjustingCenter=!0;const t=Number(e.target.value),i=this._geometryA.getTotalHeight(),s=this.units==="mm"?t:t*25.4,r=Math.max(0,Math.min(i,s)),n=i===0?0:r/i;this.overlayCenter=n,this._customViewBox=null,this.regionZoomActive=!1,this._prevOverlayCenter=this.overlayCenter,this._triggerAdaptiveZoom(),this.requestUpdate(),this._persist(),this._userAdjustingCenter=!1}_onOverlayWidth(e){this._userAdjustingWidth=!0;const t=1e4,i=Number(e.target.value),s=Math.min(t,Math.max(0,i))/t,r=this._geometryMaxWidthMm(),n=this.units==="mm"?.001:1e-4*25.4,l=n+(r-n)*s;this.overlayTargetWidth=l,this._customViewBox=null,this.regionZoomActive=!1,this.requestUpdate(),this._persist(),this._userAdjustingWidth=!1,this._activeShrink=!1,this._activeExpand=!1,this.adaptiveZoomMode="idle"}_geometryMaxWidthMm(){const e=this._geometryA.getMaxWidth(),t=this._geometryB.getMaxWidth();return Math.max(e,t)*1.1}_onStrokePxMin(e){const t=Number(e.target.value);this.strokePxMin=Math.max(1,Math.min(500,t)),this.requestUpdate(),this._persist()}_syncOverlayFromViewBox(e=!0,t=!1){if(!this._customViewBox)return;const i=this._geometryA.compute(),s=this._geometryB.compute(),r=this._geometryA.getTotalHeight(),n=this._geometryB.getTotalHeight(),l=Math.max(r,n),a=this._customViewBox;this.overlayMode&&!t&&!this._userAdjustingWidth&&(this.overlayTargetWidth==null||a.w>this.overlayTargetWidth)&&(this.overlayTargetWidth=a.w);const c=a.y+a.h/2;let h=l>0?c/l:0;h<0?h=0:h>1&&(h=1),h<.001&&(h=0);const d=this.overlayCenter;this.overlayCenter=h,this._autoExpandTargetWidthAtCenter(i,s,l,d),this._prevOverlayCenter=this.overlayCenter,this.requestUpdate(),e&&this._persist()}_autoExpandTargetWidthAtCenter(e,t,i,s){if(!this.overlayMode||s!==void 0&&this.overlayCenter<=s||this.overlayCenter<.02)return;const r=e??this._computedA,n=t??this._computedB,l=i??Math.max(r.length?r[r.length-1].endY:0,n.length?n[n.length-1].endY:0),a=this.overlayCenter*l;let c=this._widthAtY(r,a),h=this._widthAtY(n,a),d=Math.max(c,h);if(d<1e-6){const S=Math.min(l,a+.001);c=this._widthAtY(r,S),h=this._widthAtY(n,S),d=Math.max(c,h)}const f=this.overlayTargetWidth??0;d>f*1.01&&(this.overlayTargetWidth=d*1.02,this._customViewBox=null,this.regionZoomActive=!1)}_triggerAdaptiveZoom(){if(!this.overlayMode||this._userAdjustingWidth)return;const e=this._computedA,t=this._computedB,i=Math.max(e.length?e[e.length-1].endY:0,t.length?t[t.length-1].endY:0);if(i<=0)return;const s=this.overlayCenter*i;let r=this._widthAtY(e,s),n=this._widthAtY(t,s),l=Math.max(r,n);if(l<1e-6&&(l=.02),this.overlayTargetWidth==null){this.overlayTargetWidth=l*1.05,this.adaptiveZoomMode="expand",this._activeExpand=!0,this.requestUpdate();return}const a=this.overlayTargetWidth,c=1.01,h=1.005,d=.3,f=.38,S=l/a;let u="idle";if((this._activeExpand||l>a*c)&&(l>a*c||this._activeExpand))if(l>a*h){const _=l*1.03,w=a+(_-a)*.25;this.overlayTargetWidth=w,u="expand",this._activeExpand=l/this.overlayTargetWidth<h}else this._activeExpand=!1;if(u==="idle"&&(this._activeShrink||S<d)&&(S<d||this._activeShrink))if(S<f){const _=l*1.25,w=this.units==="mm"?.001:1e-4*25.4;let y=a+(_-a)*.2;y<l*1.15&&(y=l*1.15),y<w&&(y=w),this.overlayTargetWidth=y,u="shrink",this._activeShrink=l/this.overlayTargetWidth<f}else this._activeShrink=!1;this.adaptiveZoomMode=u,u!=="idle"&&(this._customViewBox=null,this.regionZoomActive=!1,this.requestUpdate(),this._persist())}_dynamicViewportWidth(e){const t=Math.max(e*.4,.4),i=this.units==="mm"?.01:.01*25.4;return Math.max(i,e+t)}_logSampledWidth(){const e=this._computedA,t=this._computedB,i=Math.max(e.length?e[e.length-1].endY:0,t.length?t[t.length-1].endY:0),s=i>0?Math.min(i*5e-4,.001):.001,r=this.overlayCenter*i,n=r<s*4?s:r,l=this._widthAtY(e,n),a=this._widthAtY(t,n),c=Math.max(l,a),h=this._dynamicViewportWidth(c);console.log(`[Geom] sampled ${c.toFixed(5)}mm centerY=${r.toFixed(5)} viewport=${h.toFixed(5)}mm`)}_onSvgDblClick(e){const t=e.currentTarget,i=t.viewBox.baseVal,s=this._svgPoint(t,e),r=this._computedA,n=this._computedB,l=Math.max(r.length?r[r.length-1].endY:0,n.length?n[n.length-1].endY:0);if(l>0){let a=s.y/l;a<0&&(a=0),a>1&&(a=1),this.overlayCenter=a}this.showProfile||this._applyZoomAtPoint(s.x,s.y,.35,i,t,!1),this._persist()}_onSvgShiftDblClick(e){console.log("[Geom] shift dblclick svg","client",e.clientX,e.clientY);const t=e.currentTarget,i=t.viewBox.baseVal,s=this._svgPoint(t,e);this.showProfile||this._applyZoomAtPoint(s.x,s.y,2.857142857142857,i,t,!0)}_onPointerDownTap(e){if(e.pointerType!=="touch"&&e.pointerType!=="pen")return;const t=performance.now(),i=this.renderRoot.querySelector(".svg-wrap svg");if(!i)return;const s=this._svgPoint(i,e),r=t-this._lastTapTime;if(this._lastTapTime=t,r<320&&this._pendingTap){this._pendingTap=null;const n=new MouseEvent("dblclick",{clientX:e.clientX,clientY:e.clientY,bubbles:!0,cancelable:!0});this._onSvgDblClick(n)}else{this._pendingTap={x:s.x,y:s.y};const n=this._computedA,l=this._computedB,a=Math.max(n.length?n[n.length-1].endY:0,l.length?l[l.length-1].endY:0);if(a>0){let c=s.y/a;c<0&&(c=0),c>1&&(c=1),this.overlayCenter=c,this.requestUpdate(),this._persist()}setTimeout(()=>{this._pendingTap&&performance.now()-this._lastTapTime>320&&(this._pendingTap=null)},340)}}_applyZoomAtPoint(e,t,i,s,r,n){this._baseViewBox||(this._baseViewBox={x:s.x,y:s.y,w:s.width,h:s.height});let l=s.width*i,a=s.height*i;const c=.0254;if(!n&&l<c){const f=c/l;l=c,a=a*f}if(n&&(l>=this._baseViewBox.w||a>=this._baseViewBox.h)){this._customViewBox=null,this.regionZoomActive=!1,this.requestUpdate();return}const h=e-l/2,d=t-a/2;this._customViewBox={x:h,y:d,w:l,h:a},this.regionZoomActive=!0,this._syncOverlayFromViewBox(!1,!0),this.requestUpdate()}_resetZoom(){console.log("[Geom] reset zoom");const e=this._computeWithCurrentSegments(),t=e.length?e[e.length-1].endY:5,i=e.length?e[e.length-1].endWidth:2,s=t/this.zoom,r=i/this.zoom,n=r*.15,l=s*.05,a=-r/2-n,c=0,h=r+n*2,d=s+l;this._customViewBox={x:a,y:c,w:h,h:d},this._baseViewBox={x:a,y:c,w:h,h:d},this.regionZoomActive=!0,this.requestUpdate()}_svgPoint(e,t){const i=e.getBoundingClientRect(),s=e.viewBox.baseVal.width/i.width,r=e.viewBox.baseVal.height/i.height;let n=e.viewBox.baseVal.x+(t.clientX-i.left)*s,l=e.viewBox.baseVal.y+(t.clientY-i.top)*r;const a=i.height*.03;i.bottom-t.clientY<=a&&(l=0);const h=Math.abs(t.clientX-(i.left+i.width/2));return l===0&&h<=i.width*.03&&(n=0),{x:n,y:l}}_onWheel(e){if(e.preventDefault(),!this.overlayMode||this.showProfile)return;const t=this._geometryMaxWidthMm(),i=this.units==="mm"?.001:1e-4*25.4;let s=this.overlayTargetWidth??t;const r=e.deltaY>0?1:-1,n=e.altKey?.01:e.shiftKey?.15:.05,l=t-i,a=Math.min(10,Math.max(1,Math.round(Math.abs(e.deltaY)/100))),c=l*n*a*r*-1;let h=s+c;h<i&&(h=i),h>t&&(h=t),console.log("[Geom] wheel width change",{prev:s,next:h,units:this.units,deltaY:e.deltaY,steps:a,modifier:n}),this.overlayTargetWidth=h,this._customViewBox=null,this.regionZoomActive=!0,this.requestUpdate()}_logEvent(e,t){t instanceof MouseEvent?console.log(`[Geom] ${e}`,"type",t.type,"btn",t.button,"client",t.clientX,t.clientY,"shift",t.shiftKey):console.log(`[Geom] ${e}`,"type",t.type)}_onPanStart(e){if(e.button!==0)return;const t=this.renderRoot.querySelector(".svg-wrap svg");if(!t)return;const i=t.viewBox.baseVal;this._dragPanning=!0,this._dragStart={x:e.clientX,y:e.clientY,vbX:i.x,vbY:i.y,vbW:i.width,vbH:i.height},this._baseViewBox||(this._baseViewBox={x:i.x,y:i.y,w:i.width,h:i.height}),this._customViewBox||(this._customViewBox={x:i.x,y:i.y,w:i.width,h:i.height}),this.regionZoomActive=!0,window.addEventListener("mousemove",this._onPanMoveBound),window.addEventListener("mouseup",this._onPanEndBound),this._logEvent("pan-start",e),e.preventDefault()}_onPanMove(e){if(!this._dragPanning||!this._dragStart)return;const t=this.renderRoot.querySelector(".svg-wrap svg");if(!t)return;const i=this._dragStart,s=t.getBoundingClientRect(),r=i.vbW/s.width,n=i.vbH/s.height,l=Math.max(r,n),a=(e.clientX-i.x)*l,c=(e.clientY-i.y)*l,h=i.vbX-a,d=i.vbY-c;this._customViewBox={x:h,y:d,w:i.vbW,h:i.vbH},this._syncOverlayFromViewBox(),this.requestUpdate(),e.buttons===0&&this._onPanEnd(e)}_onPanEnd(e){this._dragPanning&&(this._dragPanning=!1,this._dragStart=null,window.removeEventListener("mousemove",this._onPanMoveBound),window.removeEventListener("mouseup",this._onPanEndBound),this._logEvent("pan-end",e))}_renderWidthSlider(e){const t=this._geometryMaxWidthMm(),i=this.units==="mm"?.001:1e-4*25.4;let s=this.overlayTargetWidth??t;s=Math.max(i,Math.min(t,s));const r=(s-i)/(t-i),n=1e4,l=Math.round(r*n),a=this._displayDigits(),c=(this.units==="mm"?t:t/25.4).toFixed(a),h=(this.units==="mm"?i:i/25.4).toFixed(a);return p`<div
       class="width-slider-box"
       style="margin-top:.5rem;display:flex;flex-direction:column;gap:.25rem;"
     >
@@ -243,7 +443,7 @@
           />
           <button
             style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--sl-color-neutral-900);border-radius:4px;cursor:pointer;"
-            @click=${()=>{const d=j(this.notationB,this.units);this.notationBWarnings=d.warnings,d.segments.length&&(this.segmentsB=d.segments.map(g=>({angleType:g.angleType,angleValue:g.angleValue,travelType:g.travelType,travelValue:g.travelValue})),this._customViewBox=null,this.overlayTargetWidth=null,this.requestUpdate(),this._persist(),d.notationUnits&&d.notationUnits!==this.units&&(this.units=d.notationUnits))}}
+            @click=${()=>{const d=j(this.notationB,this.units);this.notationBWarnings=d.warnings,d.segments.length&&(this.segmentsB=d.segments.map(f=>({angleType:f.angleType,angleValue:f.angleValue,travelType:f.travelType,travelValue:f.travelValue})),this._customViewBox=null,this.overlayTargetWidth=null,this.requestUpdate(),this._persist(),d.notationUnits&&d.notationUnits!==this.units&&(this.units=d.notationUnits))}}
           >
             Import B
           </button>
@@ -268,14 +468,14 @@
           type="number"
           style="width:6.5rem;font-size:.55rem;padding:.2rem;"
           .value=${(this.units==="mm"?s:s/25.4).toFixed(a)}
-          @change=${d=>{const g=Number(d.target.value);if(!isFinite(g))return;const A=this.units==="mm"?g:g*25.4,u=Math.max(i,Math.min(t,A));this.overlayTargetWidth=u,this._customViewBox=null,this.requestUpdate()}}
+          @change=${d=>{const f=Number(d.target.value);if(!isFinite(f))return;const S=this.units==="mm"?f:f*25.4,u=Math.max(i,Math.min(t,S));this.overlayTargetWidth=u,this._customViewBox=null,this.requestUpdate()}}
         />
       </div>
       <div style="font-size:.6rem;opacity:.75;text-align:center;">
         Width: ${this._formatLen(this.overlayTargetWidth??s)}
         ${this.units}
       </div>
-    </div>`}render(){const e=this._geometryA.compute(),t=this._geometryB.compute();console.log("Render - computedA:",e),console.log("Render - computedB:",t);const i=this._path(e),s=this._path(t);console.log("Render - pathA:",i),console.log("Render - pathB:",s);const r=this._segmentPaths(e),n=this._segmentPaths(t),l=this._geometryA.getTotalHeight(),a=this._geometryB.getTotalHeight(),c=Math.max(l,a),h=e.length?e[e.length-1].endWidth:2,d=t.length?t[t.length-1].endWidth:2,g=this.overlayMode?0:.4,A=this.overlayMode?Math.max(h,d):h+g+d;let u=this.overlayCenter*c;const _=c>0?Math.min(c*5e-4,.001):.001;if(!this.showProfile&&this.overlayMode&&this.overlayTargetWidth==null){const v=u<_*4?_:u,C=this._widthAtY(e,v),M=this._widthAtY(t,v),Je=Math.max(C,M,Math.max(h,d));this.overlayTargetWidth=Je}const w=u<_*4?_:u;let y;if(this.showProfile)y=A;else{const v=this._widthAtY(e,w),C=this._widthAtY(t,w),M=Math.max(v,C,1e-5);y=this._dynamicViewportWidth(M),this.overlayTargetWidth=y}const $=this.renderRoot.querySelector(".svg-wrap");let k=1;if($){const v=$.getBoundingClientRect();v.width>0&&v.height>0&&(k=v.height/v.width)}const T=y*k;let m=T;this.apexMacro&&!this.showProfile&&(m=T/5);const z=this.showProfile?-A/2:-y/2;let S;if(this.showProfile)S=0;else{S=c-u-m/2,S<0&&(S=0);const C=Math.max(0,c-m);S>C&&(S=C)}const P=this.showProfile?A:y,U=this.showProfile?c:m,ce=this.thinStrokes?.375:5;return this.units==="mm"||1/25.4,this.units,p` <div class="page ${this.fullScreen?"full-screen":""}">
+    </div>`}render(){const e=this._geometryA.compute(),t=this._geometryB.compute();console.log("Render - computedA:",e),console.log("Render - computedB:",t);const i=this._path(e),s=this._path(t);console.log("Render - pathA:",i),console.log("Render - pathB:",s);const r=this._segmentPaths(e),n=this._segmentPaths(t),l=this._geometryA.getTotalHeight(),a=this._geometryB.getTotalHeight(),c=Math.max(l,a),h=e.length?e[e.length-1].endWidth:2,d=t.length?t[t.length-1].endWidth:2,f=this.overlayMode?0:.4,S=this.overlayMode?Math.max(h,d):h+f+d;let u=this.overlayCenter*c;const _=c>0?Math.min(c*5e-4,.001):.001;if(!this.showProfile&&this.overlayMode&&this.overlayTargetWidth==null){const m=u<_*4?_:u,C=this._widthAtY(e,m),M=this._widthAtY(t,m),Je=Math.max(C,M,Math.max(h,d));this.overlayTargetWidth=Je}const w=u<_*4?_:u;let y;if(this.showProfile)y=S;else{const m=this._widthAtY(e,w),C=this._widthAtY(t,w),M=Math.max(m,C,1e-5);y=this._dynamicViewportWidth(M),this.overlayTargetWidth=y}const $=this.renderRoot.querySelector(".svg-wrap");let k=1;if($){const m=$.getBoundingClientRect();m.width>0&&m.height>0&&(k=m.height/m.width)}const T=y*k;let g=T;this.apexMacro&&!this.showProfile&&(g=T/5);const z=this.showProfile?-S/2:-y/2;let A;if(this.showProfile)A=0;else{A=c-u-g/2,A<0&&(A=0);const C=Math.max(0,c-g);A>C&&(A=C)}const P=this.showProfile?S:y,N=this.showProfile?c:g,ce=this.thinStrokes?.375:5;return this.units==="mm"||1/25.4,this.units,p` <div class="page ${this.fullScreen?"full-screen":""}">
       <h2>Geometry Builder (Knife Cross Section)</h2>
       <div
         style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.4rem;"
@@ -286,11 +486,11 @@
             placeholder="Notation A (e.g. mm=>15dps-2h,0.3w@3h,0.5w@5cp)"
             style="flex:1;min-width:14rem;font-size:.825rem;padding:.375rem .6rem;border:1px solid var(--vsa-border);border-radius:4px;"
             .value=${this.notationA}
-            @input=${v=>{this.notationA=v.target.value}}
+            @input=${m=>{this.notationA=m.target.value}}
           />
           <button
             style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--sl-color-neutral-900);border-radius:4px;cursor:pointer;"
-            @click=${()=>{const v=j(this.notationA,this.units);this.notationAWarnings=v.warnings,v.segments.length&&(this.segments=v.segments.map(C=>({angleType:C.angleType,angleValue:C.angleValue,travelType:C.travelType,travelValue:C.travelValue})),this._customViewBox=null,this.overlayTargetWidth=null,this.requestUpdate(),this._persist(),v.notationUnits&&v.notationUnits!==this.units&&(this.units=v.notationUnits))}}
+            @click=${()=>{const m=j(this.notationA,this.units);this.notationAWarnings=m.warnings,m.segments.length&&(this.segments=m.segments.map(C=>({angleType:C.angleType,angleValue:C.angleValue,travelType:C.travelType,travelValue:C.travelValue})),this._customViewBox=null,this.overlayTargetWidth=null,this.requestUpdate(),this._persist(),m.notationUnits&&m.notationUnits!==this.units&&(this.units=m.notationUnits))}}
           >
             Import A
           </button>
@@ -305,11 +505,11 @@
             placeholder="Notation B (e.g. in=>10dps-1h,0.15w@2h,0.22w@4cp)"
             style="flex:1;min-width:14rem;font-size:.825rem;padding:.375rem .6rem;border:1px solid var(--vsa-border);border-radius:4px;"
             .value=${this.notationB}
-            @input=${v=>{this.notationB=v.target.value}}
+            @input=${m=>{this.notationB=m.target.value}}
           />
           <button
             style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--sl-color-neutral-900);border-radius:4px;cursor:pointer;"
-            @click=${()=>{const v=j(this.notationB,this.units);this.notationBWarnings=v.warnings,v.segments.length&&(this.segmentsB=v.segments.map(C=>({angleType:C.angleType,angleValue:C.angleValue,travelType:C.travelType,travelValue:C.travelValue})),this._customViewBox=null,this.overlayTargetWidth=null,this.requestUpdate(),this._persist(),v.notationUnits&&v.notationUnits!==this.units&&(this.units=v.notationUnits))}}
+            @click=${()=>{const m=j(this.notationB,this.units);this.notationBWarnings=m.warnings,m.segments.length&&(this.segmentsB=m.segments.map(C=>({angleType:C.angleType,angleValue:C.angleValue,travelType:C.travelType,travelValue:C.travelValue})),this._customViewBox=null,this.overlayTargetWidth=null,this.requestUpdate(),this._persist(),m.notationUnits&&m.notationUnits!==this.units&&(this.units=m.notationUnits))}}
           >
             Import B
           </button>
@@ -323,19 +523,19 @@
         ${this.notationAWarnings.length?p`<div
               style="font-size:.5rem;color:var(--vsa-warning-text-color);line-height:1.2;"
             >
-              ${this.notationAWarnings.map(v=>p`<div>⚠ ${v}</div>`)}
+              ${this.notationAWarnings.map(m=>p`<div>⚠ ${m}</div>`)}
             </div>`:""}
         ${this.notationBWarnings.length?p`<div
               style="font-size:.5rem;color:var(--vsa-warning-text-color);line-height:1.2;"
             >
-              ${this.notationBWarnings.map(v=>p`<div>⚠ ${v}</div>`)}
+              ${this.notationBWarnings.map(m=>p`<div>⚠ ${m}</div>`)}
             </div>`:""}
       </div>
       ${this._renderNotationHelp()}
       <div class="controls-bar">
         <button
           style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--sl-color-neutral-900);border-radius:4px;cursor:pointer;"
-          @click=${()=>{this.notationA="mm=>15dps-2h,0.3w@3h,0.5w@5cp,50H",this.notationB="mm=>12dps-2h,0.25w@3h,0.45w@5cp,50H";const v=j(this.notationA,this.units),C=j(this.notationB,this.units);console.log("Example - ResA segments:",v.segments),console.log("Example - ResB segments:",C.segments),v.segments.length&&(this.segments=v.segments.map(M=>({angleType:M.angleType,angleValue:M.angleValue,travelType:M.travelType,travelValue:M.travelValue})),console.log("Example - Set segments A:",this.segments),console.log("Example - GeometryA computed:",this._geometryA.compute())),C.segments.length&&(this.segmentsB=C.segments.map(M=>({angleType:M.angleType,angleValue:M.angleValue,travelType:M.travelType,travelValue:M.travelValue})),console.log("Example - Set segments B:",this.segmentsB),console.log("Example - GeometryB computed:",this._geometryB.compute())),this._customViewBox=null,this.overlayTargetWidth=null,this.requestUpdate(),this._persist()}}
+          @click=${()=>{this.notationA="mm=>15dps-2h,0.3w@3h,0.5w@5cp,50H",this.notationB="mm=>12dps-2h,0.25w@3h,0.45w@5cp,50H";const m=j(this.notationA,this.units),C=j(this.notationB,this.units);console.log("Example - ResA segments:",m.segments),console.log("Example - ResB segments:",C.segments),m.segments.length&&(this.segments=m.segments.map(M=>({angleType:M.angleType,angleValue:M.angleValue,travelType:M.travelType,travelValue:M.travelValue})),console.log("Example - Set segments A:",this.segments),console.log("Example - GeometryA computed:",this._geometryA.compute())),C.segments.length&&(this.segmentsB=C.segments.map(M=>({angleType:M.angleType,angleValue:M.angleValue,travelType:M.travelType,travelValue:M.travelValue})),console.log("Example - Set segments B:",this.segmentsB),console.log("Example - GeometryB computed:",this._geometryB.compute())),this._customViewBox=null,this.overlayTargetWidth=null,this.requestUpdate(),this._persist()}}
         >
           Load Example
         </button>
@@ -417,14 +617,14 @@
                     </tr>
                   </thead>
                   <tbody>
-                    ${e.map((v,C)=>{const M=this.segments[C];return p`<tr>
+                    ${e.map((m,C)=>{const M=this.segments[C];return p`<tr>
                         <td>${C+1}</td>
                         <td>${M.angleValue}</td>
                         <td>${M.angleType}</td>
                         <td>${M.travelType}</td>
                         <td>${this._formatLen(M.travelValue)}</td>
-                        <td>${this._formatLen(v.endWidth)}</td>
-                        <td>${this._formatLen(v.endY)}</td>
+                        <td>${this._formatLen(m.endWidth)}</td>
+                        <td>${this._formatLen(m.endY)}</td>
                       </tr>`})}
                     ${e.length===0?p`<tr>
                           <td colspan="7" style="text-align:center;opacity:.6">
@@ -451,14 +651,14 @@
                     </tr>
                   </thead>
                   <tbody>
-                    ${t.map((v,C)=>{const M=this.segmentsB[C];return p`<tr>
+                    ${t.map((m,C)=>{const M=this.segmentsB[C];return p`<tr>
                         <td>${C+1}</td>
                         <td>${M.angleValue}</td>
                         <td>${M.angleType}</td>
                         <td>${M.travelType}</td>
                         <td>${this._formatLen(M.travelValue)}</td>
-                        <td>${this._formatLen(v.endWidth)}</td>
-                        <td>${this._formatLen(v.endY)}</td>
+                        <td>${this._formatLen(m.endWidth)}</td>
+                        <td>${this._formatLen(m.endY)}</td>
                       </tr>`})}
                     ${t.length===0?p`<tr>
                           <td colspan="7" style="text-align:center;opacity:.6">
@@ -480,7 +680,7 @@
             ${this._renderVerticalSlider(c)}
           </div>
           <div class="svg-column">
-            ${this._renderSvg(e,t,r,n,c,h,d,ce,_,z,S,P,U)}
+            ${this._renderSvg(e,t,r,n,c,h,d,ce,_,z,A,P,N)}
           </div>
         </div>
       </div>
@@ -630,15 +830,15 @@
         @input=${n=>{const a=Number(n.target.value)/1e4;this.overlayCenter=e>0?a:0,this._customViewBox=null,this.requestUpdate()}}
         style="width:100%;flex:1 1 auto;"
       />
-    </div>`}_renderControls(){return p``}_renderDebug(e){const t=this._geometryA.compute(),i=this._geometryB.compute(),s=Math.max(this._geometryA.getTotalHeight(),this._geometryB.getTotalHeight()),r=this.overlayCenter*s,n=r<e*4?e:r,l=this._geometryA.widthAtY(t,n),a=this._geometryB.widthAtY(i,n),c=this._displayDigits(),h=this.units,d=(this.units==="mm"?r:r/25.4).toFixed(c),g=(this.units==="mm"?l:l/25.4).toFixed(c),A=(this.units==="mm"?a:a/25.4).toFixed(c),u=l**3,_=a**3;let w,y;u===0&&_===0?(w=1,y="equal"):u>=_?(w=u/(_===0?Number.EPSILON:_),y=`A stronger x${w.toFixed(3)}`):(w=_/(u===0?Number.EPSILON:u),y=`B stronger x${w.toFixed(3)}`);const $=Math.abs(u-_)/Math.max(u,_||1)*100;return p`<div
+    </div>`}_renderControls(){return p``}_renderDebug(e){const t=this._geometryA.compute(),i=this._geometryB.compute(),s=Math.max(this._geometryA.getTotalHeight(),this._geometryB.getTotalHeight()),r=this.overlayCenter*s,n=r<e*4?e:r,l=this._geometryA.widthAtY(t,n),a=this._geometryB.widthAtY(i,n),c=this._displayDigits(),h=this.units,d=(this.units==="mm"?r:r/25.4).toFixed(c),f=(this.units==="mm"?l:l/25.4).toFixed(c),S=(this.units==="mm"?a:a/25.4).toFixed(c),u=l**3,_=a**3;let w,y;u===0&&_===0?(w=1,y="equal"):u>=_?(w=u/(_===0?Number.EPSILON:_),y=`A stronger x${w.toFixed(3)}`):(w=_/(u===0?Number.EPSILON:u),y=`B stronger x${w.toFixed(3)}`);const $=Math.abs(u-_)/Math.max(u,_||1)*100;return p`<div
       style="margin-top:.4rem;font-size:.6rem;background:var(--vsa-metrics-bg);padding:.55rem .7rem;border-radius:6px;line-height:1.2;"
     >
       <div style="font-weight:600;margin-bottom:.35rem;">
         Cross Section Metrics
       </div>
       <div>Height from apex: <strong>${d} ${h}</strong></div>
-      <div>Thickness A: <strong>${g} ${h}</strong></div>
-      <div>Thickness B: <strong>${A} ${h}</strong></div>
+      <div>Thickness A: <strong>${f} ${h}</strong></div>
+      <div>Thickness B: <strong>${S} ${h}</strong></div>
       <div style="margin-top:.35rem;font-weight:600;">
         Strength (thickness^3)
       </div>
@@ -656,21 +856,21 @@
       ${this.notationAWarnings.length||this.notationBWarnings.length?p`<div style="margin-top:.35rem;font-weight:600;">Warnings</div>`:""}
       ${this.notationAWarnings.map(k=>p`<div style="color:var(--vsa-warning-text-color);">A ⚠ ${k}</div>`)}
       ${this.notationBWarnings.map(k=>p`<div style="color:var(--vsa-warning-text-color);">B ⚠ ${k}</div>`)}
-    </div>`}_renderSvg(e,t,i,s,r,n,l,a,c,h,d,g,A){const u=this._path(e),_=this._path(t),w=this.overlayMode?p`
+    </div>`}_renderSvg(e,t,i,s,r,n,l,a,c,h,d,f,S){const u=this._path(e),_=this._path(t),w=this.overlayMode?p`
           ${u?I`<path d="${u}" fill="none" stroke="var(--vsa-path-a-color)" stroke-width="${a}" vector-effect="non-scaling-stroke"></path>`:""}
           ${_?I`<path d="${_}" fill="none" stroke="var(--vsa-path-b-color)" stroke-width="${a}" vector-effect="non-scaling-stroke"></path>`:""}
-          ${(()=>{const $=a*.6,k=`${(a*.7).toFixed(0)} ${(a*.5).toFixed(0)}`,T=Array.from(new Set([...e.map(m=>m.endY),...t.map(m=>m.endY)])).sort((m,z)=>m-z);return I`${T.map(m=>{if(m<=0||m>=r-1e-9)return"";const z=this._widthAtY(e,m),S=this._widthAtY(t,m),U=Math.max(z,S)/2;return I`<line x1="${-U}" y1="${m}" x2="${U}" y2="${m}" stroke="var(--vsa-grid-line-color)" stroke-width="${$}" vector-effect="non-scaling-stroke" stroke-dasharray="${k}" opacity="0.5" />`})}`})()}
-        `:p`${(()=>{const k=-(n/2+.3),T=l/2+.6/2,m=["#ffdd57","#74c0fc","#ffc9c9","#b197fc","#a9e34b","#ffa94d","#ffd8a8","#e599f7","#63e6be","#ff6b6b"];return I`
+          ${(()=>{const $=a*.6,k=`${(a*.7).toFixed(0)} ${(a*.5).toFixed(0)}`,T=Array.from(new Set([...e.map(g=>g.endY),...t.map(g=>g.endY)])).sort((g,z)=>g-z);return I`${T.map(g=>{if(g<=0||g>=r-1e-9)return"";const z=this._widthAtY(e,g),A=this._widthAtY(t,g),N=Math.max(z,A)/2;return I`<line x1="${-N}" y1="${g}" x2="${N}" y2="${g}" stroke="var(--vsa-grid-line-color)" stroke-width="${$}" vector-effect="non-scaling-stroke" stroke-dasharray="${k}" opacity="0.5" />`})}`})()}
+        `:p`${(()=>{const k=-(n/2+.3),T=l/2+.6/2,g=["#ffdd57","#74c0fc","#ffc9c9","#b197fc","#a9e34b","#ffa94d","#ffd8a8","#e599f7","#63e6be","#ff6b6b"];return I`
             <g transform="translate(${k},0)">
-              ${i.map((z,S)=>I`<path d="${z}" fill="${m[S%m.length]}" stroke="var(--vsa-stroke-color)" stroke-width="${a}" vector-effect="non-scaling-stroke" opacity="0.95"></path>`)}
+              ${i.map((z,A)=>I`<path d="${z}" fill="${g[A%g.length]}" stroke="var(--vsa-stroke-color)" stroke-width="${a}" vector-effect="non-scaling-stroke" opacity="0.95"></path>`)}
               ${u?I`<path d="${u}" fill="none" stroke="var(--vsa-path-a-color)" stroke-width="${a}" vector-effect="non-scaling-stroke"></path>`:""}
             </g>
             <g transform="translate(${T},0)">
-              ${s.map((z,S)=>I`<path d="${z}" fill="${m[S%m.length]}" stroke="var(--vsa-stroke-color)" stroke-width="${a}" vector-effect="non-scaling-stroke" opacity="0.95"></path>`)}
+              ${s.map((z,A)=>I`<path d="${z}" fill="${g[A%g.length]}" stroke="var(--vsa-stroke-color)" stroke-width="${a}" vector-effect="non-scaling-stroke" opacity="0.95"></path>`)}
               ${_?I`<path d="${_}" fill="none" stroke="var(--vsa-path-b-color)" stroke-width="${a}" vector-effect="non-scaling-stroke"></path>`:""}
-            </g>`})()}`,y=(()=>{const $=this.overlayCenter*r,k=$<c*4?c:$;let T=this._widthAtY(e,k),m=this._widthAtY(t,k),z=Math.max(T,m);z<1e-9&&(z=.02);const S=z*1.05/2,P=(a*.6).toFixed(0),U=(a*.4).toFixed(0);return I`<g class="center-line-group" pointer-events="none">
-        <line x1="${-S}" y1="${$}" x2="${S}" y2="${$}" stroke="var(--vsa-center-line-color)" stroke-width="${a}" vector-effect="non-scaling-stroke" stroke-dasharray="${P} ${U}" />
-      </g>`})();return p`${u||_?I`<svg viewBox="${this._customViewBox?this._customViewBox.x:h} ${this._customViewBox?this._customViewBox.y:d} ${this._customViewBox?this._customViewBox.w:g} ${this._customViewBox?this._customViewBox.h:A}" preserveAspectRatio="xMidYMin meet">
+            </g>`})()}`,y=(()=>{const $=this.overlayCenter*r,k=$<c*4?c:$;let T=this._widthAtY(e,k),g=this._widthAtY(t,k),z=Math.max(T,g);z<1e-9&&(z=.02);const A=z*1.05/2,P=(a*.6).toFixed(0),N=(a*.4).toFixed(0);return I`<g class="center-line-group" pointer-events="none">
+        <line x1="${-A}" y1="${$}" x2="${A}" y2="${$}" stroke="var(--vsa-center-line-color)" stroke-width="${a}" vector-effect="non-scaling-stroke" stroke-dasharray="${P} ${N}" />
+      </g>`})();return p`${u||_?I`<svg viewBox="${this._customViewBox?this._customViewBox.x:h} ${this._customViewBox?this._customViewBox.y:d} ${this._customViewBox?this._customViewBox.w:f} ${this._customViewBox?this._customViewBox.h:S}" preserveAspectRatio="xMidYMin meet">
       <g class="geom" transform="translate(0, ${r}) scale(1,-1)">
         ${w}
         ${y}
@@ -1781,7 +1981,7 @@
       background: var(--vsa-input-bg);
       border-radius: 4px;
     }
-  `;let f=$e;b([x({type:Number})],f.prototype,"angleInput",2);b([x({type:Number})],f.prototype,"thicknessInput",2);b([x({type:Number})],f.prototype,"angleInputB",2);b([x({type:Number})],f.prototype,"thicknessInputB",2);b([x({type:String})],f.prototype,"angleInputType",2);b([x({type:String})],f.prototype,"angleInputTypeB",2);b([x({type:String})],f.prototype,"travelInputType",2);b([x({type:String})],f.prototype,"travelInputTypeB",2);b([x({type:Number})],f.prototype,"zoom",2);b([x({type:Number})],f.prototype,"pan",2);b([x({type:Array,attribute:!1})],f.prototype,"segments",1);b([x({type:Array,attribute:!1})],f.prototype,"segmentsB",1);b([B()],f.prototype,"warning",2);b([x({type:String})],f.prototype,"units",2);b([x({type:Boolean})],f.prototype,"regionZoomActive",2);b([x({type:Boolean})],f.prototype,"overlayMode",2);b([x({type:Number})],f.prototype,"overlayCenter",2);b([x({type:Number})],f.prototype,"overlayTargetWidth",2);b([B()],f.prototype,"showProfile",2);b([B()],f.prototype,"notationA",2);b([B()],f.prototype,"notationB",2);b([B()],f.prototype,"notationAWarnings",2);b([B()],f.prototype,"notationBWarnings",2);b([B()],f.prototype,"_fullScreen",2);b([x({type:Number})],f.prototype,"strokePxMin",2);b([x({type:Boolean})],f.prototype,"showDebug",2);b([x({type:Boolean})],f.prototype,"apexMacro",1);b([B()],f.prototype,"thinStrokes",2);b([B()],f.prototype,"adaptiveZoomMode",2);b([B()],f.prototype,"_wizardOpen",2);b([B()],f.prototype,"_wizardStep",2);b([B()],f.prototype,"_wizardUnits",2);b([B()],f.prototype,"_wizardNotationType",2);b([B()],f.prototype,"_wizardCurrentValueIndex",2);b([B()],f.prototype,"_wizardValues",2);b([B()],f.prototype,"_wizardSegments",2);b([B()],f.prototype,"_wizardCurrentSegmentIndex",2);b([B()],f.prototype,"_wizardEditingExisting",2);b([B()],f.prototype,"_wizardSide",2);customElements.define("vsa-geometry-builder",f);var Dt=Object.defineProperty,V=(o,e,t,i)=>{for(var s=void 0,r=o.length-1,n;r>=0;r--)(n=o[r])&&(s=n(e,t,s)||s);return s&&Dt(e,t,s),s};const ke=class ke extends q{constructor(){super(),this.page="home",this.width=3,this.height=2,this.desiredAngle=20,this.sharpenerAngle=15,this.rotationAngle=12,this.rotationSharpener=15,this.passes=19,this.hardness=60,this.edgeAngle=30,this.carbides={CrC:0,CrCV:0,MC:5.5,M6C:5,MN:0,CrN:0,Fe3C:0},this.dark=!1,this.online=navigator.onLine,this.updateReady=!1,this.geometryFullScreen=!1,this.addEventListener("steel-selected",e=>this._onSteelSelected(e)),document.documentElement.classList.remove("dark"),window.addEventListener("hashchange",()=>this._applyRoute()),this._applyRoute();try{localStorage.getItem("vsa-theme")==="dark"&&(document.documentElement.classList.add("dark"),this.dark=!0)}catch{}window.addEventListener("online",()=>{this.online=!0,this.requestUpdate()}),window.addEventListener("offline",()=>{this.online=!1,this.requestUpdate()}),"serviceWorker"in navigator&&(navigator.serviceWorker.getRegistration().then(e=>{e&&e.addEventListener("updatefound",()=>{const t=e.installing;t&&t.addEventListener("statechange",()=>{t.state==="installed"&&navigator.serviceWorker.controller&&(this.updateReady=!0,this.requestUpdate())})})}),navigator.serviceWorker.addEventListener("controllerchange",()=>{window.__vsaReloaded||(window.__vsaReloaded=!0,requestAnimationFrame(()=>window.location.reload()))})),this.addEventListener("geometry-fullscreen-changed",e=>{const t=e.detail;this.geometryFullScreen=!!(t!=null&&t.fullScreen),this.requestUpdate()})}_applyRoute(){const e=window.location.hash.replace(/^#\//,"");this.page=e||"home"}_go(e){window.location.hash=`/${e}`,this.page=e}_num(e,t){const i=e.target,s=Number(i.value);this[t]=s}_carbide(e,t){const i=e.target,s=Number(i.value);this.carbides={...this.carbides,[t]:s}}render(){return p`${this.geometryFullScreen?p``:p`<header
+  `;let v=$e;b([x({type:Number})],v.prototype,"angleInput",2);b([x({type:Number})],v.prototype,"thicknessInput",2);b([x({type:Number})],v.prototype,"angleInputB",2);b([x({type:Number})],v.prototype,"thicknessInputB",2);b([x({type:String})],v.prototype,"angleInputType",2);b([x({type:String})],v.prototype,"angleInputTypeB",2);b([x({type:String})],v.prototype,"travelInputType",2);b([x({type:String})],v.prototype,"travelInputTypeB",2);b([x({type:Number})],v.prototype,"zoom",2);b([x({type:Number})],v.prototype,"pan",2);b([x({type:Array,attribute:!1})],v.prototype,"segments",1);b([x({type:Array,attribute:!1})],v.prototype,"segmentsB",1);b([B()],v.prototype,"warning",2);b([x({type:String})],v.prototype,"units",2);b([x({type:Boolean})],v.prototype,"regionZoomActive",2);b([x({type:Boolean})],v.prototype,"overlayMode",2);b([x({type:Number})],v.prototype,"overlayCenter",2);b([x({type:Number})],v.prototype,"overlayTargetWidth",2);b([B()],v.prototype,"showProfile",2);b([B()],v.prototype,"notationA",2);b([B()],v.prototype,"notationB",2);b([B()],v.prototype,"notationAWarnings",2);b([B()],v.prototype,"notationBWarnings",2);b([B()],v.prototype,"_fullScreen",2);b([x({type:Number})],v.prototype,"strokePxMin",2);b([x({type:Boolean})],v.prototype,"showDebug",2);b([x({type:Boolean})],v.prototype,"apexMacro",1);b([B()],v.prototype,"thinStrokes",2);b([B()],v.prototype,"adaptiveZoomMode",2);b([B()],v.prototype,"_wizardOpen",2);b([B()],v.prototype,"_wizardStep",2);b([B()],v.prototype,"_wizardUnits",2);b([B()],v.prototype,"_wizardNotationType",2);b([B()],v.prototype,"_wizardCurrentValueIndex",2);b([B()],v.prototype,"_wizardValues",2);b([B()],v.prototype,"_wizardSegments",2);b([B()],v.prototype,"_wizardCurrentSegmentIndex",2);b([B()],v.prototype,"_wizardEditingExisting",2);b([B()],v.prototype,"_wizardSide",2);customElements.define("vsa-geometry-builder",v);var Dt=Object.defineProperty,W=(o,e,t,i)=>{for(var s=void 0,r=o.length-1,n;r>=0;r--)(n=o[r])&&(s=n(e,t,s)||s);return s&&Dt(e,t,s),s};const ke=class ke extends q{constructor(){super(),this.page="home",this.width=3,this.height=2,this.desiredAngle=20,this.sharpenerAngle=15,this.rotationAngle=12,this.rotationSharpener=15,this.passes=19,this.hardness=60,this.edgeAngle=30,this.carbides={CrC:0,CrCV:0,MC:5.5,M6C:5,MN:0,CrN:0,Fe3C:0},this.dark=!1,this.online=navigator.onLine,this.updateReady=!1,this.geometryFullScreen=!1,this.addEventListener("steel-selected",e=>this._onSteelSelected(e)),document.documentElement.classList.remove("dark"),window.addEventListener("hashchange",()=>this._applyRoute()),this._applyRoute();try{localStorage.getItem("vsa-theme")==="dark"&&(document.documentElement.classList.add("dark"),this.dark=!0)}catch{}window.addEventListener("online",()=>{this.online=!0,this.requestUpdate()}),window.addEventListener("offline",()=>{this.online=!1,this.requestUpdate()}),"serviceWorker"in navigator&&(navigator.serviceWorker.getRegistration().then(e=>{e&&e.addEventListener("updatefound",()=>{const t=e.installing;t&&t.addEventListener("statechange",()=>{t.state==="installed"&&navigator.serviceWorker.controller&&(this.updateReady=!0,this.requestUpdate())})})}),navigator.serviceWorker.addEventListener("controllerchange",()=>{window.__vsaReloaded||(window.__vsaReloaded=!0,requestAnimationFrame(()=>window.location.reload()))})),this.addEventListener("geometry-fullscreen-changed",e=>{const t=e.detail;this.geometryFullScreen=!!(t!=null&&t.fullScreen),this.requestUpdate()})}_applyRoute(){const e=window.location.hash.replace(/^#\//,"");this.page=e||"home"}_go(e){window.location.hash=`/${e}`,this.page=e}_num(e,t){const i=e.target,s=Number(i.value);this[t]=s}_carbide(e,t){const i=e.target,s=Number(i.value);this.carbides={...this.carbides,[t]:s}}render(){return p`${this.geometryFullScreen?p``:p`<header
             class="app-header ${this.geometryFullScreen?"hidden":""}"
           >
             <h1>VSharpAngle</h1>
@@ -1878,9 +2078,8 @@
             sets (e.g. 30 → 20 → 10) and see totals / X‑strokes.
           </li>
           <li>
-            <strong>Edge Retention Estimator:</strong> Approximate CATRA TCC,
-            material removal volume, and stability from hardness, edge angle,
-            and carbide mix.
+            <strong>Edge Retention Estimator:</strong> Approximate CATRA TCC and
+            material removal volume from hardness, edge angle, and carbide mix.
           </li>
         </ul>
         <h3 style="margin:.9rem 0 .4rem;font-size:.75rem">Using Each Tool</h3>
@@ -2006,7 +2205,7 @@
           blunter (larger) angle.
         </p>
       </div>
-    </div>`}_pageElevation(){const e=St(this.desiredAngle,this.sharpenerAngle);let t=null;return e==null&&(this.desiredAngle==null||this.sharpenerAngle==null?t="Both desired and setting angles required.":t="Unexpected null result; ensure numeric inputs.",queueMicrotask(()=>{var s;const i=(s=this.renderRoot)==null?void 0:s.querySelector(this.desiredAngle==null?'sl-input[label="Desired"]':'sl-select[label="Setting"]');i==null||i.focus()})),p`<div class="page">
+    </div>`}_pageElevation(){const e=At(this.desiredAngle,this.sharpenerAngle);let t=null;return e==null&&(this.desiredAngle==null||this.sharpenerAngle==null?t="Both desired and setting angles required.":t="Unexpected null result; ensure numeric inputs.",queueMicrotask(()=>{var s;const i=(s=this.renderRoot)==null?void 0:s.querySelector(this.desiredAngle==null?'sl-input[label="Desired"]':'sl-select[label="Setting"]');i==null||i.focus()})),p`<div class="page">
       <div class="back-link">${this._homeLink()}</div>
       <section class="calc">
         <h2>
@@ -2066,7 +2265,7 @@
           already at or very near the desired angle.
         </p>
       </div>
-    </div>`}_pageRotation(){const e=At(this.rotationAngle,this.rotationSharpener);let t=null;return e==null&&(this.rotationAngle==null||this.rotationSharpener==null?t="Provide both target and setting angles.":t="csc(setting) * sin(angle) must be between -1 and 1.",queueMicrotask(()=>{var s;const i=(s=this.renderRoot)==null?void 0:s.querySelector(this.rotationAngle==null?'sl-input[label="Angle"]':'sl-select[label="Setting"]');i==null||i.focus()})),p`<div class="page">
+    </div>`}_pageRotation(){const e=St(this.rotationAngle,this.rotationSharpener);let t=null;return e==null&&(this.rotationAngle==null||this.rotationSharpener==null?t="Provide both target and setting angles.":t="csc(setting) * sin(angle) must be between -1 and 1.",queueMicrotask(()=>{var s;const i=(s=this.renderRoot)==null?void 0:s.querySelector(this.rotationAngle==null?'sl-input[label="Angle"]':'sl-select[label="Setting"]');i==null||i.focus()})),p`<div class="page">
       <div class="back-link">${this._homeLink()}</div>
       <section class="calc">
         <h2>
@@ -2184,13 +2383,13 @@
           slightly larger starting pass set.
         </p>
       </div>
-    </div>`}_pageRetention(){const e=Ze({hardness:this.hardness,edgeAngle:this.edgeAngle,CrC:this.carbides.CrC,CrV:this.carbides.CrCV,MC:this.carbides.MC,M6C:this.carbides.M6C,MN:this.carbides.MN,CrN:this.carbides.CrN,Fe3C:this.carbides.Fe3C}),t=this.hardness!=null&&this.hardness>0,i=this.edgeAngle!=null&&this.edgeAngle>0,s=[];return t||s.push("Hardness must be positive (e.g., 60)."),i||s.push("Edge angle must be positive degrees per side."),s.length&&queueMicrotask(()=>{var l;const r=t?'sl-input[label="Edge Angle"]':'sl-input[label="Hardness"]',n=(l=this.renderRoot)==null?void 0:l.querySelector(r);n==null||n.focus()}),p`<div class="page">
+    </div>`}_pageRetention(){const e=Ze({hardness:this.hardness,edgeAngle:this.edgeAngle,CrC:this.carbides.CrC,CrV:this.carbides.CrCV,MC:this.carbides.MC,M6C:this.carbides.M6C,MN:this.carbides.MN,CrN:this.carbides.CrN,Fe3C:this.carbides.Fe3C}),t=this.hardness!=null&&this.hardness>0,i=this.edgeAngle!=null&&this.edgeAngle>0,s=[];return t||s.push("Hardness must be positive (e.g., 60)."),i||s.push("Edge angle must be positive degrees per side."),s.length&&queueMicrotask(()=>{var l;const r=t?"tr:nth-child(2) sl-input":"tr:first-child sl-input",n=(l=this.renderRoot)==null?void 0:l.querySelector(r);n==null||n.focus()}),p`<div class="page">
       <div class="back-link">${this._homeLink()}</div>
       <section class="calc">
         <h2>
           Edge Retention Estimator
           <sl-tooltip
-            content="Approximate CATRA TCC, volume, and stability from hardness, edge angle, and carbides."
+            content="Approximate CATRA TCC and volume from hardness, edge angle, and carbides."
           >
             <sl-icon
               name="info-circle"
@@ -2198,43 +2397,86 @@
             ></sl-icon>
           </sl-tooltip>
         </h2>
-        <div class="retention-group">
-          <div class="input-box">
-            <sl-input
-              label="Hardness"
-              help-text="Rockwell C hardness (HRC). Higher HRC boosts wear resistance but may reduce toughness. Typical 50–70."
-              type="number"
-              .value=${String(this.hardness)}
-              @input=${r=>this._num(r,"hardness")}
-            ></sl-input>
-          </div>
-          <div class="input-box">
-            <sl-input
-              label="Edge Angle"
-              help-text="Degrees per side (DPS). Lower angles slice more efficiently; higher angles increase edge durability."
-              type="number"
-              .value=${String(this.edgeAngle)}
-              @input=${r=>this._num(r,"edgeAngle")}
-            ></sl-input>
-          </div>
-        </div>
-        <div class="retention-group">
-          ${[{k:"CrC",t:"Chromium carbides (CrC) – moderate wear contribution."},{k:"CrCV",t:"Chromium/Vanadium mixed carbides – added abrasion resistance."},{k:"MC",t:"MC (V/Nb) carbides – very high hardness, strong wear resistance."},{k:"M6C",t:"Complex M6C carbides – balanced secondary contribution."},{k:"MN",t:"Manganese phases – minor influence overall."},{k:"CrN",t:"Chromium nitride – stability & wear support."},{k:"Fe3C",t:"Iron carbide (cementite) – baseline matrix wear component."}].map(({k:r,t:n})=>p`<div class="input-box">
-              <sl-input
-                label=${r}
-                help-text=${n}
-                type="number"
-                .value=${String(this.carbides[r]||0)}
-                @input=${l=>this._carbide(l,r)}
-              ></sl-input>
-            </div>`)}
+        <p class="section-subtitle">
+          Enter custom steel properties to get an estimate, or interact with the
+          full steel database below.
+        </p>
+        <div class="retention-inputs">
+          <table class="retention-table">
+            <tr>
+              <td>
+                <div class="label-with-tooltip">
+                  <span>Hardness</span>
+                  <sl-tooltip
+                    content="Rockwell C hardness (HRC). Higher HRC boosts wear resistance but may reduce toughness. Typical 50–70."
+                  >
+                    <sl-icon
+                      name="info-circle"
+                      style="font-size: 0.75rem; opacity: 0.7;"
+                    ></sl-icon>
+                  </sl-tooltip>
+                </div>
+              </td>
+              <td>
+                <sl-input
+                  type="number"
+                  .value=${String(this.hardness)}
+                  @input=${r=>this._num(r,"hardness")}
+                  size="small"
+                ></sl-input>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="label-with-tooltip">
+                  <span>Edge Angle</span>
+                  <sl-tooltip
+                    content="Degrees per side (DPS). Lower angles slice more efficiently; higher angles increase edge durability."
+                  >
+                    <sl-icon
+                      name="info-circle"
+                      style="font-size: 0.75rem; opacity: 0.7;"
+                    ></sl-icon>
+                  </sl-tooltip>
+                </div>
+              </td>
+              <td>
+                <sl-input
+                  type="number"
+                  .value=${String(this.edgeAngle)}
+                  @input=${r=>this._num(r,"edgeAngle")}
+                  size="small"
+                ></sl-input>
+              </td>
+            </tr>
+            ${[{k:"CrC",t:"Chromium carbides (CrC) – moderate wear contribution."},{k:"CrCV",t:"Chromium/Vanadium mixed carbides – added abrasion resistance."},{k:"MC",t:"MC (V/Nb) carbides – very high hardness, strong wear resistance."},{k:"M6C",t:"Complex M6C carbides – balanced secondary contribution."},{k:"MN",t:"Manganese phases – minor influence overall."},{k:"CrN",t:"Chromium nitride – stability & wear support."},{k:"Fe3C",t:"Iron carbide (cementite) – baseline matrix wear component."}].map(({k:r,t:n})=>p`<tr>
+                <td>
+                  <div class="label-with-tooltip">
+                    <span>${r}</span>
+                    <sl-tooltip content="${n}">
+                      <sl-icon
+                        name="info-circle"
+                        style="font-size: 0.75rem; opacity: 0.7;"
+                      ></sl-icon>
+                    </sl-tooltip>
+                  </div>
+                </td>
+                <td>
+                  <sl-input
+                    type="number"
+                    .value=${String(this.carbides[r]||0)}
+                    @input=${l=>this._carbide(l,r)}
+                    size="small"
+                  ></sl-input>
+                </td>
+              </tr>`)}
+          </table>
         </div>
         <div aria-live="polite">
           ${s.length===0?p`<div class="result-block" role="status">
-                <span>TCC / Volume / Stability</span
+                <span>TCC / Volume</span
                 ><span class="result-value"
-                  >${e.TCC} / ${e.volume.toFixed(1)} /
-                  ${e.stability}</span
+                  >${e.TCC} / ${e.volume.toFixed(1)}</span
                 >
               </div>`:p`<div class="invalid-msg" role="alert">
                 <strong>Cannot compute retention metrics.</strong
@@ -2275,17 +2517,12 @@
         </p>
         <p>
           <strong>Volume</strong> is a simple sum of carbide fractions, giving a
-          rough sense of alloy complexity. Stability bands indicate suitable
-          edge angle ranges for balancing retention vs. toughness.
+          rough sense of alloy complexity.
         </p>
         <p>
           Treat these numbers as comparative guidance, not lab‑grade
           measurements. Real cutting performance depends on heat treatment,
           microstructure, and edge finish.
-        </p>
-        <p>
-          <strong>Tip:</strong> Lower edge angles may outperform higher ones in
-          slicing tasks until stability becomes a limiting factor.
         </p>
       </div>
     </div>`}_pageSteels(){return customElements.get("vsa-steel-table")||tt(()=>Promise.resolve().then(()=>Ct),void 0),p`<div class="page">
@@ -2624,23 +2861,72 @@
       line-height: 1.35;
     }
     /* Edge Retention input grouping */
-    .retention-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
+    .retention-inputs {
+      background: var(--vsa-card-bg);
+      border: 1px solid var(--vsa-card-border);
+      border-radius: 8px;
+      overflow: hidden;
       margin-top: 0.5rem;
     }
-    .input-box {
-      flex: 1 1 150px;
-      background: #f9fafb;
-      border: 1px solid var(--vsa-card-border);
-      border-radius: 10px;
-      padding: 0.55rem 0.6rem 0.5rem;
-      box-sizing: border-box;
+    .retention-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .retention-table td {
+      border-bottom: 1px solid var(--vsa-border, #e5e7eb);
+      padding: 0.5rem 0.75rem;
+      vertical-align: middle;
+    }
+    .retention-table td:first-child {
+      font-weight: 500;
+      width: 30%;
+      background: var(--vsa-surface, #f9fafb);
+      border-right: 1px solid var(--vsa-border, #e5e7eb);
+    }
+    .retention-table td:last-child {
+      width: 70%;
+    }
+    .retention-table tr:last-child td {
+      border-bottom: none;
+    }
+    .retention-table sl-input {
+      width: 100%;
+    }
+    .retention-table sl-input::part(form-control) {
+      margin-bottom: 0;
+    }
+    .retention-table sl-input::part(help-text) {
+      display: none;
+    }
+    .label-with-tooltip {
       display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .label-with-tooltip sl-icon {
+      cursor: help;
+      color: var(--sl-color-neutral-500);
+    }
+    .section-subtitle {
+      margin: 0.5rem 0 1rem 0;
+      color: var(--sl-color-neutral-600);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    :host-context(.dark) .section-subtitle {
+      color: var(--sl-color-neutral-400);
+    }
+    :host-context(.dark) .retention-table td:first-child {
+      background: var(--vsa-surface-dark, #1a1d23);
+    }
+    @media (max-width: 600px) {
+      .retention-table td {
+        padding: 0.4rem 0.5rem;
+      }
+      .retention-table td:first-child {
+        width: 35%;
+        font-size: 0.9rem;
+      }
     }
     :host-context(.dark) .input-box {
       background: #1e2328; /* requested dark mode input box background */
@@ -2720,4 +3006,4 @@
       opacity: 0.6;
       padding: 1rem;
     }
-  `;let W=ke;V([x({type:String})],W.prototype,"page");V([x({type:Number})],W.prototype,"width");V([x({type:Number})],W.prototype,"height");V([x({type:Number})],W.prototype,"desiredAngle");V([x({type:Number})],W.prototype,"sharpenerAngle");V([x({type:Number})],W.prototype,"rotationAngle");V([x({type:Number})],W.prototype,"rotationSharpener");V([x({type:Number})],W.prototype,"passes");V([x({type:Number})],W.prototype,"hardness");V([x({type:Number})],W.prototype,"edgeAngle");V([x({attribute:!1})],W.prototype,"carbides");V([x({type:Boolean})],W.prototype,"dark");V([x({type:Boolean})],W.prototype,"online");V([x({type:Boolean})],W.prototype,"updateReady");V([x({type:Boolean})],W.prototype,"geometryFullScreen");customElements.define("vsa-app-shell",W);const O=self,_e="v2",Ke=`vsa-precache-${_e}`,ve=`vsa-runtime-${_e}`,Xe=`vsa-data-${_e}`,Lt=["./","./index.html","./manifest.json"];O.addEventListener("install",o=>{O.skipWaiting(),o.waitUntil(caches.open(Ke).then(e=>e.addAll(Lt)))});O.addEventListener("activate",o=>{o.waitUntil((async()=>{const e=await caches.keys();await Promise.all(e.filter(t=>![Ke,ve,Xe].includes(t)).map(t=>caches.delete(t))),O.clients.claim()})())});async function Ne(o,e){const t=await caches.open(e),i=await t.match(o);try{const s=await fetch(o);return s&&s.status===200&&t.put(o,s.clone()),s}catch{return i||new Response("Offline",{status:503})}}O.addEventListener("fetch",o=>{const{request:e}=o;if(e.method!=="GET")return;const t=new URL(e.url);if(e.mode==="navigate"){o.respondWith((async()=>{try{return await fetch(e)}catch{return await caches.match("./index.html")||new Response("Offline",{status:503})}})());return}if(t.pathname.endsWith("/data/steels.json")){o.respondWith(Ne(e,Xe));return}if(t.hostname.includes("cdn.jsdelivr.net")){o.respondWith(Ne(e,ve));return}t.origin===self.location.origin&&o.respondWith((async()=>{const i=await caches.open(ve),s=await i.match(e);try{const r=await fetch(e);return r&&r.status===200&&i.put(e,r.clone()),r}catch{return s||new Response("Offline",{status:503})}})())});O.addEventListener("message",o=>{o.data==="vsa-skip-waiting"&&O.skipWaiting()});const He=location.hostname==="localhost"||location.hostname==="127.0.0.1";"serviceWorker"in navigator&&!He?window.addEventListener("load",()=>{navigator.serviceWorker.register("./service-worker.js").catch(o=>console.error("SW registration failed",o))}):He&&console.info("[VSA] Skipping service worker registration in dev environment.");
+  `;let E=ke;W([x({type:String})],E.prototype,"page");W([x({type:Number})],E.prototype,"width");W([x({type:Number})],E.prototype,"height");W([x({type:Number})],E.prototype,"desiredAngle");W([x({type:Number})],E.prototype,"sharpenerAngle");W([x({type:Number})],E.prototype,"rotationAngle");W([x({type:Number})],E.prototype,"rotationSharpener");W([x({type:Number})],E.prototype,"passes");W([x({type:Number})],E.prototype,"hardness");W([x({type:Number})],E.prototype,"edgeAngle");W([x({attribute:!1})],E.prototype,"carbides");W([x({type:Boolean})],E.prototype,"dark");W([x({type:Boolean})],E.prototype,"online");W([x({type:Boolean})],E.prototype,"updateReady");W([x({type:Boolean})],E.prototype,"geometryFullScreen");customElements.define("vsa-app-shell",E);const O=self,_e="v2",Ke=`vsa-precache-${_e}`,ve=`vsa-runtime-${_e}`,Xe=`vsa-data-${_e}`,Lt=["./","./index.html","./manifest.json"];O.addEventListener("install",o=>{O.skipWaiting(),o.waitUntil(caches.open(Ke).then(e=>e.addAll(Lt)))});O.addEventListener("activate",o=>{o.waitUntil((async()=>{const e=await caches.keys();await Promise.all(e.filter(t=>![Ke,ve,Xe].includes(t)).map(t=>caches.delete(t))),O.clients.claim()})())});async function He(o,e){const t=await caches.open(e),i=await t.match(o);try{const s=await fetch(o);return s&&s.status===200&&t.put(o,s.clone()),s}catch{return i||new Response("Offline",{status:503})}}O.addEventListener("fetch",o=>{const{request:e}=o;if(e.method!=="GET")return;const t=new URL(e.url);if(e.mode==="navigate"){o.respondWith((async()=>{try{return await fetch(e)}catch{return await caches.match("./index.html")||new Response("Offline",{status:503})}})());return}if(t.pathname.endsWith("/data/steels.json")){o.respondWith(He(e,Xe));return}if(t.hostname.includes("cdn.jsdelivr.net")){o.respondWith(He(e,ve));return}t.origin===self.location.origin&&o.respondWith((async()=>{const i=await caches.open(ve),s=await i.match(e);try{const r=await fetch(e);return r&&r.status===200&&i.put(e,r.clone()),r}catch{return s||new Response("Offline",{status:503})}})())});O.addEventListener("message",o=>{o.data==="vsa-skip-waiting"&&O.skipWaiting()});const Ue=location.hostname==="localhost"||location.hostname==="127.0.0.1";"serviceWorker"in navigator&&!Ue?window.addEventListener("load",()=>{navigator.serviceWorker.register("./service-worker.js").catch(o=>console.error("SW registration failed",o))}):Ue&&console.info("[VSA] Skipping service worker registration in dev environment.");

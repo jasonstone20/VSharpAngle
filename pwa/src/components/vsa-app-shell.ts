@@ -300,23 +300,72 @@ class VsaAppShell extends LitElement {
       line-height: 1.35;
     }
     /* Edge Retention input grouping */
-    .retention-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
+    .retention-inputs {
+      background: var(--vsa-card-bg);
+      border: 1px solid var(--vsa-card-border);
+      border-radius: 8px;
+      overflow: hidden;
       margin-top: 0.5rem;
     }
-    .input-box {
-      flex: 1 1 150px;
-      background: #f9fafb;
-      border: 1px solid var(--vsa-card-border);
-      border-radius: 10px;
-      padding: 0.55rem 0.6rem 0.5rem;
-      box-sizing: border-box;
+    .retention-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .retention-table td {
+      border-bottom: 1px solid var(--vsa-border, #e5e7eb);
+      padding: 0.5rem 0.75rem;
+      vertical-align: middle;
+    }
+    .retention-table td:first-child {
+      font-weight: 500;
+      width: 30%;
+      background: var(--vsa-surface, #f9fafb);
+      border-right: 1px solid var(--vsa-border, #e5e7eb);
+    }
+    .retention-table td:last-child {
+      width: 70%;
+    }
+    .retention-table tr:last-child td {
+      border-bottom: none;
+    }
+    .retention-table sl-input {
+      width: 100%;
+    }
+    .retention-table sl-input::part(form-control) {
+      margin-bottom: 0;
+    }
+    .retention-table sl-input::part(help-text) {
+      display: none;
+    }
+    .label-with-tooltip {
       display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .label-with-tooltip sl-icon {
+      cursor: help;
+      color: var(--sl-color-neutral-500);
+    }
+    .section-subtitle {
+      margin: 0.5rem 0 1rem 0;
+      color: var(--sl-color-neutral-600);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    :host-context(.dark) .section-subtitle {
+      color: var(--sl-color-neutral-400);
+    }
+    :host-context(.dark) .retention-table td:first-child {
+      background: var(--vsa-surface-dark, #1a1d23);
+    }
+    @media (max-width: 600px) {
+      .retention-table td {
+        padding: 0.4rem 0.5rem;
+      }
+      .retention-table td:first-child {
+        width: 35%;
+        font-size: 0.9rem;
+      }
     }
     :host-context(.dark) .input-box {
       background: #1e2328; /* requested dark mode input box background */
@@ -703,9 +752,8 @@ class VsaAppShell extends LitElement {
             sets (e.g. 30 → 20 → 10) and see totals / X‑strokes.
           </li>
           <li>
-            <strong>Edge Retention Estimator:</strong> Approximate CATRA TCC,
-            material removal volume, and stability from hardness, edge angle,
-            and carbide mix.
+            <strong>Edge Retention Estimator:</strong> Approximate CATRA TCC and
+            material removal volume from hardness, edge angle, and carbide mix.
           </li>
         </ul>
         <h3 style="margin:.9rem 0 .4rem;font-size:.75rem">Using Each Tool</h3>
@@ -1132,8 +1180,8 @@ class VsaAppShell extends LitElement {
     if (invalids.length) {
       queueMicrotask(() => {
         const selector = !hardValid
-          ? 'sl-input[label="Hardness"]'
-          : 'sl-input[label="Edge Angle"]';
+          ? "tr:first-child sl-input"
+          : "tr:nth-child(2) sl-input";
         const el = this.renderRoot?.querySelector(
           selector
         ) as HTMLElement | null;
@@ -1146,7 +1194,7 @@ class VsaAppShell extends LitElement {
         <h2>
           Edge Retention Estimator
           <sl-tooltip
-            content="Approximate CATRA TCC, volume, and stability from hardness, edge angle, and carbides."
+            content="Approximate CATRA TCC and volume from hardness, edge angle, and carbides."
           >
             <sl-icon
               name="info-circle"
@@ -1154,69 +1202,112 @@ class VsaAppShell extends LitElement {
             ></sl-icon>
           </sl-tooltip>
         </h2>
-        <div class="retention-group">
-          <div class="input-box">
-            <sl-input
-              label="Hardness"
-              help-text="Rockwell C hardness (HRC). Higher HRC boosts wear resistance but may reduce toughness. Typical 50–70."
-              type="number"
-              .value=${String(this.hardness)}
-              @input=${(e: Event) => this._num(e, "hardness")}
-            ></sl-input>
-          </div>
-          <div class="input-box">
-            <sl-input
-              label="Edge Angle"
-              help-text="Degrees per side (DPS). Lower angles slice more efficiently; higher angles increase edge durability."
-              type="number"
-              .value=${String(this.edgeAngle)}
-              @input=${(e: Event) => this._num(e, "edgeAngle")}
-            ></sl-input>
-          </div>
-        </div>
-        <div class="retention-group">
-          ${[
-            {
-              k: "CrC",
-              t: "Chromium carbides (CrC) – moderate wear contribution.",
-            },
-            {
-              k: "CrCV",
-              t: "Chromium/Vanadium mixed carbides – added abrasion resistance.",
-            },
-            {
-              k: "MC",
-              t: "MC (V/Nb) carbides – very high hardness, strong wear resistance.",
-            },
-            {
-              k: "M6C",
-              t: "Complex M6C carbides – balanced secondary contribution.",
-            },
-            { k: "MN", t: "Manganese phases – minor influence overall." },
-            { k: "CrN", t: "Chromium nitride – stability & wear support." },
-            {
-              k: "Fe3C",
-              t: "Iron carbide (cementite) – baseline matrix wear component.",
-            },
-          ].map(
-            ({ k, t }) => html`<div class="input-box">
-              <sl-input
-                label=${k}
-                help-text=${t}
-                type="number"
-                .value=${String(this.carbides[k] || 0)}
-                @input=${(e: Event) => this._carbide(e, k)}
-              ></sl-input>
-            </div>`
-          )}
+        <p class="section-subtitle">
+          Enter custom steel properties to get an estimate, or interact with the
+          full steel database below.
+        </p>
+        <div class="retention-inputs">
+          <table class="retention-table">
+            <tr>
+              <td>
+                <div class="label-with-tooltip">
+                  <span>Hardness</span>
+                  <sl-tooltip
+                    content="Rockwell C hardness (HRC). Higher HRC boosts wear resistance but may reduce toughness. Typical 50–70."
+                  >
+                    <sl-icon
+                      name="info-circle"
+                      style="font-size: 0.75rem; opacity: 0.7;"
+                    ></sl-icon>
+                  </sl-tooltip>
+                </div>
+              </td>
+              <td>
+                <sl-input
+                  type="number"
+                  .value=${String(this.hardness)}
+                  @input=${(e: Event) => this._num(e, "hardness")}
+                  size="small"
+                ></sl-input>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="label-with-tooltip">
+                  <span>Edge Angle</span>
+                  <sl-tooltip
+                    content="Degrees per side (DPS). Lower angles slice more efficiently; higher angles increase edge durability."
+                  >
+                    <sl-icon
+                      name="info-circle"
+                      style="font-size: 0.75rem; opacity: 0.7;"
+                    ></sl-icon>
+                  </sl-tooltip>
+                </div>
+              </td>
+              <td>
+                <sl-input
+                  type="number"
+                  .value=${String(this.edgeAngle)}
+                  @input=${(e: Event) => this._num(e, "edgeAngle")}
+                  size="small"
+                ></sl-input>
+              </td>
+            </tr>
+            ${[
+              {
+                k: "CrC",
+                t: "Chromium carbides (CrC) – moderate wear contribution.",
+              },
+              {
+                k: "CrCV",
+                t: "Chromium/Vanadium mixed carbides – added abrasion resistance.",
+              },
+              {
+                k: "MC",
+                t: "MC (V/Nb) carbides – very high hardness, strong wear resistance.",
+              },
+              {
+                k: "M6C",
+                t: "Complex M6C carbides – balanced secondary contribution.",
+              },
+              { k: "MN", t: "Manganese phases – minor influence overall." },
+              { k: "CrN", t: "Chromium nitride – stability & wear support." },
+              {
+                k: "Fe3C",
+                t: "Iron carbide (cementite) – baseline matrix wear component.",
+              },
+            ].map(
+              ({ k, t }) => html`<tr>
+                <td>
+                  <div class="label-with-tooltip">
+                    <span>${k}</span>
+                    <sl-tooltip content="${t}">
+                      <sl-icon
+                        name="info-circle"
+                        style="font-size: 0.75rem; opacity: 0.7;"
+                      ></sl-icon>
+                    </sl-tooltip>
+                  </div>
+                </td>
+                <td>
+                  <sl-input
+                    type="number"
+                    .value=${String(this.carbides[k] || 0)}
+                    @input=${(e: Event) => this._carbide(e, k)}
+                    size="small"
+                  ></sl-input>
+                </td>
+              </tr>`
+            )}
+          </table>
         </div>
         <div aria-live="polite">
           ${invalids.length === 0
             ? html`<div class="result-block" role="status">
-                <span>TCC / Volume / Stability</span
+                <span>TCC / Volume</span
                 ><span class="result-value"
-                  >${edge.TCC} / ${edge.volume.toFixed(1)} /
-                  ${edge.stability}</span
+                  >${edge.TCC} / ${edge.volume.toFixed(1)}</span
                 >
               </div>`
             : html`<div class="invalid-msg" role="alert">
@@ -1258,17 +1349,12 @@ class VsaAppShell extends LitElement {
         </p>
         <p>
           <strong>Volume</strong> is a simple sum of carbide fractions, giving a
-          rough sense of alloy complexity. Stability bands indicate suitable
-          edge angle ranges for balancing retention vs. toughness.
+          rough sense of alloy complexity.
         </p>
         <p>
           Treat these numbers as comparative guidance, not lab‑grade
           measurements. Real cutting performance depends on heat treatment,
           microstructure, and edge finish.
-        </p>
-        <p>
-          <strong>Tip:</strong> Lower edge angles may outperform higher ones in
-          slicing tasks until stability becomes a limiting factor.
         </p>
       </div>
     </div>`;

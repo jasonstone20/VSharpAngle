@@ -33,10 +33,99 @@ class VsaSteelTable extends LitElement {
     }
     .toolbar {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 0.75rem;
+      align-items: stretch;
+      margin-bottom: 1rem;
+    }
+    .control-group {
+      display: flex;
       gap: 0.5rem;
       align-items: center;
-      margin-bottom: 0.5rem;
+    }
+    .control-group.calculation-inputs {
+      justify-content: flex-start;
+    }
+    .control-group.tips {
+      justify-content: center;
+      gap: 1rem;
+    }
+    /* Table-style controls similar to retention estimator */
+    .steel-controls {
+      background: var(--vsa-card-bg);
+      border: 1px solid var(--vsa-card-border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    .controls-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .controls-table td {
+      border-bottom: 1px solid var(--vsa-border, #e5e7eb);
+      padding: 0.5rem 0.75rem;
+      vertical-align: middle;
+    }
+    .controls-table td:first-child {
+      font-weight: 500;
+      width: 25%;
+      background: var(--vsa-surface, #f9fafb);
+      border-right: 1px solid var(--vsa-border, #e5e7eb);
+    }
+    .controls-table td:last-child {
+      width: 75%;
+    }
+    .controls-table tr:last-child td {
+      border-bottom: none;
+    }
+    .multi-input {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: stretch;
+    }
+    .input-row {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .input-row sl-input {
+      flex: 1;
+      min-width: 60px;
+      max-width: 100px;
+    }
+    .input-row sl-button {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+    }
+    .add-button {
+      align-self: flex-start;
+      margin-top: 0.25rem;
+    }
+    .remove-button::part(base) {
+      background-color: var(--sl-color-danger-600);
+      border-color: var(--sl-color-danger-600);
+      color: white;
+    }
+    .remove-button::part(base):hover {
+      background-color: var(--sl-color-danger-700);
+      border-color: var(--sl-color-danger-700);
+    }
+    .add-button::part(base) {
+      background-color: var(--sl-color-success-600);
+      border-color: var(--sl-color-success-600);
+      color: white;
+    }
+    .add-button::part(base):hover {
+      background-color: var(--sl-color-success-700);
+      border-color: var(--sl-color-success-700);
+    }
+    :host-context(.dark) .controls-table td:first-child {
+      background: var(--vsa-surface-dark, #1a1d23);
     }
     table {
       width: 100%;
@@ -118,9 +207,44 @@ class VsaSteelTable extends LitElement {
       td {
         padding: 0.55rem 0.6rem;
       }
-      .toolbar {
+      .control-group.calculation-inputs {
         flex-direction: column;
         align-items: stretch;
+      }
+      .control-group.tips {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .controls-table td {
+        padding: 0.4rem 0.5rem;
+      }
+      .controls-table td:first-child {
+        width: 25%;
+        font-size: 0.85rem;
+      }
+      .controls-table td:last-child {
+        width: 75%;
+      }
+      .multi-input {
+        gap: 0.4rem;
+      }
+      .input-row {
+        gap: 0.3rem;
+      }
+      .input-row sl-input {
+        min-width: 50px;
+        max-width: 100px;
+        flex: 1;
+      }
+      .input-row sl-button {
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+      }
+      .add-button {
+        width: 32px;
+        height: 32px;
+        margin-top: 0.2rem;
       }
     }
   `;
@@ -130,8 +254,8 @@ class VsaSteelTable extends LitElement {
     filter: { type: String },
     sortKey: { type: String },
     sortDir: { type: String },
-    hardness: { type: Number },
-    edgeAngle: { type: Number },
+    hardnessValues: { type: Array },
+    edgeAngleValues: { type: Array },
     selectedName: { type: String },
   };
 
@@ -139,8 +263,8 @@ class VsaSteelTable extends LitElement {
   filter = "";
   sortKey = "name";
   sortDir = "asc";
-  hardness = 60;
-  edgeAngle = 30;
+  hardnessValues = [60];
+  edgeAngleValues = [30];
   selectedName = "";
 
   constructor() {
@@ -162,11 +286,87 @@ class VsaSteelTable extends LitElement {
   _onFilter(e: Event) {
     this.filter = (e.target as HTMLInputElement).value.trim().toLowerCase();
   }
-  _setHardness(e: Event) {
-    this.hardness = Number((e.target as HTMLInputElement).value);
+  _setHardnessValue(e: Event, index: number) {
+    const input = e.target as HTMLInputElement;
+
+    // Don't interfere with typing - let the user type freely
+    // Only update our reactive property if there's a valid number
+    if (input.value !== "") {
+      const numValue = Number(input.value);
+      if (!isNaN(numValue)) {
+        const newValues = [...this.hardnessValues];
+        newValues[index] = numValue;
+        this.hardnessValues = newValues;
+      }
+    }
+    // If empty, don't update anything - let user continue typing
   }
-  _setEdgeAngle(e: Event) {
-    this.edgeAngle = Number((e.target as HTMLInputElement).value);
+  _setEdgeAngleValue(e: Event, index: number) {
+    const input = e.target as HTMLInputElement;
+
+    // Don't interfere with typing - let the user type freely
+    // Only update our reactive property if there's a valid number
+    if (input.value !== "") {
+      const numValue = Number(input.value);
+      if (!isNaN(numValue)) {
+        const newValues = [...this.edgeAngleValues];
+        newValues[index] = numValue;
+        this.edgeAngleValues = newValues;
+      }
+    }
+    // If empty, don't update anything - let user continue typing
+  }
+  _validateHardnessValue(e: Event, index: number) {
+    const input = e.target as HTMLInputElement;
+    const value = Number(input.value);
+    const newValues = [...this.hardnessValues];
+
+    // On blur/change, ensure valid value or set default
+    if (isNaN(value) || value <= 0) {
+      newValues[index] = 60;
+      input.value = "60";
+    } else {
+      newValues[index] = value;
+    }
+    this.hardnessValues = newValues;
+  }
+  _validateEdgeAngleValue(e: Event, index: number) {
+    const input = e.target as HTMLInputElement;
+    const value = Number(input.value);
+    const newValues = [...this.edgeAngleValues];
+
+    // On blur/change, ensure valid value or set default
+    if (isNaN(value) || value <= 0) {
+      newValues[index] = 30;
+      input.value = "30";
+    } else {
+      newValues[index] = value;
+    }
+    this.edgeAngleValues = newValues;
+  }
+  _addHardnessInput() {
+    if (this.hardnessValues.length < 3) {
+      this.hardnessValues = [...this.hardnessValues, 60];
+    }
+  }
+  _addAngleInput() {
+    if (this.edgeAngleValues.length < 3) {
+      this.edgeAngleValues = [...this.edgeAngleValues, 30];
+    }
+  }
+  _removeHardnessInput(index: number) {
+    if (this.hardnessValues.length > 1) {
+      const newValues = [...this.hardnessValues];
+      newValues.splice(index, 1);
+      this.hardnessValues = newValues;
+    }
+  }
+  _removeAngleInput(index: number) {
+    if (this.edgeAngleValues.length > 1) {
+      const newValues = [...this.edgeAngleValues];
+      newValues.splice(index, 1);
+      this.edgeAngleValues = newValues;
+    }
   }
 
   _toggleSort(key: string) {
@@ -180,36 +380,77 @@ class VsaSteelTable extends LitElement {
 
   _filtered() {
     const f = this.filter;
-    let items = this.steels.map((s) => {
-      const { TCC, volume, stability } = edgeRetention({
-        hardness: this.hardness,
-        edgeAngle: this.edgeAngle,
-        ...s,
-      });
-      return { ...s, TCC, volume, stability } as SteelEntry & {
-        TCC: number;
-        volume: number;
-        stability: string;
-      };
-    });
-    if (f) items = items.filter((s) => s.name.toLowerCase().includes(f));
-    items.sort((a, b) => {
+    let combinations: (SteelEntry & {
+      TCC: number;
+      volume: number;
+      hardness: number;
+      edgeAngle: number;
+      combinationId: string;
+    })[] = [];
+
+    // Filter out invalid values (0 or negative) for calculations
+    const validHardness = this.hardnessValues.filter((h) => h > 0);
+    const validAngles = this.edgeAngleValues.filter((a) => a > 0);
+
+    // Use defaults if no valid values
+    if (validHardness.length === 0) validHardness.push(60);
+    if (validAngles.length === 0) validAngles.push(30);
+
+    // Create all combinations of hardness × edge angle × steel
+    for (const hardness of validHardness) {
+      for (const edgeAngle of validAngles) {
+        for (const steel of this.steels) {
+          if (f && !steel.name.toLowerCase().includes(f)) continue;
+
+          const { TCC, volume } = edgeRetention({
+            hardness,
+            edgeAngle,
+            ...steel,
+          });
+
+          combinations.push({
+            ...steel,
+            TCC,
+            volume,
+            hardness,
+            edgeAngle,
+            combinationId: `${steel.name}-${hardness}-${edgeAngle}`,
+          });
+        }
+      }
+    }
+
+    // Sort combinations
+    combinations.sort((a, b) => {
       const dir = this.sortDir === "asc" ? 1 : -1;
-      if (this.sortKey === "name") return a.name.localeCompare(b.name) * dir;
+      if (this.sortKey === "name") {
+        // First by name, then by hardness, then by angle
+        const nameCompare = a.name.localeCompare(b.name);
+        if (nameCompare !== 0) return nameCompare * dir;
+        const hardnessCompare = a.hardness - b.hardness;
+        if (hardnessCompare !== 0) return hardnessCompare * dir;
+        return (a.edgeAngle - b.edgeAngle) * dir;
+      }
       // @ts-ignore dynamic numeric key
       return ((a as any)[this.sortKey] - (b as any)[this.sortKey]) * dir;
     });
-    return items;
+
+    return combinations;
   }
 
   _select(
-    steel: SteelEntry & { TCC: number; volume: number; stability: string }
+    steel: SteelEntry & {
+      TCC: number;
+      volume: number;
+      hardness: number;
+      edgeAngle: number;
+    }
   ) {
     this.selectedName = steel.name;
     const detail: SteelSelectedDetail = {
       name: steel.name,
-      hardness: this.hardness,
-      edgeAngle: this.edgeAngle,
+      hardness: steel.hardness,
+      edgeAngle: steel.edgeAngle,
       carbides: {
         CrC: steel.CrC || 0,
         CrV: steel.CrV || 0,
@@ -231,7 +472,12 @@ class VsaSteelTable extends LitElement {
 
   _onRowKey(
     e: KeyboardEvent,
-    steel: SteelEntry & { TCC: number; volume: number; stability: string }
+    steel: SteelEntry & {
+      TCC: number;
+      volume: number;
+      hardness: number;
+      edgeAngle: number;
+    }
   ) {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -267,38 +513,128 @@ class VsaSteelTable extends LitElement {
     const rows = this._filtered();
     return html`
       <div class="toolbar">
-        <sl-input
-          size="small"
-          placeholder="Filter steel…"
-          @input=${this._onFilter}
-        ></sl-input>
-        <sl-input
-          size="small"
-          label="HRC"
-          type="number"
-          .value=${String(this.hardness)}
-          @input=${this._setHardness}
-        ></sl-input>
-        <sl-input
-          size="small"
-          label="Angle"
-          type="number"
-          .value=${String(this.edgeAngle)}
-          @input=${this._setEdgeAngle}
-        ></sl-input>
-        <sl-tooltip content="Click headers to sort"
-          ><sl-badge variant="neutral">Sort Tips</sl-badge></sl-tooltip
-        >
-        <sl-tooltip content="Click a steel row to populate inputs">
-          <sl-badge variant="primary">Row Select Tip</sl-badge>
-        </sl-tooltip>
+        <div class="control-group">
+          <sl-input
+            size="small"
+            placeholder="Filter steel…"
+            @input=${this._onFilter}
+          ></sl-input>
+        </div>
+        <div class="control-group tips">
+          <sl-tooltip content="Click headers to sort"
+            ><sl-badge variant="neutral">Sort Tips</sl-badge></sl-tooltip
+          >
+          <sl-tooltip content="Click a steel row to populate inputs">
+            <sl-badge variant="primary">Row Select Tip</sl-badge>
+          </sl-tooltip>
+        </div>
       </div>
+
+      <div class="steel-controls">
+        <table class="controls-table">
+          <tr>
+            <td>Hardness (HRC)</td>
+            <td>
+              <div class="multi-input">
+                ${this.hardnessValues.map(
+                  (value, index) => html`
+                    <div class="input-row">
+                      <sl-input
+                        size="small"
+                        type="number"
+                        value=${String(value)}
+                        @input=${(e: Event) => this._setHardnessValue(e, index)}
+                        @blur=${(e: Event) =>
+                          this._validateHardnessValue(e, index)}
+                      ></sl-input>
+                      ${this.hardnessValues.length > 1
+                        ? html`
+                            <sl-button
+                              size="small"
+                              variant="default"
+                              class="remove-button"
+                              @click=${() => this._removeHardnessInput(index)}
+                            >
+                              <sl-icon name="x"></sl-icon>
+                            </sl-button>
+                          `
+                        : ""}
+                    </div>
+                  `
+                )}
+                ${this.hardnessValues.length < 3
+                  ? html`
+                      <sl-button
+                        size="small"
+                        variant="default"
+                        class="add-button"
+                        @click=${this._addHardnessInput}
+                      >
+                        <sl-icon name="plus"></sl-icon>
+                      </sl-button>
+                    `
+                  : ""}
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>Edge Angle (DPS)</td>
+            <td>
+              <div class="multi-input">
+                ${this.edgeAngleValues.map(
+                  (value, index) => html`
+                    <div class="input-row">
+                      <sl-input
+                        size="small"
+                        type="number"
+                        value=${String(value)}
+                        @input=${(e: Event) =>
+                          this._setEdgeAngleValue(e, index)}
+                        @blur=${(e: Event) =>
+                          this._validateEdgeAngleValue(e, index)}
+                      ></sl-input>
+                      ${this.edgeAngleValues.length > 1
+                        ? html`
+                            <sl-button
+                              size="small"
+                              variant="default"
+                              class="remove-button"
+                              @click=${() => this._removeAngleInput(index)}
+                            >
+                              <sl-icon name="x"></sl-icon>
+                            </sl-button>
+                          `
+                        : ""}
+                    </div>
+                  `
+                )}
+                ${this.edgeAngleValues.length < 3
+                  ? html`
+                      <sl-button
+                        size="small"
+                        variant="default"
+                        class="add-button"
+                        @click=${this._addAngleInput}
+                      >
+                        <sl-icon name="plus"></sl-icon>
+                      </sl-button>
+                    `
+                  : ""}
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
       ${rows.length
         ? html` <div class="table-wrap">
             <table>
               <thead>
                 <tr>
                   ${this._headerCell("name", "Steel")}
+                  ${this._headerCell("hardness", "HRC")}
+                  ${this._headerCell("edgeAngle", "Angle")}
+                  ${this._headerCell("TCC", "est.TCC")}
                   ${this._headerCell("CrC", "CrC")}
                   ${this._headerCell("CrV", "CrV")}
                   ${this._headerCell("MC", "MC")}
@@ -307,7 +643,6 @@ class VsaSteelTable extends LitElement {
                   ${this._headerCell("CrN", "CrN")}
                   ${this._headerCell("Fe3C", "Fe3C")}
                   ${this._headerCell("volume", "Vol%")}
-                  ${this._headerCell("TCC", "est.TCC")}
                 </tr>
               </thead>
               <tbody>
@@ -317,12 +652,15 @@ class VsaSteelTable extends LitElement {
                     @keydown=${(e: KeyboardEvent) => this._onRowKey(e, s)}
                     tabindex="0"
                     role="button"
-                    aria-label="Select steel ${s.name}"
+                    aria-label="Select steel ${s.name} at ${s.hardness}HRC, ${s.edgeAngle}°"
                     aria-selected="${this.selectedName === s.name
                       ? "true"
                       : "false"}"
                   >
                     <td class="name">${s.name}</td>
+                    <td>${s.hardness}</td>
+                    <td>${s.edgeAngle}</td>
+                    <td class="tcc">${s.TCC}</td>
                     <td>${s.CrC || 0}</td>
                     <td>${s.CrV || 0}</td>
                     <td>${s.MC || 0}</td>
@@ -341,9 +679,8 @@ class VsaSteelTable extends LitElement {
                             (s.MN || 0) +
                             (s.CrN || 0) +
                             (s.Fe3C || 0)
-                          ).toFixed(1)}<br />${s.stability}
+                          ).toFixed(1)}
                     </td>
-                    <td class="tcc">${s.TCC}</td>
                   </tr>`
                 )}
               </tbody>
