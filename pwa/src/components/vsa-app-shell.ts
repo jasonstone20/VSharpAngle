@@ -435,23 +435,6 @@ class VsaAppShell extends LitElement {
       }
     }
 
-    .input-box {
-      background: #1e2328; /* requested dark mode input box background */
-      border-color: #394149;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-    }
-    /* Dark mode near-black backgrounds for editable controls */
-    /* Unified edit control background (antique white) in all modes */
-    sl-input::part(base),
-    sl-select::part(combobox),
-    sl-button[variant="default"]::part(base) {
-      background: var(--sl-input-background-color) !important;
-      color: #ebebeb !important;
-    }
-    sl-input::part(input),
-    sl-select::part(display-input) {
-      color: #d5d5d5;
-    }
     sl-input::part(base):focus-within,
     sl-select::part(combobox):focus-within {
       outline: 2px solid var(--sl-color-primary-600);
@@ -460,12 +443,7 @@ class VsaAppShell extends LitElement {
     .input-box sl-input::part(base) {
       width: 100%;
     }
-    /* Shoelace help text part */
-    .input-box sl-input::part(help-text) {
-      color: #b08400; /* note color */
-      font-weight: 500;
-      letter-spacing: 0.25px;
-    }
+
     .input-box sl-input::part(help-text) {
       color: hsl(240deg 10.93% 72.35%); /* requested help text color */
     }
