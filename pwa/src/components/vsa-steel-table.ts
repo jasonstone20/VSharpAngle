@@ -168,14 +168,7 @@ class VsaSteelTable extends LitElement {
     tbody tr:hover {
       background: var(--sl-color-neutral-100);
     }
-    /* Selected row styling - keep custom geometry colors */
-    tbody tr[aria-selected="true"] {
-      background: var(--vsa-path-a-color);
-      color: var(--sl-color-neutral-0);
-      outline: 2px solid var(--vsa-path-a-color);
-      outline-offset: -2px;
-      font-weight: 600;
-    }
+
     /* two-tone zebra striping using Shoelace tokens */
     tbody tr:nth-child(even) {
       background: var(--sl-color-neutral-50);
@@ -407,7 +400,7 @@ class VsaSteelTable extends LitElement {
       for (const edgeAngle of validAngles) {
         for (const steel of this.steels) {
           // If filter is set, only include steels that are selected
-          if (f.length > 0 && !f.includes(steel.name)) continue;
+          if (f.length > 0 && !f.includes(steel.id)) continue;
 
           const { TCC, volume } = edgeRetention({
             hardness,
@@ -455,6 +448,7 @@ class VsaSteelTable extends LitElement {
   ) {
     this.selectedName = steel.name;
     const detail: SteelSelectedDetail = {
+      id: steel.id,
       name: steel.name,
       hardness: steel.hardness,
       edgeAngle: steel.edgeAngle,
@@ -537,7 +531,7 @@ class VsaSteelTable extends LitElement {
           >
             ${this.steels.map(
               (steel) => html`
-                <sl-option value=${steel.name}>${steel.name}</sl-option>
+                <sl-option value=${steel.id}>${steel.name}</sl-option>
               `
             )}
           </sl-select>

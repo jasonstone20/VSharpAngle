@@ -14,7 +14,7 @@ import { property } from "lit/decorators.js";
 
 interface ComparisonSteel {
   id: string;
-  steelName: string;
+  steelId: string;
   hardness: number;
   edgeAngle: number;
 }
@@ -1485,18 +1485,18 @@ class VsaAppShell extends LitElement {
                       <tr>
                         <td>
                           <sl-select
-                            .value=${steel.steelName}
+                            .value=${steel.steelId}
                             @sl-change=${(e: CustomEvent) =>
                               this._updateComparisonSteel(
                                 steel.id,
-                                "steelName",
+                                "steelId",
                                 (e.target as any).value
                               )}
                             size="small"
                           >
                             ${this.availableSteels.map(
                               (s) => html`
-                                <sl-option value=${s.name}>${s.name}</sl-option>
+                                <sl-option value=${s.id}>${s.name}</sl-option>
                               `
                             )}
                           </sl-select>
@@ -1650,7 +1650,7 @@ class VsaAppShell extends LitElement {
       ...this.comparisonSteels,
       {
         id: newId,
-        steelName: this.availableSteels[0]?.name || "",
+        steelId: this.availableSteels[0]?.id || "",
         hardness: 60,
         edgeAngle: 20,
       },
@@ -1668,9 +1668,7 @@ class VsaAppShell extends LitElement {
   }
 
   _getComparisonSteelTCC(compSteel: ComparisonSteel) {
-    const steel = this.availableSteels.find(
-      (s) => s.name === compSteel.steelName
-    );
+    const steel = this.availableSteels.find((s) => s.id === compSteel.steelId);
     if (!steel) return 0;
 
     const edge = edgeRetention({
