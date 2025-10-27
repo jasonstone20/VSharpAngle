@@ -1,4 +1,5 @@
 export interface SteelEntry {
+  id: string;
   name: string;
   CrC?: number;
   CrV?: number; // original code used CrCV column label sometimes
@@ -26,6 +27,7 @@ export interface PassCountResult {
 }
 
 export interface SteelSelectedDetail {
+  id: string;
   name: string;
   hardness: number;
   edgeAngle: number;
