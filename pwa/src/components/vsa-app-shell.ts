@@ -12,6 +12,13 @@ import "./vsa-steel-table";
 import "./vsa-geometry-builder";
 import { property } from "lit/decorators.js";
 
+interface ComparisonSteel {
+  id: string;
+  steelName: string;
+  hardness: number;
+  edgeAngle: number;
+}
+
 class VsaAppShell extends LitElement {
   static styles = css`
     :host {
@@ -402,6 +409,86 @@ class VsaAppShell extends LitElement {
         font-size: 0.9rem;
       }
     }
+
+    /* Compare Existing Steels section */
+    .comparison-section {
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--vsa-border);
+    }
+    .comparison-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .comparison-header h3 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+    .comparison-table th,
+    .comparison-table td {
+      padding: 0.5rem 0.25rem;
+      border-bottom: 1px solid var(--vsa-border);
+      text-align: left;
+      vertical-align: middle;
+    }
+    .comparison-table th {
+      background: var(--vsa-row-alt);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .comparison-table sl-select,
+    .comparison-table sl-input {
+      width: 100%;
+      max-width: 120px;
+    }
+    .comparison-table sl-input {
+      max-width: 80px;
+    }
+    .comparison-table .tcc-cell {
+      font-weight: 600;
+      color: var(--sl-color-primary-600);
+    }
+    .comparison-table .delete-cell {
+      width: 40px;
+      text-align: center;
+    }
+    .comparison-table sl-icon-button {
+      color: var(--sl-color-danger-600);
+    }
+    .empty-comparison {
+      text-align: center;
+      padding: 1rem;
+      color: var(--sl-color-neutral-500);
+      font-style: italic;
+    }
+    @media (max-width: 600px) {
+      .comparison-table {
+        font-size: 0.85rem;
+      }
+      .comparison-table th,
+      .comparison-table td {
+        padding: 0.4rem 0.2rem;
+      }
+      .comparison-table sl-select,
+      .comparison-table sl-input {
+        max-width: 100px;
+      }
+      .comparison-table sl-input {
+        max-width: 60px;
+      }
+      .comparison-header h3 {
+        font-size: 0.95rem;
+      }
+    }
+
     :host-context(.dark) .input-box {
       background: #1e2328; /* requested dark mode input box background */
       border-color: #394149;
@@ -506,6 +593,8 @@ class VsaAppShell extends LitElement {
   @property({ type: Boolean }) updateReady = false;
   @property({ type: Boolean }) geometryFullScreen = false;
   @property({ type: Boolean }) retentionEstimatorCollapsed = true;
+  @property({ attribute: false }) comparisonSteels: ComparisonSteel[] = [];
+  @property({ attribute: false }) availableSteels: any[] = [];
 
   constructor() {
     super();
@@ -1199,6 +1288,9 @@ class VsaAppShell extends LitElement {
   }
 
   _pageRetention() {
+    // Load steels data for comparison section
+    this._loadSteels();
+
     const edge = edgeRetention({
       name: "current",
       hardness: this.hardness,
@@ -1389,6 +1481,109 @@ class VsaAppShell extends LitElement {
           </p>
         </div>
       </sl-details>
+
+      <!-- Compare Existing Steels Section -->
+      <section class="comparison-section">
+        <div class="comparison-header">
+          <h3>Compare Existing Steels</h3>
+          <sl-button
+            variant="primary"
+            size="small"
+            @click=${this._addComparisonSteel}
+            ?disabled=${this.availableSteels.length === 0}
+          >
+            <sl-icon slot="prefix" name="plus"></sl-icon>
+            Add Steel
+          </sl-button>
+        </div>
+
+        ${this.comparisonSteels.length > 0
+          ? html`
+              <table class="comparison-table">
+                <thead>
+                  <tr>
+                    <th>Steel</th>
+                    <th>HRC</th>
+                    <th>Angle (DPS)</th>
+                    <th>TCC</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${this.comparisonSteels.map(
+                    (steel) => html`
+                      <tr>
+                        <td>
+                          <sl-select
+                            .value=${steel.steelName}
+                            @sl-change=${(e: CustomEvent) =>
+                              this._updateComparisonSteel(
+                                steel.id,
+                                "steelName",
+                                (e.target as any).value
+                              )}
+                            size="small"
+                          >
+                            ${this.availableSteels.map(
+                              (s) => html`
+                                <sl-option value=${s.name}>${s.name}</sl-option>
+                              `
+                            )}
+                          </sl-select>
+                        </td>
+                        <td>
+                          <sl-input
+                            type="number"
+                            .value=${String(steel.hardness)}
+                            @input=${(e: Event) =>
+                              this._updateComparisonSteel(
+                                steel.id,
+                                "hardness",
+                                Number((e.target as HTMLInputElement).value)
+                              )}
+                            size="small"
+                            min="40"
+                            max="70"
+                          ></sl-input>
+                        </td>
+                        <td>
+                          <sl-input
+                            type="number"
+                            .value=${String(steel.edgeAngle)}
+                            @input=${(e: Event) =>
+                              this._updateComparisonSteel(
+                                steel.id,
+                                "edgeAngle",
+                                Number((e.target as HTMLInputElement).value)
+                              )}
+                            size="small"
+                            min="5"
+                            max="50"
+                          ></sl-input>
+                        </td>
+                        <td class="tcc-cell">
+                          ${this._getComparisonSteelTCC(steel)}
+                        </td>
+                        <td class="delete-cell">
+                          <sl-icon-button
+                            name="trash"
+                            @click=${() =>
+                              this._removeComparisonSteel(steel.id)}
+                            label="Remove steel"
+                          ></sl-icon-button>
+                        </td>
+                      </tr>
+                    `
+                  )}
+                </tbody>
+              </table>
+            `
+          : html`
+              <div class="empty-comparison">
+                No steels added. Click "Add Steel" to start comparing.
+              </div>
+            `}
+      </section>
     </div>`;
   }
 
@@ -1466,6 +1661,61 @@ class VsaAppShell extends LitElement {
         reg.update();
       }
     });
+  }
+
+  async _loadSteels() {
+    if (this.availableSteels.length === 0) {
+      try {
+        const response = await fetch("/data/steels.json");
+        this.availableSteels = await response.json();
+      } catch (error) {
+        console.error("Failed to load steels:", error);
+      }
+    }
+  }
+
+  _addComparisonSteel() {
+    const newId = Date.now().toString();
+    this.comparisonSteels = [
+      ...this.comparisonSteels,
+      {
+        id: newId,
+        steelName: this.availableSteels[0]?.name || "",
+        hardness: 60,
+        edgeAngle: 20,
+      },
+    ];
+  }
+
+  _removeComparisonSteel(id: string) {
+    this.comparisonSteels = this.comparisonSteels.filter((s) => s.id !== id);
+  }
+
+  _updateComparisonSteel(id: string, field: string, value: string | number) {
+    this.comparisonSteels = this.comparisonSteels.map((steel) =>
+      steel.id === id ? { ...steel, [field]: value } : steel
+    );
+  }
+
+  _getComparisonSteelTCC(compSteel: ComparisonSteel) {
+    const steel = this.availableSteels.find(
+      (s) => s.name === compSteel.steelName
+    );
+    if (!steel) return 0;
+
+    const edge = edgeRetention({
+      name: steel.name,
+      hardness: compSteel.hardness,
+      edgeAngle: compSteel.edgeAngle,
+      CrC: steel.CrC || 0,
+      CrV: steel.CrV || 0,
+      MC: steel.MC || 0,
+      M6C: steel.M6C || 0,
+      MN: steel.MN || 0,
+      CrN: steel.CrN || 0,
+      Fe3C: steel.Fe3C || 0,
+    });
+    return edge.TCC;
   }
 
   _onSteelSelected(e: CustomEvent<SteelSelectedDetail>) {
