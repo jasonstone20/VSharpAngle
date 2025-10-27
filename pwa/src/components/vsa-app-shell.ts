@@ -25,58 +25,18 @@ class VsaAppShell extends LitElement {
       display: block;
       box-sizing: border-box;
     }
-    :root,
-    :host {
-      /* Map former custom design tokens to Shoelace system tokens */
-
-      --vsa-border: var(--sl-color-neutral-200);
-      --vsa-row-alt: var(--sl-color-neutral-50);
-      --vsa-row-hover: var(--sl-color-neutral-100);
-      --vsa-row-focus: var(--sl-color-neutral-150);
-
-      --vsa-card-border: var(--sl-color-neutral-200);
-      --vsa-card-border-strong: var(--sl-color-neutral-300);
-      --vsa-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08),
-        0 2px 4px rgba(0, 0, 0, 0.06);
-      --vsa-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.08),
-        0 6px 12px rgba(0, 0, 0, 0.08);
-      --sl-input-background-color: #faebd7; /* antiquewhite */
-    }
-    :host-context(.dark) :root,
-    :host-context(.dark) :host {
-      --vsa-surface: var(--sl-color-neutral-800);
-      --vsa-border: var(--sl-color-neutral-700);
-      --vsa-row-alt: var(--sl-color-neutral-750, rgba(255, 255, 255, 0.03));
-      --vsa-row-hover: hsl(240deg 57.79% 46.1%);
-      --vsa-row-focus: var(--sl-color-neutral-650, #323a42);
-      /* Darken card background for better contrast (was neutral-800, appeared too light) */
-      /* Near-black card background for dark mode */
-      --vsa-card-bg: var(--sl-color-neutral-900, #0f1113);
-      --vsa-card-border: var(--sl-color-neutral-700);
-      --vsa-card-border-strong: var(--sl-color-neutral-600);
-      --vsa-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4),
-        0 2px 6px rgba(0, 0, 0, 0.35);
-      --vsa-shadow-md: 0 2px 6px rgba(0, 0, 0, 0.45),
-        0 8px 18px rgba(0, 0, 0, 0.4);
-      --sl-input-background-color: #faebd7; /* keep antiquewhite */
-    }
+    /* Use Shoelace tokens directly - automatic light/dark handling */
     header {
       display: flex;
       align-items: center;
       gap: 0.75rem;
       padding: 1rem 1.25rem;
-      background: var(--vsa-surface);
-      background-color: var(--vsa-surface);
+      background: var(--sl-color-neutral-0);
       position: sticky;
       top: 0;
       z-index: 10;
-      border-bottom: 1px solid var(--vsa-border);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
-    }
-    :host-context(.dark) header {
-      background: var(--vsa-card-bg);
-      background-color: var(--vsa-card-bg);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+      border-bottom: 1px solid var(--sl-color-neutral-200);
+      box-shadow: var(--sl-shadow-small);
     }
     header h1 {
       font-size: 1.1rem;
@@ -89,17 +49,17 @@ class VsaAppShell extends LitElement {
       padding: 1rem 1.15rem;
       background: linear-gradient(
         135deg,
-        var(--sl-color-primary-600, #4d7cff),
-        var(--sl-color-primary-400, #6d92ff)
+        var(--sl-color-primary-600),
+        var(--sl-color-primary-400)
       );
-      color: #fff;
+      color: var(--sl-color-neutral-0);
       border-radius: 16px;
-      box-shadow: var(--vsa-shadow-md);
+      box-shadow: var(--sl-shadow-medium);
       display: flex;
       flex-direction: column;
       gap: 0.6rem;
     }
-    :host-context(.dark) .intro-banner {
+    .dark .intro-banner {
       background: linear-gradient(135deg, #3d63d9, #567ee3);
     }
     .intro-banner h2 {
@@ -129,8 +89,8 @@ class VsaAppShell extends LitElement {
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     }
     .card-link {
-      background: var(--vsa-card-bg);
-      border: 2px solid var(--vsa-card-border-strong);
+      background: var(--sl-color-neutral-0);
+      border: 2px solid var(--sl-color-neutral-300);
       border-radius: 14px;
       padding: 0.9rem 0.9rem 0.75rem 0.9rem;
       display: flex;
@@ -145,18 +105,12 @@ class VsaAppShell extends LitElement {
       display: none;
     }
     .card-link:hover {
-      background: #6d92ff;
+      background: var(--sl-color-primary-50);
       border-color: var(--sl-color-primary-500);
     }
     .card-link:focus-visible {
       outline: 3px solid var(--sl-color-primary-500);
       outline-offset: 2px;
-    }
-    html.dark .card-link {
-      border-color: var(--vsa-card-border-strong);
-    }
-    html.dark .card-link:hover {
-      border-color: #1b73c5;
     }
     .card-icon {
       font-size: 1.4rem;
@@ -182,8 +136,8 @@ class VsaAppShell extends LitElement {
       gap: 0.75rem; /* reduced gap between sections */
     }
     .page section.calc {
-      background: var(--vsa-card-bg);
-      border: 1px solid var(--vsa-card-border);
+      background: var(--sl-color-neutral-0);
+      border: 1px solid var(--sl-color-neutral-200);
       border-radius: 14px;
       padding: 1.1rem 1.15rem 1.15rem;
       display: flex;
@@ -192,7 +146,7 @@ class VsaAppShell extends LitElement {
       transition: box-shadow 0.15s, background 0.15s, border-color 0.15s;
     }
     .page section.calc:hover {
-      box-shadow: var(--vsa-shadow-md);
+      box-shadow: var(--sl-shadow-medium);
     }
     .back-link {
       display: flex;
@@ -205,8 +159,8 @@ class VsaAppShell extends LitElement {
       font-weight: 600;
     }
     .page .help {
-      background: var(--vsa-card-bg);
-      border: 1px solid var(--vsa-card-border);
+      background: var(--sl-color-neutral-0);
+      border: 1px solid var(--sl-color-neutral-200);
       border-radius: 14px;
       padding: 1rem 1.15rem 1.1rem;
       font-size: 1rem;
@@ -214,10 +168,10 @@ class VsaAppShell extends LitElement {
       display: flex;
       flex-direction: column;
       gap: 0.55rem;
-      box-shadow: var(--vsa-shadow-sm);
+      box-shadow: var(--sl-shadow-small);
     }
     .page .help:hover {
-      box-shadow: var(--vsa-shadow-md);
+      box-shadow: var(--sl-shadow-medium);
     }
     .output-row {
       display: flex;
@@ -226,23 +180,15 @@ class VsaAppShell extends LitElement {
       align-items: flex-end;
     }
     sl-details::part(base) {
-      background: var(--vsa-card-bg);
-      border: 1px solid var(--vsa-card-border);
+      background: var(--sl-color-neutral-0);
+      border: 1px solid var(--sl-color-neutral-200);
       border-radius: 10px;
       padding: 0.6rem 0.75rem;
     }
     sl-details::part(summary) {
       font-weight: 600;
       letter-spacing: 0.4px;
-    }
-    :host-context(.dark) sl-details::part(base) {
-      background: var(--vsa-card-bg);
-      border-color: var(--vsa-border);
-      box-shadow: 0 0 0 1px var(--vsa-border) inset,
-        0 2px 6px rgba(0, 0, 0, 0.6);
-    }
-    :host-context(.dark) sl-details::part(summary) {
-      color: var(--sl-color-neutral-0);
+      color: var(--sl-color-neutral-900);
     }
     .result-block {
       max-width: 100%;
@@ -265,7 +211,7 @@ class VsaAppShell extends LitElement {
       box-sizing: border-box;
       box-shadow: var(--vsa-shadow-sm);
     }
-    :host-context(.dark) .result-block {
+    .result-block {
       background: linear-gradient(
         135deg,
         rgba(25, 30, 34, 0.95) 0%,
@@ -276,7 +222,7 @@ class VsaAppShell extends LitElement {
       box-shadow: 0 0 0 1px var(--vsa-border) inset,
         0 4px 14px rgba(0, 0, 0, 0.55);
     }
-    :host-context(.dark) .result-value {
+    .result-value {
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
       color: var(--sl-color-neutral-0);
     }
@@ -394,10 +340,10 @@ class VsaAppShell extends LitElement {
       font-size: 0.9rem;
       line-height: 1.4;
     }
-    :host-context(.dark) .section-subtitle {
+    .section-subtitle {
       color: var(--sl-color-neutral-400);
     }
-    :host-context(.dark) .retention-table td:first-child {
+    .retention-table td:first-child {
       background: var(--vsa-surface-dark, #1a1d23);
     }
     @media (max-width: 600px) {
@@ -489,7 +435,7 @@ class VsaAppShell extends LitElement {
       }
     }
 
-    :host-context(.dark) .input-box {
+    .input-box {
       background: #1e2328; /* requested dark mode input box background */
       border-color: #394149;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
@@ -500,11 +446,11 @@ class VsaAppShell extends LitElement {
     sl-select::part(combobox),
     sl-button[variant="default"]::part(base) {
       background: var(--sl-input-background-color) !important;
-      color: #222 !important;
+      color: #ebebeb !important;
     }
     sl-input::part(input),
     sl-select::part(display-input) {
-      color: #222;
+      color: #d5d5d5;
     }
     sl-input::part(base):focus-within,
     sl-select::part(combobox):focus-within {
@@ -520,10 +466,10 @@ class VsaAppShell extends LitElement {
       font-weight: 500;
       letter-spacing: 0.25px;
     }
-    :host-context(.dark) .input-box sl-input::part(help-text) {
+    .input-box sl-input::part(help-text) {
       color: hsl(240deg 10.93% 72.35%); /* requested help text color */
     }
-    html.dark .invalid-msg {
+    .dark .invalid-msg {
       background: #432222;
       border-color: #ff6f6b;
       color: #ffb3b0;
@@ -603,16 +549,44 @@ class VsaAppShell extends LitElement {
     this.addEventListener("steel-selected", (e) =>
       this._onSteelSelected(e as CustomEvent<SteelSelectedDetail>)
     );
+    // Initialize dark mode based on browser preference or saved setting
     document.documentElement.classList.remove("dark");
-    window.addEventListener("hashchange", () => this._applyRoute());
-    this._applyRoute();
+    document.documentElement.classList.remove("sl-theme-dark");
     try {
-      const t = localStorage.getItem("vsa-theme");
-      if (t === "dark") {
+      const savedTheme = localStorage.getItem("vsa-theme");
+      let shouldUseDark = false;
+
+      if (savedTheme) {
+        // Use saved preference if available
+        shouldUseDark = savedTheme === "dark";
+      } else {
+        // Use browser preference if no saved setting
+        shouldUseDark =
+          window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches;
+      }
+
+      if (shouldUseDark) {
         document.documentElement.classList.add("dark");
+        document.documentElement.classList.add("sl-theme-dark");
         this.dark = true;
+
+        // Load dark theme CSS
+        const darkThemeLink = document.getElementById("shoelace-dark-theme");
+        if (!darkThemeLink) {
+          const link = document.createElement("link");
+          link.id = "shoelace-dark-theme";
+          link.rel = "stylesheet";
+          link.href =
+            "https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/cdn/themes/dark.css";
+          document.head.appendChild(link);
+        }
       }
     } catch {}
+
+    // Initialize routing
+    window.addEventListener("hashchange", () => this._applyRoute());
+    this._applyRoute();
 
     // Online/offline indicators
     window.addEventListener("online", () => {
@@ -726,6 +700,24 @@ class VsaAppShell extends LitElement {
   _toggleTheme() {
     const root = document.documentElement;
     const isDark = root.classList.toggle("dark");
+
+    // Toggle Shoelace theme class
+    if (isDark) {
+      root.classList.add("sl-theme-dark");
+      // Load dark theme CSS if not already loaded
+      const darkThemeLink = document.getElementById("shoelace-dark-theme");
+      if (!darkThemeLink) {
+        const link = document.createElement("link");
+        link.id = "shoelace-dark-theme";
+        link.rel = "stylesheet";
+        link.href =
+          "https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/cdn/themes/dark.css";
+        document.head.appendChild(link);
+      }
+    } else {
+      root.classList.remove("sl-theme-dark");
+    }
+
     // Optionally persist
     try {
       localStorage.setItem("vsa-theme", isDark ? "dark" : "light");

@@ -203,34 +203,8 @@ export class VsaGeometryBuilder extends LitElement {
     :host {
       display: block;
       font-family: system-ui, sans-serif;
-      --vsa-border: #4a2d00;
-      --vsa-row-alt: #f3efe7;
-      --vsa-card-bg: #fffefa;
-      --vsa-input-bg: #fff;
-      --vsa-warn-color: #c92a2a;
-      --vsa-grid-line-color: #444;
-      --vsa-path-a-color: #0a58ca;
-      --vsa-path-b-color: #c92a2a;
-      --vsa-warning-text-color: #b08900;
-      --vsa-metrics-bg: rgba(0, 0, 0, 0.05);
-      --vsa-stroke-color: #000;
-      --vsa-center-line-color: #000;
-    }
-
-    /* Dark mode overrides */
-    :host-context(.dark) {
-      --vsa-border: var(--sl-color-neutral-700);
-      --vsa-row-alt: var(--sl-color-neutral-800);
-      --vsa-card-bg: var(--sl-color-neutral-900);
-      --vsa-input-bg: var(--sl-color-neutral-800);
-      --vsa-warn-color: #ff6b6b;
-      --vsa-grid-line-color: #666;
-      --vsa-path-a-color: #4dabf7;
-      --vsa-path-b-color: #ff8787;
-      --vsa-warning-text-color: #ffd43b;
-      --vsa-metrics-bg: rgba(255, 255, 255, 0.05);
-      --vsa-stroke-color: #ccc;
-      --vsa-center-line-color: #ffd43b;
+      /* Use Shoelace tokens directly */
+      color: var(--sl-color-neutral-900);
     }
     h2 {
       margin: 0 0 0.6rem;
@@ -256,8 +230,8 @@ export class VsaGeometryBuilder extends LitElement {
     }
     .editor-panel {
       flex: 1 1 320px;
-      background: var(--vsa-card-bg);
-      border: 1px solid var(--vsa-border);
+      background: var(--sl-color-neutral-0);
+      border: 1px solid var(--sl-color-neutral-200);
       border-radius: 6px;
       padding: 0.5rem 0.6rem 0.7rem;
       min-width: 260px;
@@ -278,8 +252,8 @@ export class VsaGeometryBuilder extends LitElement {
       font-size: 0.55rem;
       padding: 0.22rem 0.3rem;
       border-radius: 4px;
-      border: 1px solid var(--vsa-border);
-      background: var(--vsa-input-bg);
+      border: 1px solid var(--sl-color-neutral-200);
+      background: var(--sl-color-neutral-0);
       box-sizing: border-box;
     }
     table.segments-edit {
@@ -288,13 +262,13 @@ export class VsaGeometryBuilder extends LitElement {
     }
     table.segments-edit th,
     table.segments-edit td {
-      border: 1px solid var(--vsa-border);
+      border: 1px solid var(--sl-color-neutral-200);
       padding: 0.25rem 0.35rem;
       font-size: 0.55rem;
       text-align: right;
     }
     table.segments-edit th {
-      background: var(--vsa-row-alt);
+      background: var(--sl-color-neutral-50);
       position: sticky;
       top: 0;
       z-index: 1;
@@ -302,21 +276,21 @@ export class VsaGeometryBuilder extends LitElement {
     .seg-table-wrap {
       max-height: 150px;
       overflow: auto;
-      border: 1px solid var(--vsa-border);
+      border: 1px solid var(--sl-color-neutral-200);
       border-radius: 6px;
-      background: var(--vsa-input-bg);
+      background: var(--sl-color-neutral-0);
     }
     .actions-cell {
       text-align: center;
     }
     .warn {
-      color: var(--vsa-warn-color);
+      color: var(--sl-color-warning-600);
       font-size: 0.6rem;
       margin: 0.4rem 0;
     }
     .svg-wrap {
-      border: 2px solid var(--vsa-border);
-      background: var(--vsa-card-bg);
+      border: 2px solid var(--sl-color-neutral-200);
+      background: var(--sl-color-neutral-0);
       padding: 0.55rem 0.6rem 0.7rem;
       border-radius: 8px;
       position: relative;
@@ -1335,7 +1309,7 @@ export class VsaGeometryBuilder extends LitElement {
     const computedB = this._geometryB.compute();
     const totalHeightA = this._geometryA.getTotalHeight();
     const totalHeightB = this._geometryB.getTotalHeight();
-    
+
     // Only consider heights of visible geometries
     let totalHeight = 0;
     if (this.showGeometryA && this.showGeometryB) {
@@ -1347,7 +1321,7 @@ export class VsaGeometryBuilder extends LitElement {
     } else {
       totalHeight = Math.max(totalHeightA, totalHeightB, 1);
     }
-    
+
     const vb = this._customViewBox;
     // Raw mode: viewBox width & height already equal content width & height; no margins.
     if (this.overlayMode && !fromWheel && !this._userAdjustingWidth) {
@@ -2080,7 +2054,7 @@ export class VsaGeometryBuilder extends LitElement {
             }}
           />
           <button
-            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--sl-color-neutral-900);border-radius:4px;cursor:pointer;"
+            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--vsa-text-primary);border-radius:4px;cursor:pointer;"
             @click=${() => {
               this._openWizard("A");
             }}
@@ -2102,7 +2076,7 @@ export class VsaGeometryBuilder extends LitElement {
             }}
           />
           <button
-            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--sl-color-neutral-900);border-radius:4px;cursor:pointer;"
+            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--vsa-text-primary);border-radius:4px;cursor:pointer;"
             @click=${() => {
               this._openWizard("B");
             }}
@@ -2128,7 +2102,7 @@ export class VsaGeometryBuilder extends LitElement {
       ${this._renderNotationHelp()}
       <div class="controls-bar">
         <button
-          style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--sl-color-neutral-900);border-radius:4px;cursor:pointer;"
+          style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--vsa-text-primary);border-radius:4px;cursor:pointer;"
           @click=${() => {
             // Load example geometry
             this.notationA = "mm=>15dps-2h,0.3w@3h,0.5w@5cp,50H";
@@ -2175,7 +2149,7 @@ export class VsaGeometryBuilder extends LitElement {
           <span style="font-size:.55rem">Units</span>
           <select
             @change=${this._changeUnits}
-            style="font-size:.6rem;padding:.15rem .3rem;border-radius:4px;background:var(--vsa-input-bg);border:1px solid var(--vsa-border);color:var(--sl-color-neutral-900);"
+            style="font-size:.6rem;padding:.15rem .3rem;border-radius:4px;background:var(--vsa-input-bg);border:1px solid var(--vsa-border);color:var(--vsa-text-primary);"
           >
             <option value="mm" ?selected=${this.units === "mm"}>mm</option>
             <option value="in" ?selected=${this.units === "in"}>in</option>
@@ -2578,7 +2552,7 @@ export class VsaGeometryBuilder extends LitElement {
   private _renderDebug(apexEpsilon: number) {
     const compA = this._geometryA.compute();
     const compB = this._geometryB.compute();
-    
+
     // Only consider heights of visible geometries
     const totalHeightA = this._geometryA.getTotalHeight();
     const totalHeightB = this._geometryB.getTotalHeight();
@@ -2593,7 +2567,7 @@ export class VsaGeometryBuilder extends LitElement {
       // Neither geometry is visible, use combined max as fallback
       totalHeightLocal = Math.max(totalHeightA, totalHeightB, 1);
     }
-    
+
     const centerYGeom = this.overlayCenter * totalHeightLocal;
     const sampleY = centerYGeom < apexEpsilon * 4 ? apexEpsilon : centerYGeom;
     const tA = this._geometryA.widthAtY(compA, sampleY);
@@ -3130,7 +3104,7 @@ export class VsaGeometryBuilder extends LitElement {
           overflow-y: auto;
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
           border: 1px solid var(--vsa-border);
-          color: var(--sl-color-neutral-900);
+          color: var(--vsa-text-primary);
         "
         >
           > ${this._renderWizardStep()}
@@ -3182,7 +3156,7 @@ export class VsaGeometryBuilder extends LitElement {
               : "var(--vsa-input-bg)"};
             color: ${this._wizardUnits === "mm"
               ? "white"
-              : "var(--sl-color-neutral-900)"};
+              : "var(--vsa-text-primary)"};
             border-radius: 8px;
             cursor: pointer;
           "
@@ -3207,7 +3181,7 @@ export class VsaGeometryBuilder extends LitElement {
               : "var(--vsa-input-bg)"};
             color: ${this._wizardUnits === "in"
               ? "white"
-              : "var(--sl-color-neutral-900)"};
+              : "var(--vsa-text-primary)"};
             border-radius: 8px;
             cursor: pointer;
           "
@@ -3227,7 +3201,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 0.75rem 1.5rem;
             border: 1px solid var(--vsa-border);
             background: var(--vsa-input-bg);
-            color: var(--sl-color-neutral-900);
+            color: var(--vsa-text-primary);
             border-radius: 4px;
             cursor: pointer;
           "
@@ -3241,7 +3215,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 0.75rem 1.5rem;
             border: 1px solid var(--vsa-path-a-color);
             background: var(--vsa-path-a-color);
-            color: white;
+            color: var(--vsa-text-inverse);
             border-radius: 4px;
             cursor: pointer;
           "
@@ -3373,7 +3347,7 @@ export class VsaGeometryBuilder extends LitElement {
         <h2 style="margin-top: 0;">
           Build Geometry for Side ${this._wizardSide} (${this._wizardUnits})
         </h2>
-        <p style="margin-bottom: 1.5rem; color: var(--sl-color-neutral-900);">
+        <p style="margin-bottom: 1.5rem; color: var(--vsa-text-primary);">
           ${hasSegments
             ? "Edit existing segments, add new ones, or delete from the end."
             : "Start building your geometry by adding segments. Each segment defines a cut direction and distance."}
@@ -3493,7 +3467,7 @@ export class VsaGeometryBuilder extends LitElement {
               padding: 0.75rem 1.5rem;
               border: 1px solid var(--vsa-border);
               background: var(--vsa-input-bg);
-              color: var(--sl-color-neutral-900);
+              color: var(--vsa-text-primary);
               border-radius: 4px;
               cursor: pointer;
             "
@@ -3511,7 +3485,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 0.75rem 1.5rem;
             border: 1px solid var(--vsa-border);
             background: var(--vsa-input-bg);
-            color: var(--sl-color-neutral-900);
+            color: var(--vsa-text-primary);
             border-radius: 4px;
             cursor: pointer;
           "
@@ -3527,7 +3501,7 @@ export class VsaGeometryBuilder extends LitElement {
               padding: 0.75rem 1.5rem;
               border: 1px solid var(--vsa-path-a-color);
               background: var(--vsa-path-a-color);
-              color: white;
+              color: var(--vsa-text-inverse);
               border-radius: 4px;
               cursor: pointer;
               font-weight: 600;
@@ -3587,7 +3561,7 @@ export class VsaGeometryBuilder extends LitElement {
           </div>
         </div>
 
-        <p style="margin-bottom: 2rem; color: var(--sl-color-neutral-900);">
+        <p style="margin-bottom: 2rem; color: var(--vsa-text-primary);">
           What would you like to do?
         </p>
 
@@ -3617,7 +3591,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 1rem 2rem;
             border: 1px solid var(--vsa-border);
             background: var(--vsa-input-bg);
-            color: var(--sl-color-neutral-900);
+            color: var(--vsa-text-primary);
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
@@ -3644,7 +3618,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 0.75rem 1.5rem;
             border: 1px solid var(--vsa-border);
             background: var(--vsa-input-bg);
-            color: var(--sl-color-neutral-900);
+            color: var(--vsa-text-primary);
             border-radius: 4px;
             cursor: pointer;
           "
@@ -3684,7 +3658,7 @@ export class VsaGeometryBuilder extends LitElement {
     return html`
       <div style="text-align: center;">
         <h2 style="margin-top: 0;">Choose Measurement Type</h2>
-        <p style="margin-bottom: 2rem; color: var(--sl-color-neutral-900);">
+        <p style="margin-bottom: 2rem; color: var(--vsa-text-primary);">
           Select the type of measurement you want to create:
         </p>
 
@@ -3703,7 +3677,7 @@ export class VsaGeometryBuilder extends LitElement {
               background: ${this._wizardNotationType === type.id
                   ? "rgba(59, 130, 246, 0.1)"
                   : "var(--vsa-input-bg)"};
-              color: var(--sl-color-neutral-900);
+              color: var(--vsa-text-primary);
               border-radius: 8px;
               cursor: pointer;
             "
@@ -3731,7 +3705,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 0.75rem 1.5rem;
             border: 1px solid var(--vsa-border);
             background: var(--vsa-input-bg);
-            color: var(--sl-color-neutral-900);
+            color: var(--vsa-text-primary);
             border-radius: 4px;
             cursor: pointer;
           "
@@ -3777,7 +3751,7 @@ export class VsaGeometryBuilder extends LitElement {
           "
           >
             <p
-              style="margin: 0; line-height: 1.6; color: var(--sl-color-neutral-900);"
+              style="margin: 0; line-height: 1.6; color: var(--vsa-text-primary);"
             >
               ${config.measurementGuide}
             </p>
@@ -3792,7 +3766,7 @@ export class VsaGeometryBuilder extends LitElement {
         <!-- Entry Panel -->
         <div style="flex: 1; min-width: 300px; max-width: 500px;">
           <h3 style="margin-top: 0;">Enter Measurement Values</h3>
-          <p style="margin-bottom: 1.5rem; color: var(--sl-color-neutral-900);">
+          <p style="margin-bottom: 1.5rem; color: var(--vsa-text-primary);">
             Please enter each measurement value:
           </p>
 
@@ -3925,7 +3899,7 @@ export class VsaGeometryBuilder extends LitElement {
                     border: 1px solid var(--vsa-border);
                     border-radius: 4px;
                     background: var(--vsa-input-bg);
-                    color: var(--sl-color-neutral-900);
+                    color: var(--vsa-text-primary);
                     font-size: 1rem;
                   "
                           @change=${(e: Event) => {
@@ -3970,7 +3944,7 @@ export class VsaGeometryBuilder extends LitElement {
                       border: 1px solid var(--vsa-border);
                       border-radius: 4px;
                       background: var(--vsa-input-bg);
-                      color: var(--sl-color-neutral-900);
+                      color: var(--vsa-text-primary);
                       font-size: 1rem;
                     "
                           .value=${String(this._wizardValues[value.key] || "")}
@@ -3993,7 +3967,7 @@ export class VsaGeometryBuilder extends LitElement {
               padding: 0.75rem 1.5rem;
               border: 1px solid var(--vsa-border);
               background: var(--vsa-input-bg);
-              color: var(--sl-color-neutral-900);
+              color: var(--vsa-text-primary);
               border-radius: 4px;
               cursor: pointer;
             "
@@ -4007,7 +3981,7 @@ export class VsaGeometryBuilder extends LitElement {
               padding: 0.75rem 1.5rem;
               border: 1px solid var(--vsa-path-a-color);
               background: var(--vsa-path-a-color);
-              color: white;
+              color: var(--vsa-text-inverse);
               border-radius: 4px;
               cursor: pointer;
             "
@@ -4153,7 +4127,7 @@ export class VsaGeometryBuilder extends LitElement {
           : ""}
 
         <div style="margin-bottom: 2rem;">
-          <p style="color: var(--sl-color-neutral-900);">
+          <p style="color: var(--vsa-text-primary);">
             What would you like to do next?
           </p>
         </div>
@@ -4166,7 +4140,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 0.75rem 1.5rem;
             border: 1px solid var(--vsa-border);
             background: var(--vsa-input-bg);
-            color: var(--sl-color-neutral-900);
+            color: var(--vsa-text-primary);
             border-radius: 4px;
             cursor: pointer;
           "
@@ -4268,7 +4242,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 0.75rem 1.5rem;
             border: 1px solid var(--vsa-border);
             background: var(--vsa-input-bg);
-            color: var(--sl-color-neutral-900);
+            color: var(--vsa-text-primary);
             border-radius: 4px;
             cursor: pointer;
           "
@@ -4282,7 +4256,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 0.75rem 1.5rem;
             border: 1px solid var(--vsa-path-a-color);
             background: var(--vsa-path-a-color);
-            color: white;
+            color: var(--vsa-text-inverse);
             border-radius: 4px;
             cursor: pointer;
             font-weight: 600;

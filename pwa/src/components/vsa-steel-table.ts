@@ -6,19 +6,16 @@ class VsaSteelTable extends LitElement {
   static styles = css`
     :host {
       display: block;
+      color: var(--sl-color-neutral-900);
     }
     .table-wrap {
       width: 100%;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      border: 1px solid var(--vsa-card-border);
+      border: 1px solid var(--sl-color-neutral-200);
       border-radius: 8px;
-      background: var(--vsa-card-bg);
+      background: var(--sl-color-neutral-0);
       position: relative;
-    }
-    :host-context(.dark) .table-wrap {
-      box-shadow: 0 0 0 1px var(--vsa-border) inset,
-        0 2px 6px rgba(0, 0, 0, 0.6);
     }
     /* subtle gradient edge hint for scroll */
     .table-wrap::after {
@@ -29,7 +26,11 @@ class VsaSteelTable extends LitElement {
       width: 1.5rem;
       height: 100%;
       pointer-events: none;
-      background: linear-gradient(to left, var(--vsa-surface), transparent);
+      background: linear-gradient(
+        to left,
+        var(--sl-color-neutral-0),
+        transparent
+      );
     }
     .toolbar {
       display: flex;
@@ -65,8 +66,8 @@ class VsaSteelTable extends LitElement {
     }
     /* Table-style controls similar to retention estimator */
     .steel-controls {
-      background: var(--vsa-card-bg);
-      border: 1px solid var(--vsa-card-border);
+      background: var(--sl-color-neutral-0);
+      border: 1px solid var(--sl-color-neutral-200);
       border-radius: 8px;
       overflow: hidden;
       margin-bottom: 1rem;
@@ -76,15 +77,15 @@ class VsaSteelTable extends LitElement {
       border-collapse: collapse;
     }
     .controls-table td {
-      border-bottom: 1px solid var(--vsa-border, #e5e7eb);
+      border-bottom: 1px solid var(--sl-color-neutral-200);
       padding: 0.5rem 0.75rem;
       vertical-align: middle;
     }
     .controls-table td:first-child {
       font-weight: 500;
       width: 25%;
-      background: var(--vsa-surface, #f9fafb);
-      border-right: 1px solid var(--vsa-border, #e5e7eb);
+      background: var(--sl-color-neutral-50);
+      border-right: 1px solid var(--sl-color-neutral-200);
     }
     .controls-table td:last-child {
       width: 75%;
@@ -137,8 +138,8 @@ class VsaSteelTable extends LitElement {
       background-color: var(--sl-color-success-700);
       border-color: var(--sl-color-success-700);
     }
-    :host-context(.dark) .controls-table td:first-child {
-      background: var(--vsa-surface-dark, #1a1d23);
+    .dark .controls-table td:first-child {
+      background: var(--vsa-surface);
     }
     table {
       width: 100%;
@@ -158,43 +159,34 @@ class VsaSteelTable extends LitElement {
       cursor: pointer;
       font-weight: 600;
     }
-    :host-context(.dark) th {
+    .dark th {
       border-bottom: 1px solid var(--vsa-border);
     }
     tbody tr {
-      border-top: 1px solid var(--vsa-border);
+      border-top: 1px solid var(--sl-color-neutral-200);
     }
     tbody tr:hover {
-      background: var(--vsa-row-hover, #262b33);
+      background: var(--sl-color-neutral-100);
     }
-    /* Selected row (after click) made high contrast */
+    /* Selected row styling - keep custom geometry colors */
     tbody tr[aria-selected="true"] {
-      background: var(--sl-color-primary-50);
-      color: var(--sl-color-neutral-900);
-      outline: 2px solid var(--sl-color-primary-500);
+      background: var(--vsa-path-a-color);
+      color: var(--sl-color-neutral-0);
+      outline: 2px solid var(--vsa-path-a-color);
       outline-offset: -2px;
       font-weight: 600;
     }
-    :host-context(.dark) tbody tr[aria-selected="true"] {
-      background: var(--sl-color-primary-600);
-      color: var(--sl-color-neutral-0);
-      outline: 2px solid var(--sl-color-primary-300);
-    }
-    /* two-tone zebra striping */
+    /* two-tone zebra striping using Shoelace tokens */
     tbody tr:nth-child(even) {
-      background: var(--vsa-row-alt, rgba(255, 255, 255, 0.03));
+      background: var(--sl-color-neutral-50);
     }
-    /* Dark mode zebra striping: use subtle deep neutral instead of near-white */
-    :host-context(.dark) tbody tr:nth-child(even) {
-      background: var(--vsa-row-alt-dark, rgba(0, 0, 0, 0.35));
-    }
-    :host-context(.dark) tbody tr:nth-child(odd) {
-      background: var(--vsa-row-base-dark, rgba(0, 0, 0, 0.15));
+    tbody tr:nth-child(odd) {
+      background: transparent;
     }
     tbody tr:focus {
-      outline: 2px solid var(--sl-color-primary-600, #4d7cff);
+      outline: 2px solid var(--sl-color-primary-600);
       outline-offset: -2px;
-      background: var(--vsa-row-focus, #313842);
+      background: var(--sl-color-neutral-150);
     }
     td.name {
       text-align: left;
