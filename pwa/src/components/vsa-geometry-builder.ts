@@ -731,6 +731,20 @@ export class VsaGeometryBuilder extends LitElement {
       if (typeof data.showGeometryB === "boolean")
         this.showGeometryB = data.showGeometryB;
 
+      // Auto-import notation if available and segments are empty
+      if (
+        this.notationA.trim() &&
+        (!this.segments || this.segments.length === 0)
+      ) {
+        this._importNotation(this.notationA, "A");
+      }
+      if (
+        this.notationB.trim() &&
+        (!this.segmentsB || this.segmentsB.length === 0)
+      ) {
+        this._importNotation(this.notationB, "B");
+      }
+
       // Sync segments to models and compute initial cached results
       this._syncSegmentsToModels();
     } catch {}
@@ -1961,20 +1975,42 @@ export class VsaGeometryBuilder extends LitElement {
     }
     const viewContentHeight = viewContentWidth * aspect;
 
-    // Apply 5x zoom in apex macro mode to make the 3mm section fill the viewport
+    // Apply zoom and positioning for apex macro mode fine detail optimization
     let effectiveViewContentHeight = viewContentHeight;
+    let effectiveViewContentWidth = viewContentWidth;
+
     if (this.apexMacro && !this.showProfile) {
-      effectiveViewContentHeight = viewContentHeight / 5; // 5x zoom
+      // Fine detail mode: ensure cross-section width is at least 50% of view width
+      const crossSectionWidth = Math.max(
+        this._widthAtY(computedA, sampleY),
+        this._widthAtY(computedB, sampleY),
+        0.00001
+      );
+      const minViewWidth = crossSectionWidth / 0.5; // 50% minimum ratio
+      effectiveViewContentWidth = Math.max(viewContentWidth, minViewWidth);
+
+      // Calculate height to maintain aspect ratio
+      effectiveViewContentHeight = effectiveViewContentWidth * aspect;
     }
 
-    const vbX = this.showProfile ? -combinedWidth / 2 : -viewContentWidth / 2; // full width when profile
+    const vbX = this.showProfile
+      ? -combinedWidth / 2
+      : -effectiveViewContentWidth / 2; // full width when profile
     const geomWidthCurrent = combinedWidth; // geometry extent width (overlay or side-by-side)
     const centerLockActive = true; // always center Y in dynamic width mode
     let vbY: number;
     if (this.showProfile) {
       vbY = 0; // show entire height
+    } else if (this.apexMacro) {
+      // Fine detail apex mode: position marker line 1/4 from bottom of viewBox
+      const visualCenterY = totalHeight - centerY;
+      vbY = visualCenterY - effectiveViewContentHeight * 0.75; // 1/4 from bottom = 75% from top
+      // Clamp to keep viewBox within 0..totalHeight - vbH
+      if (vbY < 0) vbY = 0;
+      const maxY = Math.max(0, totalHeight - effectiveViewContentHeight);
+      if (vbY > maxY) vbY = maxY;
     } else if (centerLockActive) {
-      // Geometry group is flipped via translate(0,totalHeight) scale(1,-1), so visual Y for logical centerY is totalHeight - centerY.
+      // Normal mode: center the marker line in viewBox
       const visualCenterY = totalHeight - centerY;
       vbY = visualCenterY - effectiveViewContentHeight / 2;
       // Clamp to keep viewBox within 0..totalHeight - vbH (visual coordinate space: 0=spine/top, totalHeight=apex/bottom)
@@ -1985,7 +2021,7 @@ export class VsaGeometryBuilder extends LitElement {
       // Fallback (unused in dynamic mode): anchor at top (spine) so apex always remains visible when zoomed out.
       vbY = 0;
     }
-    const vbW = this.showProfile ? combinedWidth : viewContentWidth;
+    const vbW = this.showProfile ? combinedWidth : effectiveViewContentWidth;
     const vbH = this.showProfile ? totalHeight : effectiveViewContentHeight;
     // Base dynamic font size using smaller of width/height; will be constrained per label
     const baseLabelFont = Math.min(
@@ -3465,10 +3501,16 @@ export class VsaGeometryBuilder extends LitElement {
                       this._wizardUnits + "=>" + this._wizardSegments.join(",");
                     if (this._wizardSide === "A") {
                       this.notationA = fullNotation;
+                      // Auto-import the notation
+                      this._importNotation(this.notationA, "A");
                     } else {
                       this.notationB = fullNotation;
+                      // Auto-import the notation
+                      this._importNotation(this.notationB, "B");
                     }
                     this._closeWizard();
+                    // Ensure UI updates after wizard completion
+                    this.requestUpdate();
                   }}
                 >
                   ✅ Apply & Close
@@ -4220,6 +4262,8 @@ export class VsaGeometryBuilder extends LitElement {
                 this._importNotation(this.notationB, "B");
               }
               this._closeWizard();
+              // Ensure UI updates after wizard completion
+              this.requestUpdate();
             }}
           >
             Apply to Side ${this._wizardSide}
