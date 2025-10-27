@@ -12,64 +12,31 @@ import "./vsa-steel-table";
 import "./vsa-geometry-builder";
 import { property } from "lit/decorators.js";
 
+interface ComparisonSteel {
+  id: string;
+  steelName: string;
+  hardness: number;
+  edgeAngle: number;
+}
+
 class VsaAppShell extends LitElement {
   static styles = css`
     :host {
       display: block;
       box-sizing: border-box;
     }
-    :root,
-    :host {
-      /* Map former custom design tokens to Shoelace system tokens */
-
-      --vsa-border: var(--sl-color-neutral-200);
-      --vsa-row-alt: var(--sl-color-neutral-50);
-      --vsa-row-hover: var(--sl-color-neutral-100);
-      --vsa-row-focus: var(--sl-color-neutral-150);
-
-      --vsa-card-border: var(--sl-color-neutral-200);
-      --vsa-card-border-strong: var(--sl-color-neutral-300);
-      --vsa-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08),
-        0 2px 4px rgba(0, 0, 0, 0.06);
-      --vsa-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.08),
-        0 6px 12px rgba(0, 0, 0, 0.08);
-      --sl-input-background-color: #faebd7; /* antiquewhite */
-    }
-    :host-context(.dark) :root,
-    :host-context(.dark) :host {
-      --vsa-surface: var(--sl-color-neutral-800);
-      --vsa-border: var(--sl-color-neutral-700);
-      --vsa-row-alt: var(--sl-color-neutral-750, rgba(255, 255, 255, 0.03));
-      --vsa-row-hover: hsl(240deg 57.79% 46.1%);
-      --vsa-row-focus: var(--sl-color-neutral-650, #323a42);
-      /* Darken card background for better contrast (was neutral-800, appeared too light) */
-      /* Near-black card background for dark mode */
-      --vsa-card-bg: var(--sl-color-neutral-900, #0f1113);
-      --vsa-card-border: var(--sl-color-neutral-700);
-      --vsa-card-border-strong: var(--sl-color-neutral-600);
-      --vsa-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4),
-        0 2px 6px rgba(0, 0, 0, 0.35);
-      --vsa-shadow-md: 0 2px 6px rgba(0, 0, 0, 0.45),
-        0 8px 18px rgba(0, 0, 0, 0.4);
-      --sl-input-background-color: #faebd7; /* keep antiquewhite */
-    }
+    /* Use Shoelace tokens directly - automatic light/dark handling */
     header {
       display: flex;
       align-items: center;
       gap: 0.75rem;
       padding: 1rem 1.25rem;
-      background: var(--vsa-surface);
-      background-color: var(--vsa-surface);
+      background: var(--sl-color-neutral-0);
       position: sticky;
       top: 0;
       z-index: 10;
-      border-bottom: 1px solid var(--vsa-border);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
-    }
-    :host-context(.dark) header {
-      background: var(--vsa-card-bg);
-      background-color: var(--vsa-card-bg);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+      border-bottom: 1px solid var(--sl-color-neutral-200);
+      box-shadow: var(--sl-shadow-small);
     }
     header h1 {
       font-size: 1.1rem;
@@ -82,17 +49,17 @@ class VsaAppShell extends LitElement {
       padding: 1rem 1.15rem;
       background: linear-gradient(
         135deg,
-        var(--sl-color-primary-600, #4d7cff),
-        var(--sl-color-primary-400, #6d92ff)
+        var(--sl-color-primary-600),
+        var(--sl-color-primary-400)
       );
-      color: #fff;
+      color: var(--sl-color-neutral-0);
       border-radius: 16px;
-      box-shadow: var(--vsa-shadow-md);
+      box-shadow: var(--sl-shadow-medium);
       display: flex;
       flex-direction: column;
       gap: 0.6rem;
     }
-    :host-context(.dark) .intro-banner {
+    .dark .intro-banner {
       background: linear-gradient(135deg, #3d63d9, #567ee3);
     }
     .intro-banner h2 {
@@ -122,8 +89,8 @@ class VsaAppShell extends LitElement {
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     }
     .card-link {
-      background: var(--vsa-card-bg);
-      border: 2px solid var(--vsa-card-border-strong);
+      background: var(--sl-color-neutral-0);
+      border: 2px solid var(--sl-color-neutral-300);
       border-radius: 14px;
       padding: 0.9rem 0.9rem 0.75rem 0.9rem;
       display: flex;
@@ -138,18 +105,12 @@ class VsaAppShell extends LitElement {
       display: none;
     }
     .card-link:hover {
-      background: #6d92ff;
+      background: var(--sl-color-primary-50);
       border-color: var(--sl-color-primary-500);
     }
     .card-link:focus-visible {
       outline: 3px solid var(--sl-color-primary-500);
       outline-offset: 2px;
-    }
-    html.dark .card-link {
-      border-color: var(--vsa-card-border-strong);
-    }
-    html.dark .card-link:hover {
-      border-color: #1b73c5;
     }
     .card-icon {
       font-size: 1.4rem;
@@ -175,8 +136,8 @@ class VsaAppShell extends LitElement {
       gap: 0.75rem; /* reduced gap between sections */
     }
     .page section.calc {
-      background: var(--vsa-card-bg);
-      border: 1px solid var(--vsa-card-border);
+      background: var(--sl-color-neutral-0);
+      border: 1px solid var(--sl-color-neutral-200);
       border-radius: 14px;
       padding: 1.1rem 1.15rem 1.15rem;
       display: flex;
@@ -185,7 +146,7 @@ class VsaAppShell extends LitElement {
       transition: box-shadow 0.15s, background 0.15s, border-color 0.15s;
     }
     .page section.calc:hover {
-      box-shadow: var(--vsa-shadow-md);
+      box-shadow: var(--sl-shadow-medium);
     }
     .back-link {
       display: flex;
@@ -198,8 +159,8 @@ class VsaAppShell extends LitElement {
       font-weight: 600;
     }
     .page .help {
-      background: var(--vsa-card-bg);
-      border: 1px solid var(--vsa-card-border);
+      background: var(--sl-color-neutral-0);
+      border: 1px solid var(--sl-color-neutral-200);
       border-radius: 14px;
       padding: 1rem 1.15rem 1.1rem;
       font-size: 1rem;
@@ -207,10 +168,10 @@ class VsaAppShell extends LitElement {
       display: flex;
       flex-direction: column;
       gap: 0.55rem;
-      box-shadow: var(--vsa-shadow-sm);
+      box-shadow: var(--sl-shadow-small);
     }
     .page .help:hover {
-      box-shadow: var(--vsa-shadow-md);
+      box-shadow: var(--sl-shadow-medium);
     }
     .output-row {
       display: flex;
@@ -219,23 +180,15 @@ class VsaAppShell extends LitElement {
       align-items: flex-end;
     }
     sl-details::part(base) {
-      background: var(--vsa-card-bg);
-      border: 1px solid var(--vsa-card-border);
+      background: var(--sl-color-neutral-0);
+      border: 1px solid var(--sl-color-neutral-200);
       border-radius: 10px;
       padding: 0.6rem 0.75rem;
     }
     sl-details::part(summary) {
       font-weight: 600;
       letter-spacing: 0.4px;
-    }
-    :host-context(.dark) sl-details::part(base) {
-      background: var(--vsa-card-bg);
-      border-color: var(--vsa-border);
-      box-shadow: 0 0 0 1px var(--vsa-border) inset,
-        0 2px 6px rgba(0, 0, 0, 0.6);
-    }
-    :host-context(.dark) sl-details::part(summary) {
-      color: var(--sl-color-neutral-0);
+      color: var(--sl-color-neutral-900);
     }
     .result-block {
       max-width: 100%;
@@ -258,7 +211,7 @@ class VsaAppShell extends LitElement {
       box-sizing: border-box;
       box-shadow: var(--vsa-shadow-sm);
     }
-    :host-context(.dark) .result-block {
+    .result-block {
       background: linear-gradient(
         135deg,
         rgba(25, 30, 34, 0.95) 0%,
@@ -269,7 +222,7 @@ class VsaAppShell extends LitElement {
       box-shadow: 0 0 0 1px var(--vsa-border) inset,
         0 4px 14px rgba(0, 0, 0, 0.55);
     }
-    :host-context(.dark) .result-value {
+    .result-value {
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
       color: var(--sl-color-neutral-0);
     }
@@ -300,41 +253,188 @@ class VsaAppShell extends LitElement {
       line-height: 1.35;
     }
     /* Edge Retention input grouping */
-    .retention-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
+    .retention-inputs {
+      background: var(--vsa-card-bg);
+      border: 1px solid var(--vsa-card-border);
+      border-radius: 8px;
+      overflow: hidden;
       margin-top: 0.5rem;
     }
-    .input-box {
-      flex: 1 1 150px;
-      background: #f9fafb;
+    .collapsible-section {
+      background: var(--vsa-card-bg);
       border: 1px solid var(--vsa-card-border);
-      border-radius: 10px;
-      padding: 0.55rem 0.6rem 0.5rem;
-      box-sizing: border-box;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .collapsible-header {
       display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      background: var(--vsa-surface, #f9fafb);
+      border-bottom: 1px solid var(--vsa-border, #e5e7eb);
+      transition: background-color 0.2s ease;
     }
-    :host-context(.dark) .input-box {
-      background: #1e2328; /* requested dark mode input box background */
-      border-color: #394149;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+    .collapsible-header:hover {
+      background: var(--vsa-row-hover, #f3f4f6);
     }
-    /* Dark mode near-black backgrounds for editable controls */
-    /* Unified edit control background (antique white) in all modes */
-    sl-input::part(base),
-    sl-select::part(combobox),
-    sl-button[variant="default"]::part(base) {
-      background: var(--sl-input-background-color) !important;
-      color: #222 !important;
+    .collapsible-header h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--vsa-text-primary);
     }
-    sl-input::part(input),
-    sl-select::part(display-input) {
-      color: #222;
+    .collapsible-content {
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
     }
+    .collapsible-content.collapsed {
+      max-height: 0;
+    }
+    .collapsible-content.expanded {
+      max-height: 800px; /* Adjust as needed for retention estimator */
+    }
+    .retention-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .retention-table td {
+      border-bottom: 1px solid var(--vsa-border, #e5e7eb);
+      padding: 0.5rem 0.75rem;
+      vertical-align: middle;
+    }
+    .retention-table td:first-child {
+      font-weight: 500;
+      width: 30%;
+      background: var(--vsa-surface, #f9fafb);
+      border-right: 1px solid var(--vsa-border, #e5e7eb);
+    }
+    .retention-table td:last-child {
+      width: 70%;
+    }
+    .retention-table tr:last-child td {
+      border-bottom: none;
+    }
+    .retention-table sl-input {
+      width: 100%;
+    }
+    .retention-table sl-input::part(form-control) {
+      margin-bottom: 0;
+    }
+    .retention-table sl-input::part(help-text) {
+      display: none;
+    }
+    .label-with-tooltip {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .label-with-tooltip sl-icon {
+      cursor: help;
+      color: var(--sl-color-neutral-500);
+    }
+    .section-subtitle {
+      margin: 0.5rem 0 1rem 0;
+      color: var(--sl-color-neutral-600);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    .section-subtitle {
+      color: var(--sl-color-neutral-400);
+    }
+    .retention-table td:first-child {
+      background: var(--vsa-surface-dark, #1a1d23);
+    }
+    @media (max-width: 600px) {
+      .retention-table td {
+        padding: 0.4rem 0.5rem;
+      }
+      .retention-table td:first-child {
+        width: 35%;
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Compare Existing Steels section */
+    .comparison-section {
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--vsa-border);
+    }
+    .comparison-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .comparison-header h3 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+    .comparison-table th,
+    .comparison-table td {
+      padding: 0.5rem 0.25rem;
+      border-bottom: 1px solid var(--vsa-border);
+      text-align: left;
+      vertical-align: middle;
+    }
+    .comparison-table th {
+      background: var(--vsa-row-alt);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .comparison-table sl-select,
+    .comparison-table sl-input {
+      width: 100%;
+      max-width: 120px;
+    }
+    .comparison-table sl-input {
+      max-width: 80px;
+    }
+    .comparison-table .tcc-cell {
+      font-weight: 600;
+      color: var(--sl-color-primary-600);
+    }
+    .comparison-table .delete-cell {
+      width: 40px;
+      text-align: center;
+    }
+    .comparison-table sl-icon-button {
+      color: var(--sl-color-danger-600);
+    }
+    .empty-comparison {
+      text-align: center;
+      padding: 1rem;
+      color: var(--sl-color-neutral-500);
+      font-style: italic;
+    }
+    @media (max-width: 600px) {
+      .comparison-table {
+        font-size: 0.85rem;
+      }
+      .comparison-table th,
+      .comparison-table td {
+        padding: 0.4rem 0.2rem;
+      }
+      .comparison-table sl-select,
+      .comparison-table sl-input {
+        max-width: 100px;
+      }
+      .comparison-table sl-input {
+        max-width: 60px;
+      }
+      .comparison-header h3 {
+        font-size: 0.95rem;
+      }
+    }
+
     sl-input::part(base):focus-within,
     sl-select::part(combobox):focus-within {
       outline: 2px solid var(--sl-color-primary-600);
@@ -343,16 +443,11 @@ class VsaAppShell extends LitElement {
     .input-box sl-input::part(base) {
       width: 100%;
     }
-    /* Shoelace help text part */
+
     .input-box sl-input::part(help-text) {
-      color: #b08400; /* note color */
-      font-weight: 500;
-      letter-spacing: 0.25px;
-    }
-    :host-context(.dark) .input-box sl-input::part(help-text) {
       color: hsl(240deg 10.93% 72.35%); /* requested help text color */
     }
-    html.dark .invalid-msg {
+    .dark .invalid-msg {
       background: #432222;
       border-color: #ff6f6b;
       color: #ffb3b0;
@@ -421,6 +516,9 @@ class VsaAppShell extends LitElement {
   @property({ type: Boolean }) online = navigator.onLine;
   @property({ type: Boolean }) updateReady = false;
   @property({ type: Boolean }) geometryFullScreen = false;
+  @property({ type: Boolean }) retentionEstimatorCollapsed = true;
+  @property({ attribute: false }) comparisonSteels: ComparisonSteel[] = [];
+  @property({ attribute: false }) availableSteels: any[] = [];
 
   constructor() {
     super();
@@ -429,16 +527,44 @@ class VsaAppShell extends LitElement {
     this.addEventListener("steel-selected", (e) =>
       this._onSteelSelected(e as CustomEvent<SteelSelectedDetail>)
     );
+    // Initialize dark mode based on browser preference or saved setting
     document.documentElement.classList.remove("dark");
-    window.addEventListener("hashchange", () => this._applyRoute());
-    this._applyRoute();
+    document.documentElement.classList.remove("sl-theme-dark");
     try {
-      const t = localStorage.getItem("vsa-theme");
-      if (t === "dark") {
+      const savedTheme = localStorage.getItem("vsa-theme");
+      let shouldUseDark = false;
+
+      if (savedTheme) {
+        // Use saved preference if available
+        shouldUseDark = savedTheme === "dark";
+      } else {
+        // Use browser preference if no saved setting
+        shouldUseDark =
+          window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches;
+      }
+
+      if (shouldUseDark) {
         document.documentElement.classList.add("dark");
+        document.documentElement.classList.add("sl-theme-dark");
         this.dark = true;
+
+        // Load dark theme CSS
+        const darkThemeLink = document.getElementById("shoelace-dark-theme");
+        if (!darkThemeLink) {
+          const link = document.createElement("link");
+          link.id = "shoelace-dark-theme";
+          link.rel = "stylesheet";
+          link.href =
+            "https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/cdn/themes/dark.css";
+          document.head.appendChild(link);
+        }
       }
     } catch {}
+
+    // Initialize routing
+    window.addEventListener("hashchange", () => this._applyRoute());
+    this._applyRoute();
 
     // Online/offline indicators
     window.addEventListener("online", () => {
@@ -498,6 +624,10 @@ class VsaAppShell extends LitElement {
     this.page = page;
   }
 
+  _toggleRetentionEstimator() {
+    this.retentionEstimatorCollapsed = !this.retentionEstimatorCollapsed;
+  }
+
   _num(ev: Event, key: string) {
     const target = ev.target as HTMLInputElement;
     const val = Number(target.value);
@@ -548,6 +678,24 @@ class VsaAppShell extends LitElement {
   _toggleTheme() {
     const root = document.documentElement;
     const isDark = root.classList.toggle("dark");
+
+    // Toggle Shoelace theme class
+    if (isDark) {
+      root.classList.add("sl-theme-dark");
+      // Load dark theme CSS if not already loaded
+      const darkThemeLink = document.getElementById("shoelace-dark-theme");
+      if (!darkThemeLink) {
+        const link = document.createElement("link");
+        link.id = "shoelace-dark-theme";
+        link.rel = "stylesheet";
+        link.href =
+          "https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/cdn/themes/dark.css";
+        document.head.appendChild(link);
+      }
+    } else {
+      root.classList.remove("sl-theme-dark");
+    }
+
     // Optionally persist
     try {
       localStorage.setItem("vsa-theme", isDark ? "dark" : "light");
@@ -591,7 +739,7 @@ class VsaAppShell extends LitElement {
         page: "steels",
         icon: "database",
         title: "Steel Database",
-        desc: "Browse carbide composition & derived metrics.",
+        desc: "Browse carbide composition & derived metrics and view TCC estimates.",
       },
       {
         page: "geometry",
@@ -703,9 +851,8 @@ class VsaAppShell extends LitElement {
             sets (e.g. 30 → 20 → 10) and see totals / X‑strokes.
           </li>
           <li>
-            <strong>Edge Retention Estimator:</strong> Approximate CATRA TCC,
-            material removal volume, and stability from hardness, edge angle,
-            and carbide mix.
+            <strong>Edge Retention Estimator:</strong> Approximate CATRA TCC and
+            material removal volume from hardness, edge angle, and carbide mix.
           </li>
         </ul>
         <h3 style="margin:.9rem 0 .4rem;font-size:.75rem">Using Each Tool</h3>
@@ -1111,6 +1258,9 @@ class VsaAppShell extends LitElement {
   }
 
   _pageRetention() {
+    // Load steels data for comparison section
+    this._loadSteels();
+
     const edge = edgeRetention({
       name: "current",
       hardness: this.hardness,
@@ -1132,8 +1282,8 @@ class VsaAppShell extends LitElement {
     if (invalids.length) {
       queueMicrotask(() => {
         const selector = !hardValid
-          ? 'sl-input[label="Hardness"]'
-          : 'sl-input[label="Edge Angle"]';
+          ? "tr:first-child sl-input"
+          : "tr:nth-child(2) sl-input";
         const el = this.renderRoot?.querySelector(
           selector
         ) as HTMLElement | null;
@@ -1142,135 +1292,268 @@ class VsaAppShell extends LitElement {
     }
     return html`<div class="page">
       <div class="back-link">${this._homeLink()}</div>
-      <section class="calc">
-        <h2>
+
+      <sl-details ?open=${!this.retentionEstimatorCollapsed}>
+        <div slot="summary">
           Edge Retention Estimator
           <sl-tooltip
-            content="Approximate CATRA TCC, volume, and stability from hardness, edge angle, and carbides."
+            content="Approximate CATRA TCC and volume from hardness, edge angle, and carbides."
           >
             <sl-icon
               name="info-circle"
               style="font-size:.9rem; margin-left:.4rem"
             ></sl-icon>
           </sl-tooltip>
-        </h2>
-        <div class="retention-group">
-          <div class="input-box">
-            <sl-input
-              label="Hardness"
-              help-text="Rockwell C hardness (HRC). Higher HRC boosts wear resistance but may reduce toughness. Typical 50–70."
-              type="number"
-              .value=${String(this.hardness)}
-              @input=${(e: Event) => this._num(e, "hardness")}
-            ></sl-input>
+        </div>
+
+        <section class="calc">
+          <p class="section-subtitle">
+            Enter custom steel properties to get an estimate, or interact with
+            the full steel database below.
+          </p>
+          <div class="retention-inputs">
+            <table class="retention-table">
+              <tr>
+                <td>
+                  <div class="label-with-tooltip">
+                    <span>Hardness</span>
+                    <sl-tooltip
+                      content="Rockwell C hardness (HRC). Higher HRC boosts wear resistance but may reduce toughness. Typical 50–70."
+                    >
+                      <sl-icon
+                        name="info-circle"
+                        style="font-size: 0.75rem; opacity: 0.7;"
+                      ></sl-icon>
+                    </sl-tooltip>
+                  </div>
+                </td>
+                <td>
+                  <sl-input
+                    type="number"
+                    .value=${String(this.hardness)}
+                    @input=${(e: Event) => this._num(e, "hardness")}
+                    size="small"
+                  ></sl-input>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="label-with-tooltip">
+                    <span>Edge Angle</span>
+                    <sl-tooltip
+                      content="Degrees per side (DPS). Lower angles slice more efficiently; higher angles increase edge durability."
+                    >
+                      <sl-icon
+                        name="info-circle"
+                        style="font-size: 0.75rem; opacity: 0.7;"
+                      ></sl-icon>
+                    </sl-tooltip>
+                  </div>
+                </td>
+                <td>
+                  <sl-input
+                    type="number"
+                    .value=${String(this.edgeAngle)}
+                    @input=${(e: Event) => this._num(e, "edgeAngle")}
+                    size="small"
+                  ></sl-input>
+                </td>
+              </tr>
+              ${[
+                {
+                  k: "CrC",
+                  t: "Chromium carbides (CrC) – moderate wear contribution.",
+                },
+                {
+                  k: "CrCV",
+                  t: "Chromium/Vanadium mixed carbides – added abrasion resistance.",
+                },
+                {
+                  k: "MC",
+                  t: "MC (V/Nb) carbides – very high hardness, strong wear resistance.",
+                },
+                {
+                  k: "M6C",
+                  t: "Complex M6C carbides – balanced secondary contribution.",
+                },
+                { k: "MN", t: "Manganese phases – minor influence overall." },
+                { k: "CrN", t: "Chromium nitride – stability & wear support." },
+                {
+                  k: "Fe3C",
+                  t: "Iron carbide (cementite) – baseline matrix wear component.",
+                },
+              ].map(
+                ({ k, t }) => html`<tr>
+                  <td>
+                    <div class="label-with-tooltip">
+                      <span>${k}</span>
+                      <sl-tooltip content="${t}">
+                        <sl-icon
+                          name="info-circle"
+                          style="font-size: 0.75rem; opacity: 0.7;"
+                        ></sl-icon>
+                      </sl-tooltip>
+                    </div>
+                  </td>
+                  <td>
+                    <sl-input
+                      type="number"
+                      .value=${String(this.carbides[k] || 0)}
+                      @input=${(e: Event) => this._carbide(e, k)}
+                      size="small"
+                    ></sl-input>
+                  </td>
+                </tr>`
+              )}
+            </table>
           </div>
-          <div class="input-box">
-            <sl-input
-              label="Edge Angle"
-              help-text="Degrees per side (DPS). Lower angles slice more efficiently; higher angles increase edge durability."
-              type="number"
-              .value=${String(this.edgeAngle)}
-              @input=${(e: Event) => this._num(e, "edgeAngle")}
-            ></sl-input>
+          <div aria-live="polite">
+            ${invalids.length === 0
+              ? html`<div class="result-block" role="status">
+                  <span>TCC / Volume</span
+                  ><span class="result-value"
+                    >${edge.TCC} / ${edge.volume.toFixed(1)}</span
+                  >
+                </div>`
+              : html`<div class="invalid-msg" role="alert">
+                  <strong>Cannot compute retention metrics.</strong
+                  ><br />${invalids.map((m) => html`<div>${m}</div>`)}<br /><em
+                    >Expectation:</em
+                  >
+                  Hardness 50–70 HRC; edge angle 10°–35° DPS.
+                </div>`}
           </div>
-        </div>
-        <div class="retention-group">
-          ${[
-            {
-              k: "CrC",
-              t: "Chromium carbides (CrC) – moderate wear contribution.",
-            },
-            {
-              k: "CrCV",
-              t: "Chromium/Vanadium mixed carbides – added abrasion resistance.",
-            },
-            {
-              k: "MC",
-              t: "MC (V/Nb) carbides – very high hardness, strong wear resistance.",
-            },
-            {
-              k: "M6C",
-              t: "Complex M6C carbides – balanced secondary contribution.",
-            },
-            { k: "MN", t: "Manganese phases – minor influence overall." },
-            { k: "CrN", t: "Chromium nitride – stability & wear support." },
-            {
-              k: "Fe3C",
-              t: "Iron carbide (cementite) – baseline matrix wear component.",
-            },
-          ].map(
-            ({ k, t }) => html`<div class="input-box">
-              <sl-input
-                label=${k}
-                help-text=${t}
-                type="number"
-                .value=${String(this.carbides[k] || 0)}
-                @input=${(e: Event) => this._carbide(e, k)}
-              ></sl-input>
-            </div>`
-          )}
-        </div>
-        <div aria-live="polite">
-          ${invalids.length === 0
-            ? html`<div class="result-block" role="status">
-                <span>TCC / Volume / Stability</span
-                ><span class="result-value"
-                  >${edge.TCC} / ${edge.volume.toFixed(1)} /
-                  ${edge.stability}</span
-                >
-              </div>`
-            : html`<div class="invalid-msg" role="alert">
-                <strong>Cannot compute retention metrics.</strong
-                ><br />${invalids.map((m) => html`<div>${m}</div>`)}<br /><em
-                  >Expectation:</em
-                >
-                Hardness 50–70 HRC; edge angle 10°–35° DPS.
-              </div>`}
-        </div>
-        <div class="output-row">
-          <sl-progress-bar
-            .value=${Math.min(edge.volume, 30)}
-            max="30"
-          ></sl-progress-bar>
-        </div>
-        <sl-button
-          size="small"
-          class="load-btn"
-          variant="neutral"
-          style="display:none"
-          aria-hidden="true"
-          >Steel Table (replaced by collapsible)</sl-button
-        >
-      </section>
-      <sl-details summary="Steel Database">
-        <div style="margin-top:.75rem">
-          <vsa-steel-table></vsa-steel-table>
+          <div class="output-row">
+            <sl-progress-bar
+              .value=${Math.min(edge.volume, 30)}
+              max="30"
+            ></sl-progress-bar>
+          </div>
+        </section>
+
+        <div class="help" aria-label="Edge Retention Estimator Explanation">
+          <h2>About The Retention Estimate</h2>
+          <p>
+            The CATRA‑inspired TCC approximation combines hardness, edge angle,
+            and carbide fractions (simplified). Higher hardness generally
+            increases TCC; larger edge angle reduces it. Carbides contribute
+            differently—MC types often yield greater wear resistance than simple
+            chromium carbides.
+          </p>
+          <p>
+            <strong>Volume</strong> is a simple sum of carbide fractions, giving
+            a rough sense of alloy complexity.
+          </p>
+          <p>
+            Treat these numbers as comparative guidance, not lab‑grade
+            measurements. Real cutting performance depends on heat treatment,
+            microstructure, and edge finish.
+          </p>
         </div>
       </sl-details>
-      <div class="help" aria-label="Edge Retention Estimator Explanation">
-        <h2>About The Retention Estimate</h2>
-        <p>
-          The CATRA‑inspired TCC approximation combines hardness, edge angle,
-          and carbide fractions (simplified). Higher hardness generally
-          increases TCC; larger edge angle reduces it. Carbides contribute
-          differently—MC types often yield greater wear resistance than simple
-          chromium carbides.
-        </p>
-        <p>
-          <strong>Volume</strong> is a simple sum of carbide fractions, giving a
-          rough sense of alloy complexity. Stability bands indicate suitable
-          edge angle ranges for balancing retention vs. toughness.
-        </p>
-        <p>
-          Treat these numbers as comparative guidance, not lab‑grade
-          measurements. Real cutting performance depends on heat treatment,
-          microstructure, and edge finish.
-        </p>
-        <p>
-          <strong>Tip:</strong> Lower edge angles may outperform higher ones in
-          slicing tasks until stability becomes a limiting factor.
-        </p>
-      </div>
+
+      <!-- Compare Existing Steels Section -->
+      <section class="comparison-section">
+        <div class="comparison-header">
+          <h3>Compare Existing Steels</h3>
+          <sl-button
+            variant="primary"
+            size="small"
+            @click=${this._addComparisonSteel}
+            ?disabled=${this.availableSteels.length === 0}
+          >
+            <sl-icon slot="prefix" name="plus"></sl-icon>
+            Add Steel
+          </sl-button>
+        </div>
+
+        ${this.comparisonSteels.length > 0
+          ? html`
+              <table class="comparison-table">
+                <thead>
+                  <tr>
+                    <th>Steel</th>
+                    <th>HRC</th>
+                    <th>Angle (DPS)</th>
+                    <th>TCC</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${this.comparisonSteels.map(
+                    (steel) => html`
+                      <tr>
+                        <td>
+                          <sl-select
+                            .value=${steel.steelName}
+                            @sl-change=${(e: CustomEvent) =>
+                              this._updateComparisonSteel(
+                                steel.id,
+                                "steelName",
+                                (e.target as any).value
+                              )}
+                            size="small"
+                          >
+                            ${this.availableSteels.map(
+                              (s) => html`
+                                <sl-option value=${s.name}>${s.name}</sl-option>
+                              `
+                            )}
+                          </sl-select>
+                        </td>
+                        <td>
+                          <sl-input
+                            type="number"
+                            .value=${String(steel.hardness)}
+                            @input=${(e: Event) =>
+                              this._updateComparisonSteel(
+                                steel.id,
+                                "hardness",
+                                Number((e.target as HTMLInputElement).value)
+                              )}
+                            size="small"
+                            min="40"
+                            max="70"
+                          ></sl-input>
+                        </td>
+                        <td>
+                          <sl-input
+                            type="number"
+                            .value=${String(steel.edgeAngle)}
+                            @input=${(e: Event) =>
+                              this._updateComparisonSteel(
+                                steel.id,
+                                "edgeAngle",
+                                Number((e.target as HTMLInputElement).value)
+                              )}
+                            size="small"
+                            min="5"
+                            max="50"
+                          ></sl-input>
+                        </td>
+                        <td class="tcc-cell">
+                          ${this._getComparisonSteelTCC(steel)}
+                        </td>
+                        <td class="delete-cell">
+                          <sl-icon-button
+                            name="trash"
+                            @click=${() =>
+                              this._removeComparisonSteel(steel.id)}
+                            label="Remove steel"
+                          ></sl-icon-button>
+                        </td>
+                      </tr>
+                    `
+                  )}
+                </tbody>
+              </table>
+            `
+          : html`
+              <div class="empty-comparison">
+                No steels added. Click "Add Steel" to start comparing.
+              </div>
+            `}
+      </section>
     </div>`;
   }
 
@@ -1348,6 +1631,61 @@ class VsaAppShell extends LitElement {
         reg.update();
       }
     });
+  }
+
+  async _loadSteels() {
+    if (this.availableSteels.length === 0) {
+      try {
+        const response = await fetch("/data/steels.json");
+        this.availableSteels = await response.json();
+      } catch (error) {
+        console.error("Failed to load steels:", error);
+      }
+    }
+  }
+
+  _addComparisonSteel() {
+    const newId = Date.now().toString();
+    this.comparisonSteels = [
+      ...this.comparisonSteels,
+      {
+        id: newId,
+        steelName: this.availableSteels[0]?.name || "",
+        hardness: 60,
+        edgeAngle: 20,
+      },
+    ];
+  }
+
+  _removeComparisonSteel(id: string) {
+    this.comparisonSteels = this.comparisonSteels.filter((s) => s.id !== id);
+  }
+
+  _updateComparisonSteel(id: string, field: string, value: string | number) {
+    this.comparisonSteels = this.comparisonSteels.map((steel) =>
+      steel.id === id ? { ...steel, [field]: value } : steel
+    );
+  }
+
+  _getComparisonSteelTCC(compSteel: ComparisonSteel) {
+    const steel = this.availableSteels.find(
+      (s) => s.name === compSteel.steelName
+    );
+    if (!steel) return 0;
+
+    const edge = edgeRetention({
+      name: steel.name,
+      hardness: compSteel.hardness,
+      edgeAngle: compSteel.edgeAngle,
+      CrC: steel.CrC || 0,
+      CrV: steel.CrV || 0,
+      MC: steel.MC || 0,
+      M6C: steel.M6C || 0,
+      MN: steel.MN || 0,
+      CrN: steel.CrN || 0,
+      Fe3C: steel.Fe3C || 0,
+    });
+    return edge.TCC;
   }
 
   _onSteelSelected(e: CustomEvent<SteelSelectedDetail>) {

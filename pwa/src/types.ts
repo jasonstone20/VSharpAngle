@@ -17,7 +17,6 @@ export interface EdgeRetentionInputs extends SteelEntry {
 export interface EdgeRetentionResult {
   TCC: number;
   volume: number;
-  stability: string;
 }
 
 export interface PassCountResult {

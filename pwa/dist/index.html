@@ -14,53 +14,59 @@
   <!-- Optional dark theme will be lazy loaded if user toggles -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/cdn/shoelace.js"></script>
     <style>
-      /* Use Shoelace design tokens for global colors */
+      /* Simplified Shoelace-first theming - let Shoelace handle light/dark automatically */
       :root {
-        --app-gap: 1rem;
-        --app-bg: var(--sl-color-neutral-50);
-        --app-surface: var(--sl-color-neutral-0);
-        --app-border: var(--sl-color-neutral-200);
-        --app-accent: var(--sl-color-primary-600);
-        /* VSA tokens (light) */
-        --vsa-surface: var(--app-surface);
-        --vsa-border: var(--app-border);
-        --vsa-row-alt: var(--sl-color-neutral-50);
+        /* Only keep truly custom app-specific tokens */
+        --vsa-path-a-color: var(--sl-color-primary-600);
+        --vsa-path-b-color: var(--sl-color-danger-600);
+        --vsa-grid-line-color: var(--sl-color-neutral-400);
+        --vsa-metrics-bg: var(--sl-color-neutral-100);
         
-        --vsa-row-focus: var(--sl-color-neutral-150);
-        --vsa-card-bg: var(--sl-color-neutral-0);
-        --vsa-card-border: var(--app-border);
-        --vsa-card-border-strong: var(--sl-color-neutral-300);
-        /* Global edit control background (antique white, both themes) */
+        /* Specialized geometry colors that need custom behavior */
+        --vsa-stroke-color: var(--sl-color-neutral-900);
+        --vsa-center-line-color: var(--sl-color-warning-600);
+        
+        /* Global input styling override */
         --sl-input-background-color: #faebd7;
+        
+        /* Use Shoelace's automatic color scheme detection */
         color-scheme: light dark;
       }
+      
+      /* Essential dark mode contrast fixes for specific elements */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --vsa-path-a-color: var(--sl-color-primary-400);
+          --vsa-path-b-color: var(--sl-color-danger-400);
+          --vsa-grid-line-color: var(--sl-color-neutral-600);
+          --vsa-metrics-bg: rgba(255, 255, 255, 0.05);
+          --vsa-stroke-color: var(--sl-color-neutral-300);
+          --vsa-center-line-color: var(--sl-color-warning-400);
+        }
+      }
+      
       html.dark {
-        --app-bg: var(--sl-color-neutral-900);
-        --app-surface: var(--sl-color-neutral-850, var(--sl-color-neutral-800));
-        --app-border: var(--sl-color-neutral-700);
-        /* VSA tokens (dark) */
-        --vsa-surface: var(--app-surface);
-        --vsa-border: var(--app-border);
-        --vsa-row-alt: var(--sl-color-neutral-800);
-        
-        --vsa-row-focus: var(--sl-color-neutral-700);
-        --vsa-card-bg: var(--sl-color-neutral-850, var(--sl-color-neutral-800));
-        --vsa-card-border: var(--app-border);
-        --vsa-card-border-strong: var(--sl-color-neutral-650);
-        --sl-input-background-color: #faebd7; /* maintain antique white in dark mode */
-        color-scheme: dark light;
+        --vsa-path-a-color: var(--sl-color-primary-400);
+        --vsa-path-b-color: var(--sl-color-danger-400);
+        --vsa-grid-line-color: var(--sl-color-neutral-600);
+        --vsa-metrics-bg: rgba(255, 255, 255, 0.05);
+        --vsa-stroke-color: var(--sl-color-neutral-300);
+        --vsa-center-line-color: var(--sl-color-warning-400);
+      }
+      
+      /* Fix Shoelace input text contrast in dark mode */
+      sl-input::part(input), 
+      sl-select::part(display-input) {
+        color: #bab7b7;
       }
       body {
         margin: 0;
         font-family: system-ui, Arial, sans-serif;
-        background: var(--app-bg);
+        background: var(--sl-color-neutral-50);
         color: var(--sl-color-neutral-900);
         display: flex;
         min-height: 100vh;
         flex-direction: column;
-      }
-      html.dark body {
-        color: var(--sl-color-neutral-50);
       }
       vsa-app-shell { flex: 1; }
       .no-js-warning {
@@ -70,7 +76,7 @@
         text-align: center;
       }
     </style>
-    <script type="module" crossorigin src="/assets/main-BhNS91GR.js"></script>
+    <script type="module" crossorigin src="/assets/main-Bx7QAbyU.js"></script>
   </head>
   <body>
     <!-- Application built by ShaperAndMower and J.D. Stone -->

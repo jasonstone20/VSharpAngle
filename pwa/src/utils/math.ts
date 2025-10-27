@@ -81,9 +81,5 @@ export function edgeRetention(
     19.4 * CrN +
     5.0 * Fe3C;
   const volume = CrC + CrV + MC + M6C + MN + CrN + Fe3C;
-  let stability: string;
-  if (volume > 15) stability = "20°-30°dps";
-  else if (volume > 5) stability = "12.5°-20°dps";
-  else stability = "8°-12.5°dps";
-  return { TCC: Math.round(TCC), volume, stability };
+  return { TCC: Math.round(TCC), volume };
 }

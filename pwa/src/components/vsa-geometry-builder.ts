@@ -203,34 +203,8 @@ export class VsaGeometryBuilder extends LitElement {
     :host {
       display: block;
       font-family: system-ui, sans-serif;
-      --vsa-border: #4a2d00;
-      --vsa-row-alt: #f3efe7;
-      --vsa-card-bg: #fffefa;
-      --vsa-input-bg: #fff;
-      --vsa-warn-color: #c92a2a;
-      --vsa-grid-line-color: #444;
-      --vsa-path-a-color: #0a58ca;
-      --vsa-path-b-color: #c92a2a;
-      --vsa-warning-text-color: #b08900;
-      --vsa-metrics-bg: rgba(0, 0, 0, 0.05);
-      --vsa-stroke-color: #000;
-      --vsa-center-line-color: #000;
-    }
-
-    /* Dark mode overrides */
-    :host-context(.dark) {
-      --vsa-border: var(--sl-color-neutral-700);
-      --vsa-row-alt: var(--sl-color-neutral-800);
-      --vsa-card-bg: var(--sl-color-neutral-900);
-      --vsa-input-bg: var(--sl-color-neutral-800);
-      --vsa-warn-color: #ff6b6b;
-      --vsa-grid-line-color: #666;
-      --vsa-path-a-color: #4dabf7;
-      --vsa-path-b-color: #ff8787;
-      --vsa-warning-text-color: #ffd43b;
-      --vsa-metrics-bg: rgba(255, 255, 255, 0.05);
-      --vsa-stroke-color: #ccc;
-      --vsa-center-line-color: #ffd43b;
+      /* Use Shoelace tokens directly */
+      color: var(--sl-color-neutral-900);
     }
     h2 {
       margin: 0 0 0.6rem;
@@ -256,8 +230,8 @@ export class VsaGeometryBuilder extends LitElement {
     }
     .editor-panel {
       flex: 1 1 320px;
-      background: var(--vsa-card-bg);
-      border: 1px solid var(--vsa-border);
+      background: var(--sl-color-neutral-0);
+      border: 1px solid var(--sl-color-neutral-200);
       border-radius: 6px;
       padding: 0.5rem 0.6rem 0.7rem;
       min-width: 260px;
@@ -278,8 +252,8 @@ export class VsaGeometryBuilder extends LitElement {
       font-size: 0.55rem;
       padding: 0.22rem 0.3rem;
       border-radius: 4px;
-      border: 1px solid var(--vsa-border);
-      background: var(--vsa-input-bg);
+      border: 1px solid var(--sl-color-neutral-200);
+      background: var(--sl-color-neutral-0);
       box-sizing: border-box;
     }
     table.segments-edit {
@@ -288,13 +262,13 @@ export class VsaGeometryBuilder extends LitElement {
     }
     table.segments-edit th,
     table.segments-edit td {
-      border: 1px solid var(--vsa-border);
+      border: 1px solid var(--sl-color-neutral-200);
       padding: 0.25rem 0.35rem;
       font-size: 0.55rem;
       text-align: right;
     }
     table.segments-edit th {
-      background: var(--vsa-row-alt);
+      background: var(--sl-color-neutral-50);
       position: sticky;
       top: 0;
       z-index: 1;
@@ -302,21 +276,21 @@ export class VsaGeometryBuilder extends LitElement {
     .seg-table-wrap {
       max-height: 150px;
       overflow: auto;
-      border: 1px solid var(--vsa-border);
+      border: 1px solid var(--sl-color-neutral-200);
       border-radius: 6px;
-      background: var(--vsa-input-bg);
+      background: var(--sl-color-neutral-0);
     }
     .actions-cell {
       text-align: center;
     }
     .warn {
-      color: var(--vsa-warn-color);
+      color: var(--sl-color-warning-600);
       font-size: 0.6rem;
       margin: 0.4rem 0;
     }
     .svg-wrap {
-      border: 2px solid var(--vsa-border);
-      background: var(--vsa-card-bg);
+      border: 2px solid var(--sl-color-neutral-200);
+      background: var(--sl-color-neutral-0);
       padding: 0.55rem 0.6rem 0.7rem;
       border-radius: 8px;
       position: relative;
@@ -590,6 +564,8 @@ export class VsaGeometryBuilder extends LitElement {
   private _userAdjustingCenter = false;
   @property({ type: Number }) strokePxMin = 5; // legacy (constant strokes now)
   @property({ type: Boolean }) showDebug = true;
+  @property({ type: Boolean }) showGeometryA = true;
+  @property({ type: Boolean }) showGeometryB = true;
 
   @property({ type: Boolean })
   get apexMacro(): boolean {
@@ -724,6 +700,24 @@ export class VsaGeometryBuilder extends LitElement {
       }
       if (typeof data.notationA === "string") this.notationA = data.notationA;
       if (typeof data.notationB === "string") this.notationB = data.notationB;
+      if (typeof data.showGeometryA === "boolean")
+        this.showGeometryA = data.showGeometryA;
+      if (typeof data.showGeometryB === "boolean")
+        this.showGeometryB = data.showGeometryB;
+
+      // Auto-import notation if available and segments are empty
+      if (
+        this.notationA.trim() &&
+        (!this.segments || this.segments.length === 0)
+      ) {
+        this._importNotation(this.notationA, "A");
+      }
+      if (
+        this.notationB.trim() &&
+        (!this.segmentsB || this.segmentsB.length === 0)
+      ) {
+        this._importNotation(this.notationB, "B");
+      }
 
       // Sync segments to models and compute initial cached results
       this._syncSegmentsToModels();
@@ -756,6 +750,8 @@ export class VsaGeometryBuilder extends LitElement {
         apexMacro: this.apexMacro,
         notationA: this.notationA,
         notationB: this.notationB,
+        showGeometryA: this.showGeometryA,
+        showGeometryB: this.showGeometryB,
       };
       localStorage.setItem(this._storageKey, JSON.stringify(payload));
       // Lock page scroll when entering fullscreen; restore when exiting.
@@ -1313,7 +1309,19 @@ export class VsaGeometryBuilder extends LitElement {
     const computedB = this._geometryB.compute();
     const totalHeightA = this._geometryA.getTotalHeight();
     const totalHeightB = this._geometryB.getTotalHeight();
-    const totalHeight = Math.max(totalHeightA, totalHeightB);
+
+    // Only consider heights of visible geometries
+    let totalHeight = 0;
+    if (this.showGeometryA && this.showGeometryB) {
+      totalHeight = Math.max(totalHeightA, totalHeightB);
+    } else if (this.showGeometryA) {
+      totalHeight = totalHeightA;
+    } else if (this.showGeometryB) {
+      totalHeight = totalHeightB;
+    } else {
+      totalHeight = Math.max(totalHeightA, totalHeightB, 1);
+    }
+
     const vb = this._customViewBox;
     // Raw mode: viewBox width & height already equal content width & height; no margins.
     if (this.overlayMode && !fromWheel && !this._userAdjustingWidth) {
@@ -1828,31 +1836,12 @@ export class VsaGeometryBuilder extends LitElement {
             @input=${(e: Event) => {
               this.notationB = (e.target as HTMLInputElement).value;
             }}
-          />
-          <button
-            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--sl-color-neutral-900);border-radius:4px;cursor:pointer;"
-            @click=${() => {
-              const res = parseCrossSectionNotation(this.notationB, this.units);
-              this.notationBWarnings = res.warnings;
-              if (res.segments.length) {
-                this.segmentsB = res.segments.map((s) => ({
-                  angleType: s.angleType,
-                  angleValue: s.angleValue,
-                  travelType: s.travelType,
-                  travelValue: s.travelValue,
-                }));
-                this._customViewBox = null;
-                this.overlayTargetWidth = null;
-                this.requestUpdate();
-                this._persist();
-                if (res.notationUnits && res.notationUnits !== this.units) {
-                  this.units = res.notationUnits;
-                }
+            @blur=${() => {
+              if (this.notationB.trim()) {
+                this._importNotation(this.notationB, "B");
               }
             }}
-          >
-            Import B
-          </button>
+          />
         </div>
         ${this.notationBWarnings.length
           ? html`<div
@@ -1913,7 +1902,20 @@ export class VsaGeometryBuilder extends LitElement {
     const segmentPathsB = this._segmentPaths(computedB);
     const totalHeightA = this._geometryA.getTotalHeight();
     const totalHeightB = this._geometryB.getTotalHeight();
-    const totalHeight = Math.max(totalHeightA, totalHeightB);
+
+    // Only consider heights of visible geometries
+    let totalHeight = 0;
+    if (this.showGeometryA && this.showGeometryB) {
+      totalHeight = Math.max(totalHeightA, totalHeightB);
+    } else if (this.showGeometryA) {
+      totalHeight = totalHeightA;
+    } else if (this.showGeometryB) {
+      totalHeight = totalHeightB;
+    } else {
+      // Neither geometry is visible, use a minimal height
+      totalHeight = Math.max(totalHeightA, totalHeightB, 1); // fallback to combined max or 1mm
+    }
+
     const maxWidthA = computedA.length
       ? computedA[computedA.length - 1].endWidth
       : 2;
@@ -1972,20 +1974,42 @@ export class VsaGeometryBuilder extends LitElement {
     }
     const viewContentHeight = viewContentWidth * aspect;
 
-    // Apply 5x zoom in apex macro mode to make the 3mm section fill the viewport
+    // Apply zoom and positioning for apex macro mode fine detail optimization
     let effectiveViewContentHeight = viewContentHeight;
+    let effectiveViewContentWidth = viewContentWidth;
+
     if (this.apexMacro && !this.showProfile) {
-      effectiveViewContentHeight = viewContentHeight / 5; // 5x zoom
+      // Fine detail mode: ensure cross-section width is at least 50% of view width
+      const crossSectionWidth = Math.max(
+        this._widthAtY(computedA, sampleY),
+        this._widthAtY(computedB, sampleY),
+        0.00001
+      );
+      const minViewWidth = crossSectionWidth / 0.5; // 50% minimum ratio
+      effectiveViewContentWidth = Math.max(viewContentWidth, minViewWidth);
+
+      // Calculate height to maintain aspect ratio
+      effectiveViewContentHeight = effectiveViewContentWidth * aspect;
     }
 
-    const vbX = this.showProfile ? -combinedWidth / 2 : -viewContentWidth / 2; // full width when profile
+    const vbX = this.showProfile
+      ? -combinedWidth / 2
+      : -effectiveViewContentWidth / 2; // full width when profile
     const geomWidthCurrent = combinedWidth; // geometry extent width (overlay or side-by-side)
     const centerLockActive = true; // always center Y in dynamic width mode
     let vbY: number;
     if (this.showProfile) {
       vbY = 0; // show entire height
+    } else if (this.apexMacro) {
+      // Fine detail apex mode: position marker line 1/4 from bottom of viewBox
+      const visualCenterY = totalHeight - centerY;
+      vbY = visualCenterY - effectiveViewContentHeight * 0.75; // 1/4 from bottom = 75% from top
+      // Clamp to keep viewBox within 0..totalHeight - vbH
+      if (vbY < 0) vbY = 0;
+      const maxY = Math.max(0, totalHeight - effectiveViewContentHeight);
+      if (vbY > maxY) vbY = maxY;
     } else if (centerLockActive) {
-      // Geometry group is flipped via translate(0,totalHeight) scale(1,-1), so visual Y for logical centerY is totalHeight - centerY.
+      // Normal mode: center the marker line in viewBox
       const visualCenterY = totalHeight - centerY;
       vbY = visualCenterY - effectiveViewContentHeight / 2;
       // Clamp to keep viewBox within 0..totalHeight - vbH (visual coordinate space: 0=spine/top, totalHeight=apex/bottom)
@@ -1996,7 +2020,7 @@ export class VsaGeometryBuilder extends LitElement {
       // Fallback (unused in dynamic mode): anchor at top (spine) so apex always remains visible when zoomed out.
       vbY = 0;
     }
-    const vbW = this.showProfile ? combinedWidth : viewContentWidth;
+    const vbW = this.showProfile ? combinedWidth : effectiveViewContentWidth;
     const vbH = this.showProfile ? totalHeight : effectiveViewContentHeight;
     // Base dynamic font size using smaller of width/height; will be constrained per label
     const baseLabelFont = Math.min(
@@ -2023,34 +2047,14 @@ export class VsaGeometryBuilder extends LitElement {
             @input=${(e: Event) => {
               this.notationA = (e.target as HTMLInputElement).value;
             }}
-          />
-          <button
-            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--sl-color-neutral-900);border-radius:4px;cursor:pointer;"
-            @click=${() => {
-              const res = parseCrossSectionNotation(this.notationA, this.units);
-              this.notationAWarnings = res.warnings;
-              if (res.segments.length) {
-                this.segments = res.segments.map((s) => ({
-                  angleType: s.angleType,
-                  angleValue: s.angleValue,
-                  travelType: s.travelType,
-                  travelValue: s.travelValue,
-                }));
-                this._customViewBox = null;
-                this.overlayTargetWidth = null;
-                this.requestUpdate();
-                this._persist();
-                // auto switch units if explicit unit differs
-                if (res.notationUnits && res.notationUnits !== this.units) {
-                  this.units = res.notationUnits;
-                }
+            @blur=${() => {
+              if (this.notationA.trim()) {
+                this._importNotation(this.notationA, "A");
               }
             }}
-          >
-            Import A
-          </button>
+          />
           <button
-            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--sl-color-neutral-900);border-radius:4px;cursor:pointer;"
+            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--vsa-text-primary);border-radius:4px;cursor:pointer;"
             @click=${() => {
               this._openWizard("A");
             }}
@@ -2065,33 +2069,14 @@ export class VsaGeometryBuilder extends LitElement {
             @input=${(e: Event) => {
               this.notationB = (e.target as HTMLInputElement).value;
             }}
-          />
-          <button
-            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--sl-color-neutral-900);border-radius:4px;cursor:pointer;"
-            @click=${() => {
-              const res = parseCrossSectionNotation(this.notationB, this.units);
-              this.notationBWarnings = res.warnings;
-              if (res.segments.length) {
-                this.segmentsB = res.segments.map((s) => ({
-                  angleType: s.angleType,
-                  angleValue: s.angleValue,
-                  travelType: s.travelType,
-                  travelValue: s.travelValue,
-                }));
-                this._customViewBox = null;
-                this.overlayTargetWidth = null;
-                this.requestUpdate();
-                this._persist();
-                if (res.notationUnits && res.notationUnits !== this.units) {
-                  this.units = res.notationUnits;
-                }
+            @blur=${() => {
+              if (this.notationB.trim()) {
+                this._importNotation(this.notationB, "B");
               }
             }}
-          >
-            Import B
-          </button>
+          />
           <button
-            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--sl-color-neutral-900);border-radius:4px;cursor:pointer;"
+            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--vsa-text-primary);border-radius:4px;cursor:pointer;"
             @click=${() => {
               this._openWizard("B");
             }}
@@ -2117,7 +2102,7 @@ export class VsaGeometryBuilder extends LitElement {
       ${this._renderNotationHelp()}
       <div class="controls-bar">
         <button
-          style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--sl-color-neutral-900);border-radius:4px;cursor:pointer;"
+          style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--vsa-text-primary);border-radius:4px;cursor:pointer;"
           @click=${() => {
             // Load example geometry
             this.notationA = "mm=>15dps-2h,0.3w@3h,0.5w@5cp,50H";
@@ -2164,7 +2149,7 @@ export class VsaGeometryBuilder extends LitElement {
           <span style="font-size:.55rem">Units</span>
           <select
             @change=${this._changeUnits}
-            style="font-size:.6rem;padding:.15rem .3rem;border-radius:4px;background:var(--vsa-input-bg);border:1px solid var(--vsa-border);color:var(--sl-color-neutral-900);"
+            style="font-size:.6rem;padding:.15rem .3rem;border-radius:4px;background:var(--vsa-input-bg);border:1px solid var(--vsa-border);color:var(--vsa-text-primary);"
           >
             <option value="mm" ?selected=${this.units === "mm"}>mm</option>
             <option value="in" ?selected=${this.units === "in"}>in</option>
@@ -2235,6 +2220,34 @@ export class VsaGeometryBuilder extends LitElement {
             }}
           />
           Show Profile
+        </label>
+        <label
+          style="display:flex;align-items:center;gap:.3rem;font-size:.55rem;color:var(--vsa-path-a-color);"
+        >
+          <input
+            type="checkbox"
+            .checked=${this.showGeometryA}
+            @change=${() => {
+              this.showGeometryA = !this.showGeometryA;
+              this.requestUpdate();
+              this._persist();
+            }}
+          />
+          Geometry A
+        </label>
+        <label
+          style="display:flex;align-items:center;gap:.3rem;font-size:.55rem;color:var(--vsa-path-b-color);"
+        >
+          <input
+            type="checkbox"
+            .checked=${this.showGeometryB}
+            @change=${() => {
+              this.showGeometryB = !this.showGeometryB;
+              this.requestUpdate();
+              this._persist();
+            }}
+          />
+          Geometry B
         </label>
       </div>
       ${!this.fullScreen
@@ -2323,7 +2336,7 @@ export class VsaGeometryBuilder extends LitElement {
       <div
         class="svg-wrap"
         style="${this.fullScreen
-          ? "height:calc(100vh - 290px);width:100vw;"
+          ? "height:calc(100vh - 390px);width:100vw;"
           : ""}"
       >
         <div class="main-flex-row" style="gap:.75rem;">
@@ -2350,7 +2363,7 @@ export class VsaGeometryBuilder extends LitElement {
         </div>
       </div>
       ${this.showDebug
-        ? html`<div style="height:150px;overflow:auto;">
+        ? html`<div style="height:220px;overflow:auto;">
             ${this._renderDebug(apexEpsilon)}
           </div>`
         : ""}
@@ -2539,10 +2552,22 @@ export class VsaGeometryBuilder extends LitElement {
   private _renderDebug(apexEpsilon: number) {
     const compA = this._geometryA.compute();
     const compB = this._geometryB.compute();
-    const totalHeightLocal = Math.max(
-      this._geometryA.getTotalHeight(),
-      this._geometryB.getTotalHeight()
-    );
+
+    // Only consider heights of visible geometries
+    const totalHeightA = this._geometryA.getTotalHeight();
+    const totalHeightB = this._geometryB.getTotalHeight();
+    let totalHeightLocal = 0;
+    if (this.showGeometryA && this.showGeometryB) {
+      totalHeightLocal = Math.max(totalHeightA, totalHeightB);
+    } else if (this.showGeometryA) {
+      totalHeightLocal = totalHeightA;
+    } else if (this.showGeometryB) {
+      totalHeightLocal = totalHeightB;
+    } else {
+      // Neither geometry is visible, use combined max as fallback
+      totalHeightLocal = Math.max(totalHeightA, totalHeightB, 1);
+    }
+
     const centerYGeom = this.overlayCenter * totalHeightLocal;
     const sampleY = centerYGeom < apexEpsilon * 4 ? apexEpsilon : centerYGeom;
     const tA = this._geometryA.widthAtY(compA, sampleY);
@@ -2633,10 +2658,10 @@ export class VsaGeometryBuilder extends LitElement {
     const pathB = this._path(computedB);
     const geometryGroup = this.overlayMode
       ? html`
-          ${pathA
+          ${pathA && this.showGeometryA
             ? svg`<path d="${pathA}" fill="none" stroke="var(--vsa-path-a-color)" stroke-width="${STROKE_PX}" vector-effect="non-scaling-stroke"></path>`
             : ""}
-          ${pathB
+          ${pathB && this.showGeometryB
             ? svg`<path d="${pathB}" fill="none" stroke="var(--vsa-path-b-color)" stroke-width="${STROKE_PX}" vector-effect="non-scaling-stroke"></path>`
             : ""}
           ${(() => {
@@ -2677,6 +2702,9 @@ export class VsaGeometryBuilder extends LitElement {
             "#ff6b6b",
           ];
           return svg`
+            ${
+              this.showGeometryA
+                ? svg`
             <g transform="translate(${shiftA},0)">
               ${segmentPathsA.map(
                 (d, i) =>
@@ -2690,6 +2718,12 @@ export class VsaGeometryBuilder extends LitElement {
                   : ""
               }
             </g>
+            `
+                : ""
+            }
+            ${
+              this.showGeometryB
+                ? svg`
             <g transform="translate(${shiftB},0)">
               ${segmentPathsB.map(
                 (d, i) =>
@@ -2702,7 +2736,10 @@ export class VsaGeometryBuilder extends LitElement {
                   ? svg`<path d="${pathB}" fill="none" stroke="var(--vsa-path-b-color)" stroke-width="${STROKE_PX}" vector-effect="non-scaling-stroke"></path>`
                   : ""
               }
-            </g>`;
+            </g>
+            `
+                : ""
+            }`;
         })()}`;
 
     const centerLine = (() => {
@@ -2721,7 +2758,7 @@ export class VsaGeometryBuilder extends LitElement {
     })();
 
     return html`${
-      pathA || pathB
+      (pathA && this.showGeometryA) || (pathB && this.showGeometryB)
         ? svg`<svg viewBox="${
             this._customViewBox ? this._customViewBox.x : vbX
           } ${this._customViewBox ? this._customViewBox.y : vbY} ${
@@ -2738,7 +2775,11 @@ export class VsaGeometryBuilder extends LitElement {
             Add segments to visualize cross section.
           </div>`
     }
-    ${pathA || pathB ? html`<div class="drag-overlay"></div>` : ""}
+    ${
+      (pathA && this.showGeometryA) || (pathB && this.showGeometryB)
+        ? html`<div class="drag-overlay"></div>`
+        : ""
+    }
     ${this._wizardOpen ? this._renderWizard() : ""}
     </div>`;
   }
@@ -2966,6 +3007,43 @@ export class VsaGeometryBuilder extends LitElement {
     }
   }
 
+  private _importNotation(notation: string, side: "A" | "B") {
+    const res = parseCrossSectionNotation(notation, this.units);
+
+    if (side === "A") {
+      this.notationAWarnings = res.warnings;
+      if (res.segments.length) {
+        this.segments = res.segments.map((s) => ({
+          angleType: s.angleType,
+          angleValue: s.angleValue,
+          travelType: s.travelType,
+          travelValue: s.travelValue,
+        }));
+      }
+    } else {
+      this.notationBWarnings = res.warnings;
+      if (res.segments.length) {
+        this.segmentsB = res.segments.map((s) => ({
+          angleType: s.angleType,
+          angleValue: s.angleValue,
+          travelType: s.travelType,
+          travelValue: s.travelValue,
+        }));
+      }
+    }
+
+    if (res.segments.length) {
+      this._customViewBox = null;
+      this.overlayTargetWidth = null;
+      this.requestUpdate();
+      this._persist();
+      // auto switch units if explicit unit differs
+      if (res.notationUnits && res.notationUnits !== this.units) {
+        this.units = res.notationUnits;
+      }
+    }
+  }
+
   private _applyWizardToGeometry() {
     const notation = this._buildNotationFromWizard();
     if (!notation) return;
@@ -2985,17 +3063,16 @@ export class VsaGeometryBuilder extends LitElement {
         this.notationA = this.notationA
           ? `${this.notationA},${notation}`
           : notation;
+        // Auto-import the updated notation
+        this._importNotation(this.notationA, "A");
       } else {
         this.segmentsB = [...this.segmentsB, ...segments];
         this.notationB = this.notationB
           ? `${this.notationB},${notation}`
           : notation;
+        // Auto-import the updated notation
+        this._importNotation(this.notationB, "B");
       }
-
-      this._customViewBox = null;
-      this.overlayTargetWidth = null;
-      this.requestUpdate();
-      this._persist();
     }
 
     this._closeWizard();
@@ -3027,7 +3104,7 @@ export class VsaGeometryBuilder extends LitElement {
           overflow-y: auto;
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
           border: 1px solid var(--vsa-border);
-          color: var(--sl-color-neutral-900);
+          color: var(--vsa-text-primary);
         "
         >
           > ${this._renderWizardStep()}
@@ -3079,7 +3156,7 @@ export class VsaGeometryBuilder extends LitElement {
               : "var(--vsa-input-bg)"};
             color: ${this._wizardUnits === "mm"
               ? "white"
-              : "var(--sl-color-neutral-900)"};
+              : "var(--vsa-text-primary)"};
             border-radius: 8px;
             cursor: pointer;
           "
@@ -3104,7 +3181,7 @@ export class VsaGeometryBuilder extends LitElement {
               : "var(--vsa-input-bg)"};
             color: ${this._wizardUnits === "in"
               ? "white"
-              : "var(--sl-color-neutral-900)"};
+              : "var(--vsa-text-primary)"};
             border-radius: 8px;
             cursor: pointer;
           "
@@ -3124,7 +3201,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 0.75rem 1.5rem;
             border: 1px solid var(--vsa-border);
             background: var(--vsa-input-bg);
-            color: var(--sl-color-neutral-900);
+            color: var(--vsa-text-primary);
             border-radius: 4px;
             cursor: pointer;
           "
@@ -3138,7 +3215,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 0.75rem 1.5rem;
             border: 1px solid var(--vsa-path-a-color);
             background: var(--vsa-path-a-color);
-            color: white;
+            color: var(--vsa-text-inverse);
             border-radius: 4px;
             cursor: pointer;
           "
@@ -3270,7 +3347,7 @@ export class VsaGeometryBuilder extends LitElement {
         <h2 style="margin-top: 0;">
           Build Geometry for Side ${this._wizardSide} (${this._wizardUnits})
         </h2>
-        <p style="margin-bottom: 1.5rem; color: var(--sl-color-neutral-900);">
+        <p style="margin-bottom: 1.5rem; color: var(--vsa-text-primary);">
           ${hasSegments
             ? "Edit existing segments, add new ones, or delete from the end."
             : "Start building your geometry by adding segments. Each segment defines a cut direction and distance."}
@@ -3390,7 +3467,7 @@ export class VsaGeometryBuilder extends LitElement {
               padding: 0.75rem 1.5rem;
               border: 1px solid var(--vsa-border);
               background: var(--vsa-input-bg);
-              color: var(--sl-color-neutral-900);
+              color: var(--vsa-text-primary);
               border-radius: 4px;
               cursor: pointer;
             "
@@ -3408,7 +3485,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 0.75rem 1.5rem;
             border: 1px solid var(--vsa-border);
             background: var(--vsa-input-bg);
-            color: var(--sl-color-neutral-900);
+            color: var(--vsa-text-primary);
             border-radius: 4px;
             cursor: pointer;
           "
@@ -3424,7 +3501,7 @@ export class VsaGeometryBuilder extends LitElement {
               padding: 0.75rem 1.5rem;
               border: 1px solid var(--vsa-path-a-color);
               background: var(--vsa-path-a-color);
-              color: white;
+              color: var(--vsa-text-inverse);
               border-radius: 4px;
               cursor: pointer;
               font-weight: 600;
@@ -3435,10 +3512,16 @@ export class VsaGeometryBuilder extends LitElement {
                       this._wizardUnits + "=>" + this._wizardSegments.join(",");
                     if (this._wizardSide === "A") {
                       this.notationA = fullNotation;
+                      // Auto-import the notation
+                      this._importNotation(this.notationA, "A");
                     } else {
                       this.notationB = fullNotation;
+                      // Auto-import the notation
+                      this._importNotation(this.notationB, "B");
                     }
                     this._closeWizard();
+                    // Ensure UI updates after wizard completion
+                    this.requestUpdate();
                   }}
                 >
                   ✅ Apply & Close
@@ -3478,7 +3561,7 @@ export class VsaGeometryBuilder extends LitElement {
           </div>
         </div>
 
-        <p style="margin-bottom: 2rem; color: var(--sl-color-neutral-900);">
+        <p style="margin-bottom: 2rem; color: var(--vsa-text-primary);">
           What would you like to do?
         </p>
 
@@ -3508,7 +3591,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 1rem 2rem;
             border: 1px solid var(--vsa-border);
             background: var(--vsa-input-bg);
-            color: var(--sl-color-neutral-900);
+            color: var(--vsa-text-primary);
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
@@ -3535,7 +3618,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 0.75rem 1.5rem;
             border: 1px solid var(--vsa-border);
             background: var(--vsa-input-bg);
-            color: var(--sl-color-neutral-900);
+            color: var(--vsa-text-primary);
             border-radius: 4px;
             cursor: pointer;
           "
@@ -3575,7 +3658,7 @@ export class VsaGeometryBuilder extends LitElement {
     return html`
       <div style="text-align: center;">
         <h2 style="margin-top: 0;">Choose Measurement Type</h2>
-        <p style="margin-bottom: 2rem; color: var(--sl-color-neutral-900);">
+        <p style="margin-bottom: 2rem; color: var(--vsa-text-primary);">
           Select the type of measurement you want to create:
         </p>
 
@@ -3594,7 +3677,7 @@ export class VsaGeometryBuilder extends LitElement {
               background: ${this._wizardNotationType === type.id
                   ? "rgba(59, 130, 246, 0.1)"
                   : "var(--vsa-input-bg)"};
-              color: var(--sl-color-neutral-900);
+              color: var(--vsa-text-primary);
               border-radius: 8px;
               cursor: pointer;
             "
@@ -3622,7 +3705,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 0.75rem 1.5rem;
             border: 1px solid var(--vsa-border);
             background: var(--vsa-input-bg);
-            color: var(--sl-color-neutral-900);
+            color: var(--vsa-text-primary);
             border-radius: 4px;
             cursor: pointer;
           "
@@ -3668,7 +3751,7 @@ export class VsaGeometryBuilder extends LitElement {
           "
           >
             <p
-              style="margin: 0; line-height: 1.6; color: var(--sl-color-neutral-900);"
+              style="margin: 0; line-height: 1.6; color: var(--vsa-text-primary);"
             >
               ${config.measurementGuide}
             </p>
@@ -3683,7 +3766,7 @@ export class VsaGeometryBuilder extends LitElement {
         <!-- Entry Panel -->
         <div style="flex: 1; min-width: 300px; max-width: 500px;">
           <h3 style="margin-top: 0;">Enter Measurement Values</h3>
-          <p style="margin-bottom: 1.5rem; color: var(--sl-color-neutral-900);">
+          <p style="margin-bottom: 1.5rem; color: var(--vsa-text-primary);">
             Please enter each measurement value:
           </p>
 
@@ -3816,7 +3899,7 @@ export class VsaGeometryBuilder extends LitElement {
                     border: 1px solid var(--vsa-border);
                     border-radius: 4px;
                     background: var(--vsa-input-bg);
-                    color: var(--sl-color-neutral-900);
+                    color: var(--vsa-text-primary);
                     font-size: 1rem;
                   "
                           @change=${(e: Event) => {
@@ -3861,7 +3944,7 @@ export class VsaGeometryBuilder extends LitElement {
                       border: 1px solid var(--vsa-border);
                       border-radius: 4px;
                       background: var(--vsa-input-bg);
-                      color: var(--sl-color-neutral-900);
+                      color: var(--vsa-text-primary);
                       font-size: 1rem;
                     "
                           .value=${String(this._wizardValues[value.key] || "")}
@@ -3884,7 +3967,7 @@ export class VsaGeometryBuilder extends LitElement {
               padding: 0.75rem 1.5rem;
               border: 1px solid var(--vsa-border);
               background: var(--vsa-input-bg);
-              color: var(--sl-color-neutral-900);
+              color: var(--vsa-text-primary);
               border-radius: 4px;
               cursor: pointer;
             "
@@ -3898,7 +3981,7 @@ export class VsaGeometryBuilder extends LitElement {
               padding: 0.75rem 1.5rem;
               border: 1px solid var(--vsa-path-a-color);
               background: var(--vsa-path-a-color);
-              color: white;
+              color: var(--vsa-text-inverse);
               border-radius: 4px;
               cursor: pointer;
             "
@@ -4044,7 +4127,7 @@ export class VsaGeometryBuilder extends LitElement {
           : ""}
 
         <div style="margin-bottom: 2rem;">
-          <p style="color: var(--sl-color-neutral-900);">
+          <p style="color: var(--vsa-text-primary);">
             What would you like to do next?
           </p>
         </div>
@@ -4057,7 +4140,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 0.75rem 1.5rem;
             border: 1px solid var(--vsa-border);
             background: var(--vsa-input-bg);
-            color: var(--sl-color-neutral-900);
+            color: var(--vsa-text-primary);
             border-radius: 4px;
             cursor: pointer;
           "
@@ -4159,7 +4242,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 0.75rem 1.5rem;
             border: 1px solid var(--vsa-border);
             background: var(--vsa-input-bg);
-            color: var(--sl-color-neutral-900);
+            color: var(--vsa-text-primary);
             border-radius: 4px;
             cursor: pointer;
           "
@@ -4173,7 +4256,7 @@ export class VsaGeometryBuilder extends LitElement {
             padding: 0.75rem 1.5rem;
             border: 1px solid var(--vsa-path-a-color);
             background: var(--vsa-path-a-color);
-            color: white;
+            color: var(--vsa-text-inverse);
             border-radius: 4px;
             cursor: pointer;
             font-weight: 600;
@@ -4182,10 +4265,16 @@ export class VsaGeometryBuilder extends LitElement {
               // Apply the notation and close the wizard
               if (this._wizardSide === "A") {
                 this.notationA = fullNotation;
+                // Auto-import the notation
+                this._importNotation(this.notationA, "A");
               } else {
                 this.notationB = fullNotation;
+                // Auto-import the notation
+                this._importNotation(this.notationB, "B");
               }
               this._closeWizard();
+              // Ensure UI updates after wizard completion
+              this.requestUpdate();
             }}
           >
             Apply to Side ${this._wizardSide}
