@@ -1335,7 +1335,19 @@ export class VsaGeometryBuilder extends LitElement {
     const computedB = this._geometryB.compute();
     const totalHeightA = this._geometryA.getTotalHeight();
     const totalHeightB = this._geometryB.getTotalHeight();
-    const totalHeight = Math.max(totalHeightA, totalHeightB);
+    
+    // Only consider heights of visible geometries
+    let totalHeight = 0;
+    if (this.showGeometryA && this.showGeometryB) {
+      totalHeight = Math.max(totalHeightA, totalHeightB);
+    } else if (this.showGeometryA) {
+      totalHeight = totalHeightA;
+    } else if (this.showGeometryB) {
+      totalHeight = totalHeightB;
+    } else {
+      totalHeight = Math.max(totalHeightA, totalHeightB, 1);
+    }
+    
     const vb = this._customViewBox;
     // Raw mode: viewBox width & height already equal content width & height; no margins.
     if (this.overlayMode && !fromWheel && !this._userAdjustingWidth) {
@@ -1916,7 +1928,20 @@ export class VsaGeometryBuilder extends LitElement {
     const segmentPathsB = this._segmentPaths(computedB);
     const totalHeightA = this._geometryA.getTotalHeight();
     const totalHeightB = this._geometryB.getTotalHeight();
-    const totalHeight = Math.max(totalHeightA, totalHeightB);
+
+    // Only consider heights of visible geometries
+    let totalHeight = 0;
+    if (this.showGeometryA && this.showGeometryB) {
+      totalHeight = Math.max(totalHeightA, totalHeightB);
+    } else if (this.showGeometryA) {
+      totalHeight = totalHeightA;
+    } else if (this.showGeometryB) {
+      totalHeight = totalHeightB;
+    } else {
+      // Neither geometry is visible, use a minimal height
+      totalHeight = Math.max(totalHeightA, totalHeightB, 1); // fallback to combined max or 1mm
+    }
+
     const maxWidthA = computedA.length
       ? computedA[computedA.length - 1].endWidth
       : 2;
@@ -2553,10 +2578,22 @@ export class VsaGeometryBuilder extends LitElement {
   private _renderDebug(apexEpsilon: number) {
     const compA = this._geometryA.compute();
     const compB = this._geometryB.compute();
-    const totalHeightLocal = Math.max(
-      this._geometryA.getTotalHeight(),
-      this._geometryB.getTotalHeight()
-    );
+    
+    // Only consider heights of visible geometries
+    const totalHeightA = this._geometryA.getTotalHeight();
+    const totalHeightB = this._geometryB.getTotalHeight();
+    let totalHeightLocal = 0;
+    if (this.showGeometryA && this.showGeometryB) {
+      totalHeightLocal = Math.max(totalHeightA, totalHeightB);
+    } else if (this.showGeometryA) {
+      totalHeightLocal = totalHeightA;
+    } else if (this.showGeometryB) {
+      totalHeightLocal = totalHeightB;
+    } else {
+      // Neither geometry is visible, use combined max as fallback
+      totalHeightLocal = Math.max(totalHeightA, totalHeightB, 1);
+    }
+    
     const centerYGeom = this.overlayCenter * totalHeightLocal;
     const sampleY = centerYGeom < apexEpsilon * 4 ? apexEpsilon : centerYGeom;
     const tA = this._geometryA.widthAtY(compA, sampleY);
