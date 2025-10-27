@@ -43,6 +43,19 @@ class VsaSteelTable extends LitElement {
       gap: 0.5rem;
       align-items: center;
     }
+    .control-group.filter-group {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.4rem;
+    }
+    .control-group.filter-group label {
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: var(--sl-color-neutral-700);
+    }
+    .control-group.filter-group sl-select {
+      width: 100%;
+    }
     .control-group.calculation-inputs {
       justify-content: flex-start;
     }
@@ -251,7 +264,7 @@ class VsaSteelTable extends LitElement {
 
   static properties = {
     steels: { type: Array },
-    filter: { type: String },
+    filter: { type: Array },
     sortKey: { type: String },
     sortDir: { type: String },
     hardnessValues: { type: Array },
@@ -260,7 +273,7 @@ class VsaSteelTable extends LitElement {
   };
 
   steels: SteelEntry[] = [];
-  filter = "";
+  filter: string[] = [];
   sortKey = "name";
   sortDir = "asc";
   hardnessValues = [60];
@@ -284,7 +297,8 @@ class VsaSteelTable extends LitElement {
   }
 
   _onFilter(e: Event) {
-    this.filter = (e.target as HTMLInputElement).value.trim().toLowerCase();
+    const select = e.target as any; // sl-select
+    this.filter = select.value || [];
   }
   _setHardnessValue(e: Event, index: number) {
     const input = e.target as HTMLInputElement;
@@ -400,7 +414,8 @@ class VsaSteelTable extends LitElement {
     for (const hardness of validHardness) {
       for (const edgeAngle of validAngles) {
         for (const steel of this.steels) {
-          if (f && !steel.name.toLowerCase().includes(f)) continue;
+          // If filter is set, only include steels that are selected
+          if (f.length > 0 && !f.includes(steel.name)) continue;
 
           const { TCC, volume } = edgeRetention({
             hardness,
@@ -512,181 +527,198 @@ class VsaSteelTable extends LitElement {
   render() {
     const rows = this._filtered();
     return html`
-      <div class="toolbar">
-        <div class="control-group">
-          <sl-input
+     
+
+      <sl-details open>
+        <div slot="summary">Steel Table Comparison</div>
+         <div class="toolbar">
+        <div class="control-group filter-group">
+          <label for="steel-filter">Filter Steels</label>
+          <sl-select
+            id="steel-filter"
+            multiple
+            clearable
+            placeholder="Select steels to compare..."
             size="small"
-            placeholder="Filter steel…"
-            @input=${this._onFilter}
-          ></sl-input>
-        </div>
-        <div class="control-group tips">
-          <sl-tooltip content="Click headers to sort"
-            ><sl-badge variant="neutral">Sort Tips</sl-badge></sl-tooltip
+            .value=${this.filter}
+            @sl-change=${this._onFilter}
           >
-          <sl-tooltip content="Click a steel row to populate inputs">
-            <sl-badge variant="primary">Row Select Tip</sl-badge>
-          </sl-tooltip>
+            ${this.steels.map(
+              (steel) => html`
+                <sl-option value=${steel.name}>${steel.name}</sl-option>
+              `
+            )}
+          </sl-select>
         </div>
       </div>
 
-      <div class="steel-controls">
-        <table class="controls-table">
-          <tr>
-            <td>Hardness (HRC)</td>
-            <td>
-              <div class="multi-input">
-                ${this.hardnessValues.map(
-                  (value, index) => html`
-                    <div class="input-row">
-                      <sl-input
-                        size="small"
-                        type="number"
-                        value=${String(value)}
-                        @input=${(e: Event) => this._setHardnessValue(e, index)}
-                        @blur=${(e: Event) =>
-                          this._validateHardnessValue(e, index)}
-                      ></sl-input>
-                      ${this.hardnessValues.length > 1
-                        ? html`
-                            <sl-button
-                              size="small"
-                              variant="default"
-                              class="remove-button"
-                              @click=${() => this._removeHardnessInput(index)}
-                            >
-                              <sl-icon name="x"></sl-icon>
-                            </sl-button>
-                          `
-                        : ""}
-                    </div>
-                  `
-                )}
-                ${this.hardnessValues.length < 3
-                  ? html`
-                      <sl-button
-                        size="small"
-                        variant="default"
-                        class="add-button"
-                        @click=${this._addHardnessInput}
-                      >
-                        <sl-icon name="plus"></sl-icon>
-                      </sl-button>
-                    `
-                  : ""}
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Edge Angle (DPS)</td>
-            <td>
-              <div class="multi-input">
-                ${this.edgeAngleValues.map(
-                  (value, index) => html`
-                    <div class="input-row">
-                      <sl-input
-                        size="small"
-                        type="number"
-                        value=${String(value)}
-                        @input=${(e: Event) =>
-                          this._setEdgeAngleValue(e, index)}
-                        @blur=${(e: Event) =>
-                          this._validateEdgeAngleValue(e, index)}
-                      ></sl-input>
-                      ${this.edgeAngleValues.length > 1
-                        ? html`
-                            <sl-button
-                              size="small"
-                              variant="default"
-                              class="remove-button"
-                              @click=${() => this._removeAngleInput(index)}
-                            >
-                              <sl-icon name="x"></sl-icon>
-                            </sl-button>
-                          `
-                        : ""}
-                    </div>
-                  `
-                )}
-                ${this.edgeAngleValues.length < 3
-                  ? html`
-                      <sl-button
-                        size="small"
-                        variant="default"
-                        class="add-button"
-                        @click=${this._addAngleInput}
-                      >
-                        <sl-icon name="plus"></sl-icon>
-                      </sl-button>
-                    `
-                  : ""}
-              </div>
-            </td>
-          </tr>
-        </table>
       </div>
-
-      ${rows.length
-        ? html` <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  ${this._headerCell("name", "Steel")}
-                  ${this._headerCell("hardness", "HRC")}
-                  ${this._headerCell("edgeAngle", "Angle")}
-                  ${this._headerCell("TCC", "est.TCC")}
-                  ${this._headerCell("CrC", "CrC")}
-                  ${this._headerCell("CrV", "CrV")}
-                  ${this._headerCell("MC", "MC")}
-                  ${this._headerCell("M6C", "M6C")}
-                  ${this._headerCell("MN", "MN")}
-                  ${this._headerCell("CrN", "CrN")}
-                  ${this._headerCell("Fe3C", "Fe3C")}
-                  ${this._headerCell("volume", "Vol%")}
-                </tr>
-              </thead>
-              <tbody>
-                ${rows.map(
-                  (s) => html` <tr
-                    @click=${() => this._select(s)}
-                    @keydown=${(e: KeyboardEvent) => this._onRowKey(e, s)}
-                    tabindex="0"
-                    role="button"
-                    aria-label="Select steel ${s.name} at ${s.hardness}HRC, ${s.edgeAngle}°"
-                    aria-selected="${this.selectedName === s.name
-                      ? "true"
-                      : "false"}"
-                  >
-                    <td class="name">${s.name}</td>
-                    <td>${s.hardness}</td>
-                    <td>${s.edgeAngle}</td>
-                    <td class="tcc">${s.TCC}</td>
-                    <td>${s.CrC || 0}</td>
-                    <td>${s.CrV || 0}</td>
-                    <td>${s.MC || 0}</td>
-                    <td>${s.M6C || 0}</td>
-                    <td>${s.MN || 0}</td>
-                    <td>${s.CrN || 0}</td>
-                    <td>${s.Fe3C || 0}</td>
-                    <td class="vol-cell">
-                      ${(s.volume as number)?.toFixed
-                        ? (s.volume as number).toFixed(1)
-                        : (
-                            (s.CrC || 0) +
-                            (s.CrV || 0) +
-                            (s.MC || 0) +
-                            (s.M6C || 0) +
-                            (s.MN || 0) +
-                            (s.CrN || 0) +
-                            (s.Fe3C || 0)
-                          ).toFixed(1)}
-                    </td>
-                  </tr>`
-                )}
-              </tbody>
+      </div>
+        <div class="steel-controls">
+            <table class="controls-table">
+              <tr>
+                <td>Hardness (HRC)</td>
+                <td>
+                  <div class="multi-input">
+                    ${this.hardnessValues.map(
+                      (value, index) => html`
+                        <div class="input-row">
+                          <sl-input
+                            size="small"
+                            type="number"
+                            value=${String(value)}
+                            @input=${(e: Event) =>
+                              this._setHardnessValue(e, index)}
+                            @blur=${(e: Event) =>
+                              this._validateHardnessValue(e, index)}
+                          ></sl-input>
+                          ${this.hardnessValues.length > 1
+                            ? html`
+                                <sl-button
+                                  size="small"
+                                  variant="default"
+                                  class="remove-button"
+                                  @click=${() =>
+                                    this._removeHardnessInput(index)}
+                                >
+                                  <sl-icon name="x"></sl-icon>
+                                </sl-button>
+                              `
+                            : ""}
+                        </div>
+                      `
+                    )}
+                    ${
+                      this.hardnessValues.length < 3
+                        ? html`
+                            <sl-button
+                              size="small"
+                              variant="default"
+                              class="add-button"
+                              @click=${this._addHardnessInput}
+                            >
+                              <sl-icon name="plus"></sl-icon>
+                            </sl-button>
+                          `
+                        : ""
+                    }
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Edge Angle (DPS)</td>
+                <td>
+                  <div class="multi-input">
+                    ${this.edgeAngleValues.map(
+                      (value, index) => html`
+                        <div class="input-row">
+                          <sl-input
+                            size="small"
+                            type="number"
+                            value=${String(value)}
+                            @input=${(e: Event) =>
+                              this._setEdgeAngleValue(e, index)}
+                            @blur=${(e: Event) =>
+                              this._validateEdgeAngleValue(e, index)}
+                          ></sl-input>
+                          ${this.edgeAngleValues.length > 1
+                            ? html`
+                                <sl-button
+                                  size="small"
+                                  variant="default"
+                                  class="remove-button"
+                                  @click=${() => this._removeAngleInput(index)}
+                                >
+                                  <sl-icon name="x"></sl-icon>
+                                </sl-button>
+                              `
+                            : ""}
+                        </div>
+                      `
+                    )}
+                    ${
+                      this.edgeAngleValues.length < 3
+                        ? html`
+                            <sl-button
+                              size="small"
+                              variant="default"
+                              class="add-button"
+                              @click=${this._addAngleInput}
+                            >
+                              <sl-icon name="plus"></sl-icon>
+                            </sl-button>
+                          `
+                        : ""
+                    }
+                  </div>
+                </td>
+              </tr>
             </table>
-          </div>`
-        : html`<div class="empty">No steels found.</div>`}
+          </div>
+
+          ${
+            rows.length
+              ? html` <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        ${this._headerCell("name", "Steel")}
+                        ${this._headerCell("hardness", "HRC")}
+                        ${this._headerCell("edgeAngle", "Angle")}
+                        ${this._headerCell("TCC", "est.TCC")}
+                        ${this._headerCell("CrC", "CrC")}
+                        ${this._headerCell("CrV", "CrV")}
+                        ${this._headerCell("MC", "MC")}
+                        ${this._headerCell("M6C", "M6C")}
+                        ${this._headerCell("MN", "MN")}
+                        ${this._headerCell("CrN", "CrN")}
+                        ${this._headerCell("Fe3C", "Fe3C")}
+                        ${this._headerCell("volume", "Vol%")}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${rows.map(
+                        (s) => html` <tr
+                          @click=${() => this._select(s)}
+                          @keydown=${(e: KeyboardEvent) => this._onRowKey(e, s)}
+                          tabindex="0"
+                          role="button"
+                          aria-label="Select steel ${s.name} at ${s.hardness}HRC, ${s.edgeAngle}°"
+                          aria-selected="${this.selectedName === s.name
+                            ? "true"
+                            : "false"}"
+                        >
+                          <td class="name">${s.name}</td>
+                          <td>${s.hardness}</td>
+                          <td>${s.edgeAngle}</td>
+                          <td class="tcc">${s.TCC.toFixed(0)}</td>
+                          <td>${(s.CrC || 0).toFixed(1)}</td>
+                          <td>${(s.CrV || 0).toFixed(1)}</td>
+                          <td>${(s.MC || 0).toFixed(1)}</td>
+                          <td>${(s.M6C || 0).toFixed(1)}</td>
+                          <td>${(s.MN || 0).toFixed(1)}</td>
+                          <td>${(s.CrN || 0).toFixed(1)}</td>
+                          <td>${(s.Fe3C || 0).toFixed(1)}</td>
+                          <td class="vol-cell">
+                            ${(
+                              (s.CrC || 0) +
+                              (s.CrV || 0) +
+                              (s.MC || 0) +
+                              (s.M6C || 0) +
+                              (s.MN || 0) +
+                              (s.CrN || 0) +
+                              (s.Fe3C || 0)
+                            ).toFixed(1)}
+                          </td>
+                        </tr>`
+                      )}
+                    </tbody>
+                  </table>
+                </div>`
+              : html`<div class="empty">No steels found.</div>`
+          }
+        </div>
+      </sl-details>
     `;
   }
 }
