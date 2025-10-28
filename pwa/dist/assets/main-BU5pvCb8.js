@@ -2297,16 +2297,15 @@
           ${t?c`<div class="result-block" role="status">
                 <span>Total / X-Strokes</span>
                 <span class="result-value"
-                  >${e.total} / ${e.xStrokes}</span
+                  >${Math.round(e.total)} / ${Math.round(e.xStrokes||0)}</span
                 >
               </div>`:c`<div class="error" role="alert">${i}</div>`}
         </div>
         ${t?c`
-              <sl-details summary="Sequence">
-                <div class="sequence-container">
-                  ${e.sequence.map(r=>c`<span class="badge-seq">${r}</span>`)}
-                </div>
-              </sl-details>
+              <div class="sequence-container">
+                <span style="font-size: 0.85rem; color: var(--sl-color-neutral-600); font-weight: 500; margin-bottom: 0.5rem; display: block;">Sequence</span>
+                ${e.sequence.map(r=>c`<span class="badge-seq">${r}</span>`)}
+              </div>
             `:""}
       </section>
     `}};Ie.styles=L`
@@ -2881,22 +2880,9 @@
           </div>
         </div>`;case"retention":return this._loadSteels(),c`<div class="page">
           <div class="back-link">${this._homeLink()}</div>
-          <sl-details ?open=${!this.retentionEstimatorCollapsed}>
-            <div slot="summary">
-              Edge Retention Estimator
-              <sl-tooltip
-                content="Approximate CATRA TCC and volume from hardness, edge angle, and carbides."
-              >
-                <sl-icon
-                  name="info-circle"
-                  style="font-size:.9rem; margin-left:.4rem"
-                ></sl-icon>
-              </sl-tooltip>
-            </div>
-            <vsa-retention-calculator
-              .availableSteels=${this.availableSteels}
-            ></vsa-retention-calculator>
-          </sl-details>
+          <vsa-retention-calculator
+            .availableSteels=${this.availableSteels}
+          ></vsa-retention-calculator>
         </div>`;case"steels":return this._pageSteels();case"geometry":return this._pageGeometry();case"intro":return this._pageIntro();default:return c`<div class="page">Unknown page.</div>`}}_pageGeometry(){return c`<div class="page">
       <div class="back-link">${this._homeLink()}</div>
       <vsa-geometry-builder></vsa-geometry-builder>

@@ -777,22 +777,9 @@ class VsaAppShell extends LitElement {
         this._loadSteels();
         return html`<div class="page">
           <div class="back-link">${this._homeLink()}</div>
-          <sl-details ?open=${!this.retentionEstimatorCollapsed}>
-            <div slot="summary">
-              Edge Retention Estimator
-              <sl-tooltip
-                content="Approximate CATRA TCC and volume from hardness, edge angle, and carbides."
-              >
-                <sl-icon
-                  name="info-circle"
-                  style="font-size:.9rem; margin-left:.4rem"
-                ></sl-icon>
-              </sl-tooltip>
-            </div>
-            <vsa-retention-calculator
-              .availableSteels=${this.availableSteels}
-            ></vsa-retention-calculator>
-          </sl-details>
+          <vsa-retention-calculator
+            .availableSteels=${this.availableSteels}
+          ></vsa-retention-calculator>
         </div>`;
       case "steels":
         return this._pageSteels();

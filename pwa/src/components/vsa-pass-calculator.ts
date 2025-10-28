@@ -136,20 +136,23 @@ export class VsaPassCalculator extends LitElement {
             ? html`<div class="result-block" role="status">
                 <span>Total / X-Strokes</span>
                 <span class="result-value"
-                  >${passInfo.total} / ${passInfo.xStrokes}</span
+                  >${Math.round(passInfo.total)} /
+                  ${Math.round(passInfo.xStrokes || 0)}</span
                 >
               </div>`
             : html`<div class="error" role="alert">${invalid}</div>`}
         </div>
         ${valid
           ? html`
-              <sl-details summary="Sequence">
-                <div class="sequence-container">
-                  ${passInfo.sequence.map(
-                    (n) => html`<span class="badge-seq">${n}</span>`
-                  )}
-                </div>
-              </sl-details>
+              <div class="sequence-container">
+                <span
+                  style="font-size: 0.85rem; color: var(--sl-color-neutral-600); font-weight: 500; margin-bottom: 0.5rem; display: block;"
+                  >Sequence</span
+                >
+                ${passInfo.sequence.map(
+                  (n) => html`<span class="badge-seq">${n}</span>`
+                )}
+              </div>
             `
           : ""}
       </section>
