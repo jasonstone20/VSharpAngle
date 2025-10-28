@@ -340,11 +340,8 @@ class VsaAppShell extends LitElement {
       font-size: 0.9rem;
       line-height: 1.4;
     }
-    .section-subtitle {
-      color: var(--sl-color-neutral-400);
-    }
     .retention-table td:first-child {
-      background: var(--vsa-surface-dark, #1a1d23);
+      background: var(--sl-color-neutral-50);
     }
     @media (max-width: 600px) {
       .retention-table td {
@@ -1262,6 +1259,7 @@ class VsaAppShell extends LitElement {
     this._loadSteels();
 
     const edge = edgeRetention({
+      id: "current",
       name: "current",
       hardness: this.hardness,
       edgeAngle: this.edgeAngle,
@@ -1672,6 +1670,7 @@ class VsaAppShell extends LitElement {
     if (!steel) return 0;
 
     const edge = edgeRetention({
+      id: steel.id,
       name: steel.name,
       hardness: compSteel.hardness,
       edgeAngle: compSteel.edgeAngle,
