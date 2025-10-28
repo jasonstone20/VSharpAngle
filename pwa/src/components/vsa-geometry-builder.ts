@@ -1,6 +1,7 @@
 import { LitElement, html, css, svg } from "lit";
 import { state, property } from "lit/decorators.js";
 import { parseCrossSectionNotation } from "../model2/cross-section-notation.js";
+import "./vsa-notation-editor-dialog.ts";
 
 interface SegmentSpec {
   angleType: "inclusive" | "dps";
@@ -231,15 +232,15 @@ export class VsaGeometryBuilder extends LitElement {
     .editor-panel {
       flex: 1 1 320px;
       background: var(--sl-color-neutral-0);
-      border: 1px solid var(--sl-color-neutral-200);
-      border-radius: 6px;
-      padding: 0.5rem 0.6rem 0.7rem;
+      border: 1px solid var(--sl-color-neutral-300);
+      border-radius: 4px;
+      padding: 0.4rem 0.5rem 0.5rem;
       min-width: 260px;
     }
     .panel-header {
       font-size: 0.65rem;
       font-weight: 600;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.3rem;
       letter-spacing: 0.5px;
     }
     .row-inline {
@@ -262,26 +263,26 @@ export class VsaGeometryBuilder extends LitElement {
     }
     table.segments-edit th,
     table.segments-edit td {
-      border: 1px solid var(--sl-color-neutral-200);
-      padding: 0.25rem 0.35rem;
+      border: 1px solid var(--sl-color-neutral-300);
+      border-width: 0 0 1px 0;
+      padding: 0.1rem 0.2rem;
       font-size: 0.55rem;
       text-align: right;
+      line-height: 1.1;
     }
     table.segments-edit th {
       background: var(--sl-color-neutral-50);
       position: sticky;
       top: 0;
       z-index: 1;
+      border-bottom-width: 1px;
     }
     .seg-table-wrap {
       max-height: 150px;
       overflow: auto;
-      border: 1px solid var(--sl-color-neutral-200);
-      border-radius: 6px;
+      border: 1px solid var(--sl-color-neutral-300);
+      border-radius: 4px;
       background: var(--sl-color-neutral-0);
-    }
-    .actions-cell {
-      text-align: center;
     }
     .warn {
       color: var(--sl-color-warning-600);
@@ -424,11 +425,11 @@ export class VsaGeometryBuilder extends LitElement {
       cursor: pointer;
     }
     .fs-seglist {
-      margin-top: 0.4rem;
+      margin-top: 0.3rem;
       max-height: 24vh;
       overflow: auto;
       border: 1px solid var(--vsa-border);
-      border-radius: 6px;
+      border-radius: 4px;
       background: var(--vsa-card-bg);
     }
     .fs-seglist table {
@@ -438,9 +439,11 @@ export class VsaGeometryBuilder extends LitElement {
     }
     .fs-seglist th,
     .fs-seglist td {
-      padding: 0.25rem 0.4rem;
+      padding: 0.1rem 0.25rem;
       border: 1px solid var(--vsa-border);
+      border-width: 0 0 1px 0;
       text-align: left;
+      line-height: 1.1;
     }
     .fs-seglist thead {
       position: sticky;
@@ -580,23 +583,10 @@ export class VsaGeometryBuilder extends LitElement {
   @state() thinStrokes = true;
   @state() adaptiveZoomMode: "idle" | "expand" | "shrink" = "idle";
 
-  // Wizard state
-  @state() private _wizardOpen = false;
-  @state() private _wizardStep:
-    | "existing-check"
-    | "segment-list"
-    | "units"
-    | "notation-type"
-    | "value-entry"
-    | "final-review" = "units";
-  @state() private _wizardUnits: "mm" | "in" = "mm";
-  @state() private _wizardNotationType: string = "";
-  @state() private _wizardCurrentValueIndex = 0;
-  @state() private _wizardValues: Record<string, number | string> = {};
-  @state() private _wizardSegments: string[] = []; // Array of notation segments
-  @state() private _wizardCurrentSegmentIndex = 0;
-  @state() private _wizardEditingExisting = false; // Whether we're editing existing notation
-  @state() private _wizardSide: "A" | "B" = "A";
+  // Notation Editor Dialog state
+  @state() private _notationDialogOpen = false;
+  @state() private _notationDialogSide: "A" | "B" = "A";
+  @state() private _notationDialogSegments: any[] = [];
 
   private _activeShrink = false;
   private _activeExpand = false;
@@ -635,6 +625,16 @@ export class VsaGeometryBuilder extends LitElement {
 
   disconnectedCallback() {
     super.disconnectedCallback();
+  }
+
+  private roundAndTrimTrailingZeros(value: number | string): string {
+    if (typeof value === "string") return value;
+
+    // Round to 6 decimal places to handle floating point precision issues
+    const rounded = Math.round(value * 1000000) / 1000000;
+
+    // Convert to string and remove trailing zeros
+    return rounded.toString().replace(/\.?0+$/, "");
   }
 
   // _sampleSliderHeight removed; static layout now.
@@ -783,31 +783,6 @@ export class VsaGeometryBuilder extends LitElement {
     this._customViewBox = null;
     this.requestUpdate();
     this._persist(); // will emit event if changed
-  }
-
-  private _editSegment(
-    list: "A" | "B",
-    index: number,
-    field: "angle" | "thickness",
-    value: number
-  ) {
-    if (value <= 0 || Number.isNaN(value)) return;
-    const arr = list === "A" ? [...this.segments] : [...this.segmentsB];
-    if (!arr[index]) return;
-    arr[index] = { ...arr[index], [field]: value } as SegmentSpec;
-    if (list === "A") this.segments = arr;
-    else this.segmentsB = arr;
-    this._baseViewBox = null;
-    this._persist();
-  }
-  private _deleteSegment(list: "A" | "B", index: number) {
-    const arr = list === "A" ? [...this.segments] : [...this.segmentsB];
-    if (!arr[index]) return;
-    arr.splice(index, 1);
-    if (list === "A") this.segments = arr;
-    else this.segmentsB = arr;
-    this._baseViewBox = null;
-    this._persist();
   }
 
   private _add() {
@@ -2054,9 +2029,19 @@ export class VsaGeometryBuilder extends LitElement {
             }}
           />
           <button
-            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--vsa-text-primary);border-radius:4px;cursor:pointer;"
+            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-path-a-color);background:var(--vsa-path-a-color);color:white;border-radius:4px;cursor:pointer;font-weight:500;transition:all 0.15s ease;"
             @click=${() => {
-              this._openWizard("A");
+              this._openNotationDialog("A");
+            }}
+            @mouseenter=${(e: Event) => {
+              const btn = e.target as HTMLElement;
+              btn.style.opacity = "0.9";
+              btn.style.transform = "translateY(-1px)";
+            }}
+            @mouseleave=${(e: Event) => {
+              const btn = e.target as HTMLElement;
+              btn.style.opacity = "1";
+              btn.style.transform = "translateY(0)";
             }}
           >
             Build A
@@ -2076,9 +2061,19 @@ export class VsaGeometryBuilder extends LitElement {
             }}
           />
           <button
-            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-border);background:var(--vsa-input-bg);color:var(--vsa-text-primary);border-radius:4px;cursor:pointer;"
+            style="font-size:.55rem;padding:.3rem .6rem;border:1px solid var(--vsa-path-b-color);background:var(--vsa-path-b-color);color:white;border-radius:4px;cursor:pointer;font-weight:500;transition:all 0.15s ease;"
             @click=${() => {
-              this._openWizard("B");
+              this._openNotationDialog("B");
+            }}
+            @mouseenter=${(e: Event) => {
+              const btn = e.target as HTMLElement;
+              btn.style.opacity = "0.9";
+              btn.style.transform = "translateY(-1px)";
+            }}
+            @mouseleave=${(e: Event) => {
+              const btn = e.target as HTMLElement;
+              btn.style.opacity = "1";
+              btn.style.transform = "translateY(0)";
             }}
           >
             Build B
@@ -2780,237 +2775,233 @@ export class VsaGeometryBuilder extends LitElement {
         ? html`<div class="drag-overlay"></div>`
         : ""
     }
-    ${this._wizardOpen ? this._renderWizard() : ""}
+    <vsa-notation-editor-dialog
+      .open=${this._notationDialogOpen}
+      .side=${this._notationDialogSide}
+      .segments=${this._notationDialogSegments}
+      .units=${this.units || "mm"}
+      @dialog-apply=${this._handleNotationDialogApply}
+      @dialog-cancel=${this._handleNotationDialogCancel}
+    ></vsa-notation-editor-dialog>
     </div>`;
   }
 
   // Wizard Methods
-  private _openWizard(side: "A" | "B") {
-    this._wizardSide = side;
-    this._wizardOpen = true;
-    this._wizardNotationType = "";
-    this._wizardCurrentValueIndex = 0;
-    this._wizardValues = {};
-    this._wizardSegments = [];
-    this._wizardEditingExisting = false;
-    this._wizardCurrentSegmentIndex = 0;
+  private _openNotationDialog(side: "A" | "B") {
+    this._notationDialogSide = side;
+    this._notationDialogOpen = true;
 
     // Check if there's existing notation
     const existingNotation = side === "A" ? this.notationA : this.notationB;
     if (existingNotation && existingNotation.trim()) {
-      // Parse existing notation and go directly to segment list
-      this._parseExistingNotation();
-      this._wizardStep = "segment-list";
+      // Parse existing notation into segments
+      this._notationDialogSegments =
+        this._parseNotationToSegments(existingNotation);
     } else {
-      // No existing notation, start with units selection
-      this._wizardUnits = this.units || "mm"; // Default to mm if no units set
-      this._wizardStep = "units";
+      // No existing notation, start with empty segments
+      this._notationDialogSegments = [];
     }
 
     this.requestUpdate();
   }
 
-  private _closeWizard() {
-    this._wizardOpen = false;
+  private _closeNotationDialog() {
+    this._notationDialogOpen = false;
+    this._notationDialogSegments = [];
     this.requestUpdate();
   }
 
-  private _wizardNextStep() {
-    const steps: (typeof this._wizardStep)[] = [
-      "existing-check",
-      "segment-list",
-      "units",
-      "notation-type",
-      "value-entry",
-      "final-review",
-    ];
-    const currentIndex = steps.indexOf(this._wizardStep);
-    if (currentIndex < steps.length - 1) {
-      this._wizardStep = steps[currentIndex + 1];
-      this.requestUpdate();
-    }
-  }
+  private _handleNotationDialogApply(event: CustomEvent) {
+    const { notation } = event.detail;
 
-  private _wizardPrevStep() {
-    // Context-aware navigation based on current step and editing state
-    switch (this._wizardStep) {
-      case "value-entry":
-        if (this._wizardEditingExisting) {
-          // When editing existing segment, go back to segment list
-          this._wizardStep = "segment-list";
-        } else {
-          // When adding new segment, go back to notation type
-          this._wizardStep = "notation-type";
-        }
-        break;
-      case "notation-type":
-        // From notation type, always go back to segment list
-        this._wizardStep = "segment-list";
-        break;
-      case "segment-list":
-        // From segment list, only go to units if no segments exist yet
-        if (this._wizardSegments.length === 0) {
-          this._wizardStep = "units";
-        }
-        // If segments exist, can't go back to units (stay on segment-list)
-        break;
-      default:
-        // For other steps, use simple linear navigation
-        const steps = [
-          "units",
-          "segment-list",
-          "notation-type",
-          "value-entry",
-          "final-review",
-        ] as const;
-        const currentIndex = steps.indexOf(this._wizardStep as any);
-        if (currentIndex > 0) {
-          this._wizardStep = steps[currentIndex - 1] as any;
-        }
-        break;
+    // Apply the notation to the appropriate side
+    if (this._notationDialogSide === "A") {
+      this.notationA = notation;
+      // Import the notation to build the geometry
+      this._importNotation(this.notationA, "A");
+    } else {
+      this.notationB = notation;
+      // Import the notation to build the geometry
+      this._importNotation(this.notationB, "B");
     }
+
+    this._closeNotationDialog();
+
+    // Trigger recalculation
     this.requestUpdate();
   }
 
-  private _getNotationTypeConfig(type: string) {
-    const configs = {
-      "angle-travel": {
-        name: "Angle + Travel",
-        description:
-          "Create geometry by specifying an angle and either a target height or width.",
-        measurementGuide:
-          "Use a protractor or angle gauge to measure the bevel angle. Measure height with calipers vertically from apex, or width with calipers across the blade thickness.",
-        values: [
-          {
-            key: "angleMode",
-            label: "Angle Mode",
-            type: "select" as const,
-            options: ["dps", "inclusive"],
-          },
-          {
-            key: "angle",
-            label: "Angle",
-            suffix: "°",
-            type: "number" as const,
-          },
-          {
-            key: "travelMode",
-            label: "Travel Mode",
-            type: "select" as const,
-            options: ["height", "width"],
-          },
-          {
-            key: "travel",
-            label: "Target Value",
-            suffix: this._wizardUnits,
-            type: "number" as const,
-          },
-        ],
-      },
-      "thickness-height": {
-        name: "Thickness @ Height",
-        description:
-          "Specify exact thickness at a specific height. The angle is calculated automatically.",
-        measurementGuide:
-          "Use precision calipers to measure blade thickness at the exact height position. Take photos with a scale for reference.",
-        values: [
-          {
-            key: "thickness",
-            label: "Thickness",
-            suffix: this._wizardUnits,
-            type: "number" as const,
-          },
-          {
-            key: "height",
-            label: "Height",
-            suffix: this._wizardUnits,
-            type: "number" as const,
-          },
-        ],
-      },
-      caliper: {
-        name: "Face Caliper",
-        description:
-          "Measure along the bevel face from the previous point to achieve target thickness.",
-        measurementGuide:
-          "Use calipers to measure the slant distance along the bevel face. This is useful for incremental measurements during grinding.",
-        values: [
-          {
-            key: "thickness",
-            label: "Target Thickness",
-            suffix: this._wizardUnits,
-            type: "number" as const,
-          },
-          {
-            key: "distance",
-            label: "Slant Distance",
-            suffix: this._wizardUnits,
-            type: "number" as const,
-          },
-        ],
-      },
-      "apex-caliper": {
-        name: "Apex Caliper",
-        description:
-          "Measure total distance from apex to outer edge at target thickness.",
-        measurementGuide:
-          "Use calipers to measure from the very apex (tip) to the outer edge of the blade at the specified thickness. This is a global constraint measurement.",
-        values: [
-          {
-            key: "thickness",
-            label: "Target Thickness",
-            suffix: this._wizardUnits,
-            type: "number" as const,
-          },
-          {
-            key: "distance",
-            label: "Apex Distance",
-            suffix: this._wizardUnits,
-            type: "number" as const,
-          },
-        ],
-      },
-    };
-    return configs[type as keyof typeof configs];
+  private _handleNotationDialogCancel() {
+    this._closeNotationDialog();
   }
 
-  private _buildNotationFromWizard(includeUnitPrefix: boolean = false): string {
-    const config = this._getNotationTypeConfig(this._wizardNotationType);
-    if (!config) return "";
+  private _parseNotationToSegments(notation: string): any[] {
+    // Use the same parser that the geometry builder uses
+    const res = parseCrossSectionNotation(notation, this.units);
 
-    const unitPrefix =
-      includeUnitPrefix && this._wizardUnits !== this.units
-        ? `${this._wizardUnits}=>`
-        : "";
-
-    switch (this._wizardNotationType) {
-      case "angle-travel":
-        const angle = this._wizardValues.angle;
-        const mode =
-          this._wizardValues.angleMode === "inclusive" ? "inc" : "dps";
-        const travel = this._wizardValues.travel;
-        const travelAxis =
-          this._wizardValues.travelMode === "height" ? "h" : "w";
-        return `${unitPrefix}${angle}${mode}-${travel}${travelAxis}`;
-
-      case "thickness-height":
-        return `${unitPrefix}${this._wizardValues.thickness}w@${this._wizardValues.height}h`;
-
-      case "caliper":
-        return `${unitPrefix}${this._wizardValues.thickness}w@${this._wizardValues.distance}cp`;
-
-      case "apex-caliper":
-        return `${unitPrefix}${this._wizardValues.thickness}w@${this._wizardValues.distance}acp`;
-
-      default:
-        return "";
+    if (!res.segments || res.segments.length === 0) {
+      console.warn("No segments found in notation:", notation);
+      return [];
     }
+
+    // Extract the raw notation without unit prefix and detect original units
+    let rawNotation = notation;
+    let originalUnits = this.units; // default to current units
+    const unitPrefixMatch = notation.match(/^(mm|in)=>/i);
+    if (unitPrefixMatch) {
+      originalUnits = unitPrefixMatch[1].toLowerCase() as "mm" | "in";
+      rawNotation = notation.substring(unitPrefixMatch[0].length);
+    }
+
+    // Split into individual tokens
+    const tokens = rawNotation.split(",").map((token) => token.trim());
+
+    // Map each token to a dialog segment
+    return tokens
+      .map((token, index) => {
+        const segmentId = `segment-${index}`;
+
+        // Helper function to convert values if units differ
+        const convertValue = (value: number): number => {
+          if (originalUnits === this.units) return value;
+          if (originalUnits === "mm" && this.units === "in") {
+            return Math.round((value / 25.4) * 1000000) / 1000000; // mm to inches
+          } else if (originalUnits === "in" && this.units === "mm") {
+            return Math.round(value * 25.4 * 10000) / 10000; // inches to mm
+          }
+          return value;
+        };
+
+        // Match against different notation patterns to determine type
+
+        // ANGLE TRAVEL: {angle}{mode}-{value}{axis}
+        const angleTravel = token.match(
+          /^([0-9]*\.?[0-9]+)(dps|d|inc|inclusive|i)-([0-9]*\.?[0-9]+)(h|height|w|width)$/i
+        );
+        if (angleTravel) {
+          const angle = parseFloat(angleTravel[1]); // angles don't need conversion
+          const mode = angleTravel[2].toLowerCase();
+          const travel = convertValue(parseFloat(angleTravel[3])); // convert travel value
+          const axis = angleTravel[4].toLowerCase();
+
+          return {
+            id: segmentId,
+            type: "angle-travel",
+            values: {
+              angleMode:
+                mode === "inc" || mode === "inclusive" || mode === "i"
+                  ? "inclusive"
+                  : "dps",
+              angle: angle,
+              travelMode:
+                axis === "h" || axis === "height" ? "height" : "width",
+              travel: travel,
+            },
+            notation: token,
+          };
+        }
+
+        // THICKNESS @ HEIGHT: {thickness}w@{height}h
+        const thicknessHeight = token.match(
+          /^([0-9]*\.?[0-9]+)w@([0-9]*\.?[0-9]+)(h|height)$/i
+        );
+        if (thicknessHeight) {
+          const thickness = convertValue(parseFloat(thicknessHeight[1]));
+          const height = convertValue(parseFloat(thicknessHeight[2]));
+
+          return {
+            id: segmentId,
+            type: "thickness-height",
+            values: {
+              thickness: thickness,
+              height: height,
+            },
+            notation: token,
+          };
+        }
+
+        // APEX CALIPER: {thickness}w@{distance}acp
+        const apexCaliper = token.match(
+          /^([0-9]*\.?[0-9]+)w@([0-9]*\.?[0-9]+)acp$/i
+        );
+        if (apexCaliper) {
+          const thickness = convertValue(parseFloat(apexCaliper[1]));
+          const distance = convertValue(parseFloat(apexCaliper[2]));
+
+          return {
+            id: segmentId,
+            type: "apex-caliper",
+            values: {
+              thickness: thickness,
+              distance: distance,
+            },
+            notation: token,
+          };
+        }
+
+        // CALIPER: {thickness}w@{distance}cp
+        const caliper = token.match(
+          /^([0-9]*\.?[0-9]+)w@([0-9]*\.?[0-9]+)cp$/i
+        );
+        if (caliper) {
+          const thickness = convertValue(parseFloat(caliper[1]));
+          const distance = convertValue(parseFloat(caliper[2]));
+
+          return {
+            id: segmentId,
+            type: "caliper",
+            values: {
+              thickness: thickness,
+              distance: distance,
+            },
+            notation: token,
+          };
+        }
+
+        // OVERALL HEIGHT: {value}H | {value}oa (skip these for now)
+        const overallHeight = token.match(/^([0-9]*\.?[0-9]+)(h|H|oa)$/i);
+        if (overallHeight) {
+          // Skip overall height tokens as they're not segment types supported by the dialog
+          return null;
+        }
+
+        // Fallback: if we can't parse the token, create a basic angle-travel segment
+        console.warn(
+          "Unknown notation token:",
+          token,
+          "falling back to angle-travel"
+        );
+        const parsed = res.segments[index];
+        if (parsed) {
+          return {
+            id: segmentId,
+            type: "angle-travel",
+            values: {
+              angleMode: parsed.angleType,
+              angle: parsed.angleValue, // angles don't need conversion
+              travelMode: parsed.travelType,
+              travel: convertValue(parsed.travelValue), // convert travel value
+            },
+            notation: token,
+          };
+        }
+
+        return null;
+      })
+      .filter((segment) => segment !== null); // Remove null entries (like overall height)
   }
 
   private _importNotation(notation: string, side: "A" | "B") {
     const res = parseCrossSectionNotation(notation, this.units);
 
+    // Ensure notation always has unit prefix
+    let normalizedNotation = notation;
+    if (!notation.includes("=>")) {
+      normalizedNotation = `${this.units}=>${notation}`;
+    }
+
     if (side === "A") {
+      this.notationA = normalizedNotation; // Store the normalized notation
       this.notationAWarnings = res.warnings;
       if (res.segments.length) {
         this.segments = res.segments.map((s) => ({
@@ -3021,6 +3012,7 @@ export class VsaGeometryBuilder extends LitElement {
         }));
       }
     } else {
+      this.notationB = normalizedNotation; // Store the normalized notation
       this.notationBWarnings = res.warnings;
       if (res.segments.length) {
         this.segmentsB = res.segments.map((s) => ({
@@ -3042,1246 +3034,6 @@ export class VsaGeometryBuilder extends LitElement {
         this.units = res.notationUnits;
       }
     }
-  }
-
-  private _applyWizardToGeometry() {
-    const notation = this._buildNotationFromWizard();
-    if (!notation) return;
-
-    // Parse the notation and apply to the selected side
-    const res = parseCrossSectionNotation(notation, this._wizardUnits);
-    if (res.segments.length) {
-      const segments = res.segments.map((s) => ({
-        angleType: s.angleType,
-        angleValue: s.angleValue,
-        travelType: s.travelType,
-        travelValue: s.travelValue,
-      }));
-
-      if (this._wizardSide === "A") {
-        this.segments = [...this.segments, ...segments];
-        this.notationA = this.notationA
-          ? `${this.notationA},${notation}`
-          : notation;
-        // Auto-import the updated notation
-        this._importNotation(this.notationA, "A");
-      } else {
-        this.segmentsB = [...this.segmentsB, ...segments];
-        this.notationB = this.notationB
-          ? `${this.notationB},${notation}`
-          : notation;
-        // Auto-import the updated notation
-        this._importNotation(this.notationB, "B");
-      }
-    }
-
-    this._closeWizard();
-  }
-
-  private _renderWizard() {
-    return html`
-      <div
-        style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: var(--vsa-card-bg);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-      "
-      >
-        <div
-          style="
-          background: var(--vsa-input-bg);
-          border-radius: 8px;
-          padding: 2rem;
-          max-width: 90vw;
-          max-height: 90vh;
-          overflow-y: auto;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-          border: 1px solid var(--vsa-border);
-          color: var(--vsa-text-primary);
-        "
-        >
-          > ${this._renderWizardStep()}
-        </div>
-      </div>
-    `;
-  }
-
-  private _renderWizardStep() {
-    switch (this._wizardStep) {
-      case "segment-list":
-        return this._renderSegmentListStep();
-      case "units":
-        return this._renderUnitsStep();
-      case "notation-type":
-        return this._renderNotationTypeStep();
-      case "value-entry":
-        return this._renderValueEntryStep();
-      case "final-review":
-        return this._renderFinalReviewStep();
-      default:
-        return html`<div>Unknown wizard step</div>`;
-    }
-  }
-
-  private _renderUnitsStep() {
-    return html`
-      <div style="text-align: center;">
-        <h2 style="margin-top: 0;">
-          Build Geometry for Side ${this._wizardSide}
-        </h2>
-        <p style="margin-bottom: 2rem; color: var(--sl-color-neutral-900);">
-          Welcome to the Geometry Builder Wizard! Let's start by choosing your
-          measurement units.
-        </p>
-
-        <div
-          style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem;"
-        >
-          <button
-            style="
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
-            border: 2px solid ${this._wizardUnits === "mm"
-              ? "var(--vsa-path-a-color)"
-              : "var(--vsa-border)"};
-            background: ${this._wizardUnits === "mm"
-              ? "var(--vsa-path-a-color)"
-              : "var(--vsa-input-bg)"};
-            color: ${this._wizardUnits === "mm"
-              ? "white"
-              : "var(--vsa-text-primary)"};
-            border-radius: 8px;
-            cursor: pointer;
-          "
-            @click=${() => {
-              this._wizardUnits = "mm";
-              this._wizardStep = "segment-list";
-              this.requestUpdate();
-            }}
-          >
-            📏 Millimeters (mm)
-          </button>
-
-          <button
-            style="
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
-            border: 2px solid ${this._wizardUnits === "in"
-              ? "var(--vsa-path-a-color)"
-              : "var(--vsa-border)"};
-            background: ${this._wizardUnits === "in"
-              ? "var(--vsa-path-a-color)"
-              : "var(--vsa-input-bg)"};
-            color: ${this._wizardUnits === "in"
-              ? "white"
-              : "var(--vsa-text-primary)"};
-            border-radius: 8px;
-            cursor: pointer;
-          "
-            @click=${() => {
-              this._wizardUnits = "in";
-              this._wizardStep = "segment-list";
-              this.requestUpdate();
-            }}
-          >
-            📐 Inches (in)
-          </button>
-        </div>
-
-        <div style="display: flex; gap: 1rem; justify-content: center;">
-          <button
-            style="
-            padding: 0.75rem 1.5rem;
-            border: 1px solid var(--vsa-border);
-            background: var(--vsa-input-bg);
-            color: var(--vsa-text-primary);
-            border-radius: 4px;
-            cursor: pointer;
-          "
-            @click=${this._closeWizard}
-          >
-            Cancel
-          </button>
-
-          <button
-            style="
-            padding: 0.75rem 1.5rem;
-            border: 1px solid var(--vsa-path-a-color);
-            background: var(--vsa-path-a-color);
-            color: var(--vsa-text-inverse);
-            border-radius: 4px;
-            cursor: pointer;
-          "
-            @click=${this._wizardNextStep}
-          >
-            Next →
-          </button>
-        </div>
-      </div>
-    `;
-  }
-
-  private _parseExistingNotation() {
-    const existingNotation =
-      this._wizardSide === "A" ? this.notationA : this.notationB;
-    if (!existingNotation) return;
-
-    // Parse unit prefix if present
-    let notation = existingNotation;
-    if (notation.includes("=>")) {
-      const [units, rest] = notation.split("=>");
-      this._wizardUnits = units as "mm" | "in";
-      notation = rest;
-    } else {
-      this._wizardUnits = this.units; // Use default units
-    }
-
-    // Split into segments by comma
-    this._wizardSegments = notation
-      .split(",")
-      .map((s) => s.trim())
-      .filter((s) => s);
-    this._wizardEditingExisting = true;
-  }
-
-  private _startEditingExisting() {
-    this._parseExistingNotation();
-    this._wizardStep = "segment-list";
-    this.requestUpdate();
-  }
-
-  private _editSegmentFromList(index: number) {
-    const segment = this._wizardSegments[index];
-    if (!segment) return;
-
-    // Parse the segment to pre-populate values
-    this._parseSegmentIntoValues(segment);
-    this._wizardCurrentSegmentIndex = index;
-    this._wizardEditingExisting = true;
-
-    // Skip notation type and go directly to value entry when editing
-    this._wizardStep = "value-entry";
-    this.requestUpdate();
-  }
-
-  private _parseSegmentIntoValues(segment: string) {
-    // Reset values
-    this._wizardValues = {};
-    this._wizardNotationType = "";
-
-    // Parse different segment types
-    if (segment.includes("dps-") || segment.includes("inc-")) {
-      this._wizardNotationType = "angle-travel";
-
-      // Parse angle
-      const angleMatch = segment.match(/^(\d+(?:\.\d+)?)(dps|inc)-/);
-      if (angleMatch) {
-        this._wizardValues.angle = parseFloat(angleMatch[1]);
-        this._wizardValues.angleMode =
-          angleMatch[2] === "dps" ? "dps" : "inclusive";
-      }
-
-      // Parse travel
-      const travelMatch = segment.match(/-(\d+(?:\.\d+)?)(h|w)$/);
-      if (travelMatch) {
-        this._wizardValues.travel = parseFloat(travelMatch[1]);
-        this._wizardValues.travelMode =
-          travelMatch[2] === "h" ? "height" : "width";
-      }
-    } else if (segment.includes("w@") && segment.includes("h")) {
-      // thickness-height format: 2.5w@1h
-      this._wizardNotationType = "thickness-height";
-      const match = segment.match(/^(\d+(?:\.\d+)?)w@(\d+(?:\.\d+)?)h$/);
-      if (match) {
-        this._wizardValues.thickness = parseFloat(match[1]);
-        this._wizardValues.height = parseFloat(match[2]);
-      }
-    } else if (segment.includes("w@") && segment.includes("cp")) {
-      // caliper format: 2.5w@3cp
-      this._wizardNotationType = "caliper";
-      const match = segment.match(/^(\d+(?:\.\d+)?)w@(\d+(?:\.\d+)?)cp$/);
-      if (match) {
-        this._wizardValues.thickness = parseFloat(match[1]);
-        this._wizardValues.distance = parseFloat(match[2]);
-      }
-    } else if (segment.includes("w@") && segment.includes("acp")) {
-      // apex-caliper format: 2.5w@5acp
-      this._wizardNotationType = "apex-caliper";
-      const match = segment.match(/^(\d+(?:\.\d+)?)w@(\d+(?:\.\d+)?)acp$/);
-      if (match) {
-        this._wizardValues.thickness = parseFloat(match[1]);
-        this._wizardValues.distance = parseFloat(match[2]);
-      }
-    }
-  }
-
-  private _addNewSegmentToList() {
-    // Clear values and go to notation type selection for new segment
-    this._wizardValues = {};
-    this._wizardNotationType = "";
-    this._wizardCurrentSegmentIndex = this._wizardSegments.length; // Index for new segment
-    this._wizardEditingExisting = false; // This is a new segment
-    this._wizardStep = "notation-type";
-    this.requestUpdate();
-  }
-
-  private _deleteLastSegment() {
-    if (this._wizardSegments.length > 0) {
-      this._wizardSegments.pop();
-      this.requestUpdate();
-    }
-  }
-
-  private _renderSegmentListStep() {
-    const hasSegments = this._wizardSegments.length > 0;
-
-    return html`
-      <div style="text-align: center; max-width: 700px;">
-        <h2 style="margin-top: 0;">
-          Build Geometry for Side ${this._wizardSide} (${this._wizardUnits})
-        </h2>
-        <p style="margin-bottom: 1.5rem; color: var(--vsa-text-primary);">
-          ${hasSegments
-            ? "Edit existing segments, add new ones, or delete from the end."
-            : "Start building your geometry by adding segments. Each segment defines a cut direction and distance."}
-        </p>
-
-        ${hasSegments
-          ? html`
-              <div style="margin-bottom: 1.5rem;">
-                <strong>Current Notation:</strong>
-                <div
-                  style="
-              background: var(--vsa-input-bg);
-              border: 1px solid var(--vsa-border);
-              border-radius: 4px;
-              padding: 1rem;
-              margin-top: 0.5rem;
-              font-family: monospace;
-              font-size: 1.1rem;
-              word-break: break-all;
-            "
-                >
-                  ${this._wizardUnits}=>${this._wizardSegments.join(",")}
-                </div>
-              </div>
-
-              <div style="margin-bottom: 2rem;">
-                <strong>Segments:</strong>
-                <div style="margin-top: 0.5rem; text-align: left;">
-                  ${this._wizardSegments.map(
-                    (segment, index) => html`
-                      <div
-                        style="
-                    display: flex; 
-                    justify-content: space-between; 
-                    align-items: center; 
-                    padding: 0.75rem; 
-                    margin-bottom: 0.5rem; 
-                    background: var(--vsa-input-bg); 
-                    border: 1px solid var(--vsa-border); 
-                    border-radius: 4px;
-                  "
-                      >
-                        <span
-                          style="font-family: monospace; font-size: 1.1rem;"
-                        >
-                          ${index + 1}. ${segment}
-                        </span>
-                        <button
-                          style="
-                      padding: 0.5rem 1rem; 
-                      border: 1px solid var(--vsa-path-a-color); 
-                      background: rgba(59, 130, 246, 0.1);
-                      color: var(--vsa-path-a-color);
-                      border-radius: 4px; 
-                      cursor: pointer; 
-                      font-weight: 600;
-                    "
-                          @click=${() => this._editSegmentFromList(index)}
-                        >
-                          📝 Edit
-                        </button>
-                      </div>
-                    `
-                  )}
-                </div>
-              </div>
-            `
-          : ""}
-
-        <div
-          style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem;"
-        >
-          <button
-            style="
-            padding: 0.75rem 1.5rem;
-            border: 1px solid var(--vsa-path-a-color);
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--vsa-path-a-color);
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1.1rem;
-          "
-            @click=${this._addNewSegmentToList}
-          >
-            + Add New Segment
-          </button>
-
-          ${hasSegments
-            ? html`
-                <button
-                  style="
-            padding: 0.75rem 1.5rem;
-            border: 1px solid var(--vsa-warn-color);
-            background: rgba(201, 42, 42, 0.1);
-            color: var(--vsa-warn-color);
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-          "
-                  @click=${this._deleteLastSegment}
-                >
-                  🗑️ Delete Last
-                </button>
-              `
-            : ""}
-        </div>
-
-        <div
-          style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;"
-        >
-          ${hasSegments
-            ? ""
-            : html`
-                <button
-                  style="
-              padding: 0.75rem 1.5rem;
-              border: 1px solid var(--vsa-border);
-              background: var(--vsa-input-bg);
-              color: var(--vsa-text-primary);
-              border-radius: 4px;
-              cursor: pointer;
-            "
-                  @click=${() => {
-                    this._wizardStep = "units";
-                    this.requestUpdate();
-                  }}
-                >
-                  ← Change Units
-                </button>
-              `}
-
-          <button
-            style="
-            padding: 0.75rem 1.5rem;
-            border: 1px solid var(--vsa-border);
-            background: var(--vsa-input-bg);
-            color: var(--vsa-text-primary);
-            border-radius: 4px;
-            cursor: pointer;
-          "
-            @click=${this._closeWizard}
-          >
-            Cancel
-          </button>
-
-          ${hasSegments
-            ? html`
-                <button
-                  style="
-              padding: 0.75rem 1.5rem;
-              border: 1px solid var(--vsa-path-a-color);
-              background: var(--vsa-path-a-color);
-              color: var(--vsa-text-inverse);
-              border-radius: 4px;
-              cursor: pointer;
-              font-weight: 600;
-            "
-                  @click=${() => {
-                    // Apply current segments and close
-                    const fullNotation =
-                      this._wizardUnits + "=>" + this._wizardSegments.join(",");
-                    if (this._wizardSide === "A") {
-                      this.notationA = fullNotation;
-                      // Auto-import the notation
-                      this._importNotation(this.notationA, "A");
-                    } else {
-                      this.notationB = fullNotation;
-                      // Auto-import the notation
-                      this._importNotation(this.notationB, "B");
-                    }
-                    this._closeWizard();
-                    // Ensure UI updates after wizard completion
-                    this.requestUpdate();
-                  }}
-                >
-                  ✅ Apply & Close
-                </button>
-              `
-            : ""}
-        </div>
-      </div>
-    `;
-  }
-
-  private _renderExistingCheckStep() {
-    const existingNotation =
-      this._wizardSide === "A" ? this.notationA : this.notationB;
-
-    return html`
-      <div style="text-align: center; max-width: 600px;">
-        <h2 style="margin-top: 0;">
-          Side ${this._wizardSide} has existing geometry
-        </h2>
-
-        <div style="margin-bottom: 2rem;">
-          <strong>Current notation:</strong>
-          <div
-            style="
-            background: var(--vsa-input-bg);
-            border: 1px solid var(--vsa-border);
-            border-radius: 4px;
-            padding: 1rem;
-            margin-top: 0.5rem;
-            font-family: monospace;
-            font-size: 1.1rem;
-            word-break: break-all;
-          "
-          >
-            ${existingNotation}
-          </div>
-        </div>
-
-        <p style="margin-bottom: 2rem; color: var(--vsa-text-primary);">
-          What would you like to do?
-        </p>
-
-        <div
-          style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;"
-        >
-          <button
-            style="
-            padding: 1rem 2rem;
-            border: 1px solid var(--vsa-path-a-color);
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--vsa-path-a-color);
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1.1rem;
-          "
-            @click=${() => {
-              this._startEditingExisting();
-            }}
-          >
-            📝 Edit Existing Geometry
-          </button>
-
-          <button
-            style="
-            padding: 1rem 2rem;
-            border: 1px solid var(--vsa-border);
-            background: var(--vsa-input-bg);
-            color: var(--vsa-text-primary);
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1.1rem;
-          "
-            @click=${() => {
-              // Clear existing and start fresh
-              if (this._wizardSide === "A") {
-                this.notationA = "";
-              } else {
-                this.notationB = "";
-              }
-              this._wizardStep = "units";
-              this.requestUpdate();
-            }}
-          >
-            🗑️ Start Fresh (Clear & Rebuild)
-          </button>
-        </div>
-
-        <div style="display: flex; justify-content: center;">
-          <button
-            style="
-            padding: 0.75rem 1.5rem;
-            border: 1px solid var(--vsa-border);
-            background: var(--vsa-input-bg);
-            color: var(--vsa-text-primary);
-            border-radius: 4px;
-            cursor: pointer;
-          "
-            @click=${this._closeWizard}
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    `;
-  }
-
-  private _renderNotationTypeStep() {
-    const types = [
-      {
-        id: "angle-travel",
-        name: "🔺 Angle + Travel",
-        desc: "Specify angle and target height/width",
-      },
-      {
-        id: "thickness-height",
-        name: "📏 Thickness @ Height",
-        desc: "Exact thickness at specific height",
-      },
-      {
-        id: "caliper",
-        name: "📐 Face Caliper",
-        desc: "Measure along bevel face",
-      },
-      {
-        id: "apex-caliper",
-        name: "🎯 Apex Caliper",
-        desc: "Total distance from apex to edge",
-      },
-    ];
-
-    return html`
-      <div style="text-align: center;">
-        <h2 style="margin-top: 0;">Choose Measurement Type</h2>
-        <p style="margin-bottom: 2rem; color: var(--vsa-text-primary);">
-          Select the type of measurement you want to create:
-        </p>
-
-        <div
-          style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;"
-        >
-          ${types.map(
-            (type) => html`
-              <button
-                style="
-              padding: 1rem;
-              text-align: left;
-              border: 2px solid ${this._wizardNotationType === type.id
-                  ? "var(--vsa-path-a-color)"
-                  : "var(--vsa-border)"};
-              background: ${this._wizardNotationType === type.id
-                  ? "rgba(59, 130, 246, 0.1)"
-                  : "var(--vsa-input-bg)"};
-              color: var(--vsa-text-primary);
-              border-radius: 8px;
-              cursor: pointer;
-            "
-                @click=${() => {
-                  this._wizardNotationType = type.id;
-                  this.requestUpdate();
-                  // Auto-advance to next step
-                  setTimeout(() => this._wizardNextStep(), 100);
-                }}
-              >
-                <div
-                  style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem;"
-                >
-                  ${type.name}
-                </div>
-                <div style="font-size: 0.9rem; opacity: 0.8;">${type.desc}</div>
-              </button>
-            `
-          )}
-        </div>
-
-        <div style="display: flex; justify-content: center;">
-          <button
-            style="
-            padding: 0.75rem 1.5rem;
-            border: 1px solid var(--vsa-border);
-            background: var(--vsa-input-bg);
-            color: var(--vsa-text-primary);
-            border-radius: 4px;
-            cursor: pointer;
-          "
-            @click=${this._wizardPrevStep}
-          >
-            ← Back
-          </button>
-        </div>
-      </div>
-    `;
-  }
-
-  private _renderValueEntryStep() {
-    const config = this._getNotationTypeConfig(this._wizardNotationType);
-    if (!config) return html`<div>Error: Unknown notation type</div>`;
-
-    // Initialize angleMode if not set
-    if (!this._wizardValues.angleMode) {
-      this._wizardValues.angleMode = "dps"; // Default to DPS
-    }
-
-    // Initialize travelMode if not set
-    if (!this._wizardValues.travelMode) {
-      this._wizardValues.travelMode = "height"; // Default to height
-    }
-
-    return html`
-      <div
-        style="max-width: 1000px; display: flex; gap: 2rem; flex-wrap: wrap;"
-      >
-        <!-- Help Panel -->
-        <div style="flex: 1; min-width: 300px; max-width: 400px;">
-          <h3 style="margin-top: 0; color: var(--vsa-path-a-color);">
-            📋 ${config.name} - How to Measure
-          </h3>
-          <div
-            style="
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid var(--vsa-path-a-color);
-            border-radius: 8px;
-            padding: 1.5rem;
-            text-align: left;
-          "
-          >
-            <p
-              style="margin: 0; line-height: 1.6; color: var(--vsa-text-primary);"
-            >
-              ${config.measurementGuide}
-            </p>
-          </div>
-          <p
-            style="margin-top: 1rem; font-size: 0.9rem; color: var(--sl-color-neutral-700); text-align: left;"
-          >
-            <strong>Description:</strong> ${config.description}
-          </p>
-        </div>
-
-        <!-- Entry Panel -->
-        <div style="flex: 1; min-width: 300px; max-width: 500px;">
-          <h3 style="margin-top: 0;">Enter Measurement Values</h3>
-          <p style="margin-bottom: 1.5rem; color: var(--vsa-text-primary);">
-            Please enter each measurement value:
-          </p>
-
-          <div
-            style="display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2rem;"
-          >
-            ${config.values.map(
-              (value) => html`
-                <div style="text-align: left;">
-                  <label
-                    style="display: block; margin-bottom: 0.5rem; font-weight: 600;"
-                  >
-                    ${value.label}${value.suffix ? ` (${value.suffix})` : ""}:
-                  </label>
-                  ${value.key === "angleMode"
-                    ? html`
-                        <!-- Radio buttons for angle mode -->
-                        <div
-                          style="display: flex; gap: 1rem; margin-bottom: 0.5rem;"
-                        >
-                          <label
-                            style="display: flex; align-items: center; cursor: pointer;"
-                          >
-                            <input
-                              type="radio"
-                              name="angleMode"
-                              value="dps"
-                              .checked=${this._wizardValues.angleMode === "dps"}
-                              @change=${(e: Event) => {
-                                this._wizardValues.angleMode = (
-                                  e.target as HTMLInputElement
-                                ).value;
-                                this.requestUpdate();
-                              }}
-                              style="margin-right: 0.5rem;"
-                            />
-                            📐 DPS
-                          </label>
-                          <label
-                            style="display: flex; align-items: center; cursor: pointer;"
-                          >
-                            <input
-                              type="radio"
-                              name="angleMode"
-                              value="inclusive"
-                              .checked=${this._wizardValues.angleMode ===
-                              "inclusive"}
-                              @change=${(e: Event) => {
-                                this._wizardValues.angleMode = (
-                                  e.target as HTMLInputElement
-                                ).value;
-                                this.requestUpdate();
-                              }}
-                              style="margin-right: 0.5rem;"
-                            />
-                            📏 Inclusive
-                          </label>
-                        </div>
-                        <div
-                          style="font-size: 0.85rem; color: var(--sl-color-neutral-700); margin-bottom: 0.5rem;"
-                        >
-                          ${this._wizardValues.angleMode === "dps"
-                            ? "DPS: Each side's angle from centerline (15° DPS = 30° total)"
-                            : this._wizardValues.angleMode === "inclusive"
-                            ? "Inclusive: Total angle between faces (30° inclusive = 15° per side)"
-                            : "Choose how you want to specify the angle"}
-                        </div>
-                      `
-                    : value.key === "travelMode"
-                    ? html`
-                        <!-- Radio buttons for travel mode -->
-                        <div
-                          style="display: flex; gap: 1rem; margin-bottom: 0.5rem;"
-                        >
-                          <label
-                            style="display: flex; align-items: center; cursor: pointer;"
-                          >
-                            <input
-                              type="radio"
-                              name="travelMode"
-                              value="height"
-                              .checked=${this._wizardValues.travelMode ===
-                              "height"}
-                              @change=${(e: Event) => {
-                                this._wizardValues.travelMode = (
-                                  e.target as HTMLInputElement
-                                ).value;
-                                this.requestUpdate();
-                              }}
-                              style="margin-right: 0.5rem;"
-                            />
-                            📏 Height
-                          </label>
-                          <label
-                            style="display: flex; align-items: center; cursor: pointer;"
-                          >
-                            <input
-                              type="radio"
-                              name="travelMode"
-                              value="width"
-                              .checked=${this._wizardValues.travelMode ===
-                              "width"}
-                              @change=${(e: Event) => {
-                                this._wizardValues.travelMode = (
-                                  e.target as HTMLInputElement
-                                ).value;
-                                this.requestUpdate();
-                              }}
-                              style="margin-right: 0.5rem;"
-                            />
-                            📐 Width
-                          </label>
-                        </div>
-                        <div
-                          style="font-size: 0.85rem; color: var(--sl-color-neutral-700); margin-bottom: 0.5rem;"
-                        >
-                          ${this._wizardValues.travelMode === "height"
-                            ? "Height: Vertical distance from apex downward"
-                            : this._wizardValues.travelMode === "width"
-                            ? "Width: Thickness of the blade at the target location"
-                            : "Choose what measurement type to target"}
-                        </div>
-                      `
-                    : value.type === "select"
-                    ? html`
-                        <select
-                          style="
-                    width: 100%;
-                    padding: 0.75rem;
-                    border: 1px solid var(--vsa-border);
-                    border-radius: 4px;
-                    background: var(--vsa-input-bg);
-                    color: var(--vsa-text-primary);
-                    font-size: 1rem;
-                  "
-                          @change=${(e: Event) => {
-                            this._wizardValues[value.key] = (
-                              e.target as HTMLSelectElement
-                            ).value;
-                            this.requestUpdate();
-                          }}
-                        >
-                          <option value="">Choose...</option>
-                          ${"options" in value
-                            ? value.options.map(
-                                (option: string) => html`
-                                  <option
-                                    value="${option}"
-                                    ?selected=${this._wizardValues[
-                                      value.key
-                                    ] === option}
-                                  >
-                                    ${option === "dps"
-                                      ? "Degrees Per Side (DPS)"
-                                      : option === "inclusive"
-                                      ? "Inclusive Angle"
-                                      : option === "height"
-                                      ? "Height (vertical)"
-                                      : option === "width"
-                                      ? "Width (thickness)"
-                                      : option}
-                                  </option>
-                                `
-                              )
-                            : ""}
-                        </select>
-                      `
-                    : html`
-                        <input
-                          type="number"
-                          step="0.001"
-                          style="
-                      width: 100%;
-                      padding: 0.75rem;
-                      border: 1px solid var(--vsa-border);
-                      border-radius: 4px;
-                      background: var(--vsa-input-bg);
-                      color: var(--vsa-text-primary);
-                      font-size: 1rem;
-                    "
-                          .value=${String(this._wizardValues[value.key] || "")}
-                          @input=${(e: Event) => {
-                            this._wizardValues[value.key] = Number(
-                              (e.target as HTMLInputElement).value
-                            );
-                            this.requestUpdate();
-                          }}
-                        />
-                      `}
-                </div>
-              `
-            )}
-          </div>
-
-          <div style="display: flex; gap: 1rem; justify-content: center;">
-            <button
-              style="
-              padding: 0.75rem 1.5rem;
-              border: 1px solid var(--vsa-border);
-              background: var(--vsa-input-bg);
-              color: var(--vsa-text-primary);
-              border-radius: 4px;
-              cursor: pointer;
-            "
-              @click=${this._wizardPrevStep}
-            >
-              ← Back
-            </button>
-
-            <button
-              style="
-              padding: 0.75rem 1.5rem;
-              border: 1px solid var(--vsa-path-a-color);
-              background: var(--vsa-path-a-color);
-              color: var(--vsa-text-inverse);
-              border-radius: 4px;
-              cursor: pointer;
-            "
-              @click=${() => {
-                this._saveCurrentSegment();
-                this._wizardStep = "segment-list";
-                this.requestUpdate();
-              }}
-            >
-              Complete Segment →
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  private _saveCurrentSegment() {
-    const currentNotation = this._buildNotationFromWizard();
-
-    if (
-      this._wizardEditingExisting &&
-      this._wizardCurrentSegmentIndex < this._wizardSegments.length
-    ) {
-      // Update existing segment
-      this._wizardSegments[this._wizardCurrentSegmentIndex] = currentNotation;
-    } else {
-      // Add new segment
-      this._wizardSegments.push(currentNotation);
-    }
-
-    // Clear values for next segment
-    this._wizardValues = {};
-    this._wizardNotationType = "";
-  }
-
-  private _addAnotherSegment() {
-    this._saveCurrentSegment();
-
-    if (this._wizardEditingExisting) {
-      // Return to segment list when editing existing notation
-      this._wizardStep = "segment-list";
-    } else {
-      // Go to notation type for new builds
-      this._wizardCurrentSegmentIndex = this._wizardSegments.length; // Set index for new segment
-      this._wizardStep = "notation-type";
-    }
-    this.requestUpdate();
-  }
-
-  private _completeGeometry() {
-    this._saveCurrentSegment();
-
-    if (this._wizardEditingExisting) {
-      // Apply changes to existing notation and close
-      const unitPrefix =
-        this._wizardUnits !== this.units ? `${this._wizardUnits}=>` : "";
-      const fullNotation = unitPrefix + this._wizardSegments.join(",");
-
-      if (this._wizardSide === "A") {
-        this.notationA = fullNotation;
-      } else {
-        this.notationB = fullNotation;
-      }
-      this._closeWizard();
-    } else {
-      // Go to final review for new builds
-      this._wizardStep = "final-review";
-    }
-    this.requestUpdate();
-  }
-
-  private _editWizardSegment(index: number) {
-    // TODO: Implement editing existing segments
-    // For now, just allow adding new segments
-    console.log("Edit segment", index);
-  }
-
-  private _renderSegmentCompleteStep() {
-    const currentNotation = this._buildNotationFromWizard();
-    const unitPrefix =
-      this._wizardUnits !== this.units ? `${this._wizardUnits}=>` : "";
-    const fullNotation =
-      unitPrefix + [...this._wizardSegments, currentNotation].join(",");
-
-    return html`
-      <div style="text-align: center; max-width: 700px;">
-        <h2 style="margin-top: 0;">Segment Complete</h2>
-
-        <div style="margin-bottom: 1.5rem;">
-          <strong>Current Segment:</strong>
-          <div
-            style="
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid var(--vsa-path-a-color);
-            border-radius: 4px;
-            padding: 1rem;
-            margin-top: 0.5rem;
-            font-family: monospace;
-            font-size: 1.1rem;
-          "
-          >
-            ${currentNotation}
-          </div>
-        </div>
-
-        ${this._wizardSegments.length > 0
-          ? html`
-              <div style="margin-bottom: 1.5rem;">
-                <strong>Building Complete Notation:</strong>
-                <div
-                  style="
-              background: var(--vsa-input-bg);
-              border: 1px solid var(--vsa-border);
-              border-radius: 4px;
-              padding: 1rem;
-              margin-top: 0.5rem;
-              font-family: monospace;
-              font-size: 1.1rem;
-              text-align: left;
-            "
-                >
-                  ${this._wizardSegments.map(
-                    (segment, index) => html`
-                      <div style="margin-bottom: 0.25rem;">
-                        ${index + 1}. ${segment}
-                      </div>
-                    `
-                  )}
-                  <div
-                    style="margin-bottom: 0.25rem; color: var(--vsa-path-a-color); font-weight: bold;"
-                  >
-                    ${this._wizardSegments.length + 1}. ${currentNotation} ←
-                    current
-                  </div>
-                  <hr
-                    style="margin: 0.5rem 0; border: none; border-top: 1px dashed var(--vsa-border);"
-                  />
-                  <strong>Full notation: ${fullNotation}</strong>
-                </div>
-              </div>
-            `
-          : ""}
-
-        <div style="margin-bottom: 2rem;">
-          <p style="color: var(--vsa-text-primary);">
-            What would you like to do next?
-          </p>
-        </div>
-
-        <div
-          style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;"
-        >
-          <button
-            style="
-            padding: 0.75rem 1.5rem;
-            border: 1px solid var(--vsa-border);
-            background: var(--vsa-input-bg);
-            color: var(--vsa-text-primary);
-            border-radius: 4px;
-            cursor: pointer;
-          "
-            @click=${this._wizardPrevStep}
-          >
-            ← Edit This Segment
-          </button>
-
-          <button
-            style="
-            padding: 0.75rem 1.5rem;
-            border: 1px solid var(--vsa-path-a-color);
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--vsa-path-a-color);
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-          "
-            @click=${() => {
-              this._saveCurrentSegment();
-              this._wizardStep = "segment-list";
-              this.requestUpdate();
-            }}
-          >
-            ← Back to Segment List
-          </button>
-        </div>
-      </div>
-    `;
-  }
-
-  private _renderFinalReviewStep() {
-    const unitPrefix =
-      this._wizardUnits !== this.units ? `${this._wizardUnits}=>` : "";
-    const fullNotation = unitPrefix + this._wizardSegments.join(",");
-
-    return html`
-      <div style="text-align: center; max-width: 700px;">
-        <h2 style="margin-top: 0;">Final Review</h2>
-
-        <div style="margin-bottom: 1.5rem;">
-          <strong>Complete Notation for Side ${this._wizardSide}:</strong>
-          <div
-            style="
-            background: var(--vsa-input-bg);
-            border: 2px solid var(--vsa-path-a-color);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-top: 0.5rem;
-            font-family: monospace;
-            font-size: 1.2rem;
-            word-break: break-all;
-          "
-          >
-            ${fullNotation}
-          </div>
-        </div>
-
-        <div style="margin-bottom: 1.5rem; text-align: left;">
-          <strong>Segments:</strong>
-          <div style="margin-top: 0.5rem;">
-            ${this._wizardSegments.map(
-              (segment, index) => html`
-                <div
-                  style="
-                  display: flex; 
-                  justify-content: space-between; 
-                  align-items: center; 
-                  padding: 0.5rem; 
-                  margin-bottom: 0.25rem; 
-                  background: var(--vsa-input-bg); 
-                  border: 1px solid var(--vsa-border); 
-                  border-radius: 4px;
-                "
-                >
-                  <span>${index + 1}. ${segment}</span>
-                  <button
-                    style="
-                    padding: 0.25rem 0.5rem; 
-                    border: 1px solid var(--vsa-border); 
-                    background: transparent; 
-                    border-radius: 3px; 
-                    cursor: pointer; 
-                    font-size: 0.8rem;
-                  "
-                    @click=${() => this._editWizardSegment(index)}
-                  >
-                    Edit
-                  </button>
-                </div>
-              `
-            )}
-          </div>
-        </div>
-
-        <div style="display: flex; gap: 1rem; justify-content: center;">
-          <button
-            style="
-            padding: 0.75rem 1.5rem;
-            border: 1px solid var(--vsa-border);
-            background: var(--vsa-input-bg);
-            color: var(--vsa-text-primary);
-            border-radius: 4px;
-            cursor: pointer;
-          "
-            @click=${this._addAnotherSegment}
-          >
-            + Add Another Segment
-          </button>
-
-          <button
-            style="
-            padding: 0.75rem 1.5rem;
-            border: 1px solid var(--vsa-path-a-color);
-            background: var(--vsa-path-a-color);
-            color: var(--vsa-text-inverse);
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-          "
-            @click=${() => {
-              // Apply the notation and close the wizard
-              if (this._wizardSide === "A") {
-                this.notationA = fullNotation;
-                // Auto-import the notation
-                this._importNotation(this.notationA, "A");
-              } else {
-                this.notationB = fullNotation;
-                // Auto-import the notation
-                this._importNotation(this.notationB, "B");
-              }
-              this._closeWizard();
-              // Ensure UI updates after wizard completion
-              this.requestUpdate();
-            }}
-          >
-            Apply to Side ${this._wizardSide}
-          </button>
-        </div>
-      </div>
-    `;
   }
 }
 

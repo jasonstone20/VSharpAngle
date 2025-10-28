@@ -651,7 +651,7 @@ class VsaSteelTable extends LitElement {
                         ${this._headerCell("edgeAngle", "Angle")}
                         ${this._headerCell("TCC", "est.TCC")}
                         ${this._headerCell("CrC", "CrC")}
-                        ${this._headerCell("CrV", "CrV")}
+                        ${this._headerCell("CrV", "CrVC")}
                         ${this._headerCell("MC", "MC")}
                         ${this._headerCell("M6C", "M6C")}
                         ${this._headerCell("MN", "MN")}
