@@ -515,8 +515,6 @@ class VsaSteelTable extends LitElement {
     return html`
      
 
-      <sl-details open>
-        <div slot="summary">Steel Table Comparison</div>
          <div class="toolbar">
         <div class="control-group filter-group">
           <label for="steel-filter">Filter Steels</label>
@@ -704,7 +702,7 @@ class VsaSteelTable extends LitElement {
               : html`<div class="empty">No steels found.</div>`
           }
         </div>
-      </sl-details>
+      
     `;
   }
 }

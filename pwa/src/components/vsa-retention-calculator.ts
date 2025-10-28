@@ -114,7 +114,6 @@ export class VsaRetentionCalculator extends LitElement {
     .comparison-table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
     }
 
     .comparison-table th,
@@ -187,6 +186,7 @@ export class VsaRetentionCalculator extends LitElement {
     Fe3C: 0,
   };
   @property({ type: Boolean, state: true }) private _shouldFocus = false;
+  @property({ type: Boolean }) open = true;
 
   // Comparison properties
   @property({ attribute: false }) availableSteels: any[] = [];
@@ -330,88 +330,34 @@ export class VsaRetentionCalculator extends LitElement {
     ];
 
     return html`
-      <section class="calc">
-        <h2>
+      <sl-details ?open=${this.open}>
+        <div slot="summary">
           Edge Retention Estimator
           <sl-tooltip
             content="Approximate CATRA TCC and volume from hardness, edge angle, and carbides."
           >
             <sl-icon
               name="info-circle"
-              style="font-size: 0.75rem; opacity: 0.7;"
+              style="font-size: 0.75rem; opacity: 0.7; margin-left: 0.4rem;"
               aria-hidden="true"
               library="default"
             ></sl-icon>
           </sl-tooltip>
-        </h2>
-        <p class="section-subtitle">
-          Enter custom steel properties to get an estimate, or interact with the
-          full steel database below.
-        </p>
-        <div class="retention-inputs">
-          <table class="retention-table">
-            <tr>
-              <td>
-                <div class="label-with-tooltip">
-                  <span>Hardness</span>
-                  <sl-tooltip
-                    content="Rockwell C hardness (HRC). Higher HRC boosts wear resistance but may reduce toughness. Typical 50–70."
-                  >
-                    <sl-icon
-                      name="info-circle"
-                      style="font-size: 0.75rem; opacity: 0.7;"
-                    ></sl-icon>
-                  </sl-tooltip>
-                </div>
-              </td>
-              <td>
-                <sl-input
-                  label="Hardness"
-                  type="number"
-                  step="0.5"
-                  min="50"
-                  max="70"
-                  .value=${this.hardness?.toString() || ""}
-                  @sl-input=${this._onHardnessChange}
-                  size="small"
-                  help-text="HRC scale"
-                ></sl-input>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="label-with-tooltip">
-                  <span>Edge Angle</span>
-                  <sl-tooltip
-                    content="Degrees per side (DPS). Lower angles slice more efficiently; higher angles increase edge durability."
-                  >
-                    <sl-icon
-                      name="info-circle"
-                      style="font-size: 0.75rem; opacity: 0.7;"
-                    ></sl-icon>
-                  </sl-tooltip>
-                </div>
-              </td>
-              <td>
-                <sl-input
-                  label="Edge Angle"
-                  type="number"
-                  step="0.5"
-                  min="10"
-                  max="35"
-                  .value=${this.edgeAngle?.toString() || ""}
-                  @sl-input=${this._onEdgeAngleChange}
-                  size="small"
-                  help-text="DPS"
-                ></sl-input>
-              </td>
-            </tr>
-            ${carbideFields.map(
-              ({ k, t }) => html`<tr>
+        </div>
+        <section class="calc">
+          <p class="section-subtitle">
+            Enter custom steel properties to get an estimate, or interact with
+            the full steel database below.
+          </p>
+          <div class="retention-inputs">
+            <table class="retention-table">
+              <tr>
                 <td>
                   <div class="label-with-tooltip">
-                    <span>${k}</span>
-                    <sl-tooltip content="${t}">
+                    <span>Hardness</span>
+                    <sl-tooltip
+                      content="Rockwell C hardness (HRC). Higher HRC boosts wear resistance but may reduce toughness. Typical 50–70."
+                    >
                       <sl-icon
                         name="info-circle"
                         style="font-size: 0.75rem; opacity: 0.7;"
@@ -421,44 +367,100 @@ export class VsaRetentionCalculator extends LitElement {
                 </td>
                 <td>
                   <sl-input
-                    label="${k}"
+                    label="Hardness"
                     type="number"
-                    step="0.1"
-                    min="0"
-                    .value=${this.carbides[k]?.toString() || "0"}
-                    @sl-input=${(e: Event) => this._onCarbideChange(e, k)}
+                    step="0.5"
+                    min="50"
+                    max="70"
+                    .value=${this.hardness?.toString() || ""}
+                    @sl-input=${this._onHardnessChange}
                     size="small"
-                    help-text="Volume %"
+                    help-text="HRC scale"
                   ></sl-input>
                 </td>
-              </tr>`
-            )}
-          </table>
-        </div>
-        <div aria-live="polite">
+              </tr>
+              <tr>
+                <td>
+                  <div class="label-with-tooltip">
+                    <span>Edge Angle</span>
+                    <sl-tooltip
+                      content="Degrees per side (DPS). Lower angles slice more efficiently; higher angles increase edge durability."
+                    >
+                      <sl-icon
+                        name="info-circle"
+                        style="font-size: 0.75rem; opacity: 0.7;"
+                      ></sl-icon>
+                    </sl-tooltip>
+                  </div>
+                </td>
+                <td>
+                  <sl-input
+                    label="Edge Angle"
+                    type="number"
+                    step="0.5"
+                    min="10"
+                    max="35"
+                    .value=${this.edgeAngle?.toString() || ""}
+                    @sl-input=${this._onEdgeAngleChange}
+                    size="small"
+                    help-text="DPS"
+                  ></sl-input>
+                </td>
+              </tr>
+              ${carbideFields.map(
+                ({ k, t }) => html`<tr>
+                  <td>
+                    <div class="label-with-tooltip">
+                      <span>${k}</span>
+                      <sl-tooltip content="${t}">
+                        <sl-icon
+                          name="info-circle"
+                          style="font-size: 0.75rem; opacity: 0.7;"
+                        ></sl-icon>
+                      </sl-tooltip>
+                    </div>
+                  </td>
+                  <td>
+                    <sl-input
+                      label="${k}"
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      .value=${this.carbides[k]?.toString() || "0"}
+                      @sl-input=${(e: Event) => this._onCarbideChange(e, k)}
+                      size="small"
+                      help-text="Volume %"
+                    ></sl-input>
+                  </td>
+                </tr>`
+              )}
+            </table>
+          </div>
+          <div aria-live="polite">
+            ${invalids.length === 0
+              ? html`<div class="result-block" role="status">
+                  <span>TCC / Volume</span>
+                  <span class="result-value"
+                    >${edge.TCC} / ${edge.volume.toFixed(1)}</span
+                  >
+                </div>`
+              : html`<div class="error" role="alert">
+                  ${invalids.map((m) => html`<div>${m}</div>`)}
+                </div>`}
+          </div>
           ${invalids.length === 0
-            ? html`<div class="result-block" role="status">
-                <span>TCC / Volume</span>
-                <span class="result-value"
-                  >${edge.TCC} / ${edge.volume.toFixed(1)}</span
-                >
-              </div>`
-            : html`<div class="error" role="alert">
-                ${invalids.map((m) => html`<div>${m}</div>`)}
-              </div>`}
-        </div>
-        ${invalids.length === 0
-          ? html`
-              <div class="output-row">
-                <sl-progress-bar
-                  .value=${Math.min(edge.volume, 30)}
-                  max="30"
-                  label="Carbide Volume"
-                ></sl-progress-bar>
-              </div>
-            `
-          : ""}
-      </section>
+            ? html`
+                <div class="output-row">
+                  <sl-progress-bar
+                    .value=${Math.min(edge.volume, 30)}
+                    max="30"
+                    label="Carbide Volume"
+                  ></sl-progress-bar>
+                </div>
+              `
+            : ""}
+        </section>
+      </sl-details>
 
       <!-- Compare Existing Steels Section -->
       <section class="comparison-section">

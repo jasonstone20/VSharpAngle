@@ -35,6 +35,22 @@ class VsaAppShell extends LitElement {
       font-weight: 600;
       margin: 0;
       letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: color 0.15s ease;
+      user-select: none;
+    }
+    header h1:hover {
+      color: var(--sl-color-primary-600);
+    }
+    header sl-icon-button {
+      color: var(--sl-color-neutral-600);
+      transition: color 0.15s ease;
+    }
+    header sl-icon-button:hover {
+      color: var(--sl-color-primary-600);
+    }
+    header sl-icon-button::part(base) {
+      color: inherit;
     }
     .intro-banner {
       margin: 0 0 1.15rem 0;
@@ -139,16 +155,6 @@ class VsaAppShell extends LitElement {
     }
     .page section.calc:hover {
       box-shadow: var(--sl-shadow-medium);
-    }
-    .back-link {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-size: 0.65rem;
-    }
-    .back-link sl-button::part(base) {
-      font-size: 0.75rem;
-      font-weight: 600;
     }
     .page .help {
       background: var(--sl-color-neutral-0);
@@ -546,7 +552,12 @@ class VsaAppShell extends LitElement {
         : html`<header
             class="app-header ${this.geometryFullScreen ? "hidden" : ""}"
           >
-            <h1>VSharpAngle</h1>
+            <h1 @click=${() => this._go("home")}>VSharpAngle</h1>
+            <sl-icon-button
+              name="house-fill"
+              @click=${() => this._go("home")}
+              label="Go to home"
+            ></sl-icon-button>
             <sl-switch
               ?checked=${this.dark}
               @sl-change=${() => this._toggleTheme()}
@@ -688,7 +699,6 @@ class VsaAppShell extends LitElement {
     switch (this.page) {
       case "angle":
         return html`<div class="page">
-          <div class="back-link">${this._homeLink()}</div>
           <vsa-angle-calculator></vsa-angle-calculator>
           <div class="help" aria-label="Angle Calculator Explanation">
             <h2>Knife Angle Calculation</h2>
@@ -706,7 +716,6 @@ class VsaAppShell extends LitElement {
         </div>`;
       case "elevation":
         return html`<div class="page">
-          <div class="back-link">${this._homeLink()}</div>
           <vsa-elevation-calculator></vsa-elevation-calculator>
           <div class="help" aria-label="Elevation Calculator Explanation">
             <h2>Sharpmaker Elevation Adjustments</h2>
@@ -725,7 +734,6 @@ class VsaAppShell extends LitElement {
         </div>`;
       case "rotation":
         return html`<div class="page">
-          <div class="back-link">${this._homeLink()}</div>
           <vsa-rotation-calculator></vsa-rotation-calculator>
           <div class="help" aria-label="Rotation Calculator Explanation">
             <h2>How Rotation Offsets Work</h2>
@@ -750,7 +758,6 @@ class VsaAppShell extends LitElement {
         </div>`;
       case "passes":
         return html`<div class="page">
-          <div class="back-link">${this._homeLink()}</div>
           <vsa-pass-calculator></vsa-pass-calculator>
           <div class="help" aria-label="Pass Counter Explanation">
             <h2>Why Track Progressive Passes?</h2>
@@ -776,7 +783,6 @@ class VsaAppShell extends LitElement {
         // Load steels data for comparison section
         this._loadSteels();
         return html`<div class="page">
-          <div class="back-link">${this._homeLink()}</div>
           <vsa-retention-calculator
             .availableSteels=${this.availableSteels}
           ></vsa-retention-calculator>
@@ -794,14 +800,12 @@ class VsaAppShell extends LitElement {
 
   _pageGeometry() {
     return html`<div class="page">
-      <div class="back-link">${this._homeLink()}</div>
       <vsa-geometry-builder></vsa-geometry-builder>
     </div>`;
   }
 
   _pageIntro() {
     return html`<div class="page">
-      <div class="back-link">${this._homeLink()}</div>
       <section class="calc">
         <h2>Introduction & Guide</h2>
         <p>
@@ -913,7 +917,6 @@ class VsaAppShell extends LitElement {
   _pageSteels() {
     if (!customElements.get("vsa-steel-table")) import("./vsa-steel-table");
     return html`<div class="page">
-      <div class="back-link">${this._homeLink()}</div>
       <section class="calc">
         <h2>
           Steel Database
@@ -954,20 +957,6 @@ class VsaAppShell extends LitElement {
         </p>
       </div>
     </div>`;
-  }
-
-  _homeLink() {
-    return this.geometryFullScreen
-      ? html``
-      : html`<sl-button
-          size="medium"
-          variant="default"
-          @click=${() => this._go("home")}
-          style="gap:.4rem"
-        >
-          <sl-icon name="house" style="font-size:1.1rem"></sl-icon>
-          Home
-        </sl-button>`;
   }
 
   _toggleSteelTable() {
