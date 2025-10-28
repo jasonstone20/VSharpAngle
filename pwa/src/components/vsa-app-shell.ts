@@ -1,23 +1,15 @@
 import { LitElement, html, css } from "lit";
-import {
-  measureAngle,
-  sharpmakerElevation,
-  sharpmakerRotation,
-  passCount,
-  edgeRetention,
-} from "../utils/math";
+import { edgeRetention } from "../utils/math";
 import type { SteelSelectedDetail } from "../types";
 // Eager import steel table so collapsible section always renders immediately
 import "./vsa-steel-table";
 import "./vsa-geometry-builder";
+import "./vsa-angle-calculator";
+import "./vsa-elevation-calculator";
+import "./vsa-rotation-calculator";
+import "./vsa-pass-calculator";
+import "./vsa-retention-calculator";
 import { property } from "lit/decorators.js";
-
-interface ComparisonSteel {
-  id: string;
-  steelId: string;
-  hardness: number;
-  edgeAngle: number;
-}
 
 class VsaAppShell extends LitElement {
   static styles = css`
@@ -43,6 +35,22 @@ class VsaAppShell extends LitElement {
       font-weight: 600;
       margin: 0;
       letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: color 0.15s ease;
+      user-select: none;
+    }
+    header h1:hover {
+      color: var(--sl-color-primary-600);
+    }
+    header sl-icon-button {
+      color: var(--sl-color-neutral-600);
+      transition: color 0.15s ease;
+    }
+    header sl-icon-button:hover {
+      color: var(--sl-color-primary-600);
+    }
+    header sl-icon-button::part(base) {
+      color: inherit;
     }
     .intro-banner {
       margin: 0 0 1.15rem 0;
@@ -147,16 +155,6 @@ class VsaAppShell extends LitElement {
     }
     .page section.calc:hover {
       box-shadow: var(--sl-shadow-medium);
-    }
-    .back-link {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-size: 0.65rem;
-    }
-    .back-link sl-button::part(base) {
-      font-size: 0.75rem;
-      font-weight: 600;
     }
     .page .help {
       background: var(--sl-color-neutral-0);
@@ -340,11 +338,8 @@ class VsaAppShell extends LitElement {
       font-size: 0.9rem;
       line-height: 1.4;
     }
-    .section-subtitle {
-      color: var(--sl-color-neutral-400);
-    }
     .retention-table td:first-child {
-      background: var(--vsa-surface-dark, #1a1d23);
+      background: var(--sl-color-neutral-50);
     }
     @media (max-width: 600px) {
       .retention-table td {
@@ -353,85 +348,6 @@ class VsaAppShell extends LitElement {
       .retention-table td:first-child {
         width: 35%;
         font-size: 0.9rem;
-      }
-    }
-
-    /* Compare Existing Steels section */
-    .comparison-section {
-      margin-top: 1.5rem;
-      padding-top: 1rem;
-      border-top: 1px solid var(--vsa-border);
-    }
-    .comparison-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-    .comparison-header h3 {
-      margin: 0;
-      font-size: 1rem;
-      font-weight: 600;
-    }
-    .comparison-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 0.5rem;
-    }
-    .comparison-table th,
-    .comparison-table td {
-      padding: 0.5rem 0.25rem;
-      border-bottom: 1px solid var(--vsa-border);
-      text-align: left;
-      vertical-align: middle;
-    }
-    .comparison-table th {
-      background: var(--vsa-row-alt);
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-    .comparison-table sl-select,
-    .comparison-table sl-input {
-      width: 100%;
-      max-width: 120px;
-    }
-    .comparison-table sl-input {
-      max-width: 80px;
-    }
-    .comparison-table .tcc-cell {
-      font-weight: 600;
-      color: var(--sl-color-primary-600);
-    }
-    .comparison-table .delete-cell {
-      width: 40px;
-      text-align: center;
-    }
-    .comparison-table sl-icon-button {
-      color: var(--sl-color-danger-600);
-    }
-    .empty-comparison {
-      text-align: center;
-      padding: 1rem;
-      color: var(--sl-color-neutral-500);
-      font-style: italic;
-    }
-    @media (max-width: 600px) {
-      .comparison-table {
-        font-size: 0.85rem;
-      }
-      .comparison-table th,
-      .comparison-table td {
-        padding: 0.4rem 0.2rem;
-      }
-      .comparison-table sl-select,
-      .comparison-table sl-input {
-        max-width: 100px;
-      }
-      .comparison-table sl-input {
-        max-width: 60px;
-      }
-      .comparison-header h3 {
-        font-size: 0.95rem;
       }
     }
 
@@ -494,13 +410,6 @@ class VsaAppShell extends LitElement {
   `;
 
   @property({ type: String }) page = "home";
-  @property({ type: Number }) width = 3;
-  @property({ type: Number }) height = 2;
-  @property({ type: Number }) desiredAngle = 20;
-  @property({ type: Number }) sharpenerAngle = 15;
-  @property({ type: Number }) rotationAngle = 12;
-  @property({ type: Number }) rotationSharpener = 15;
-  @property({ type: Number }) passes = 19;
   @property({ type: Number }) hardness = 60;
   @property({ type: Number }) edgeAngle = 30;
   @property({ attribute: false }) carbides: { [k: string]: number } = {
@@ -517,7 +426,6 @@ class VsaAppShell extends LitElement {
   @property({ type: Boolean }) updateReady = false;
   @property({ type: Boolean }) geometryFullScreen = false;
   @property({ type: Boolean }) retentionEstimatorCollapsed = true;
-  @property({ attribute: false }) comparisonSteels: ComparisonSteel[] = [];
   @property({ attribute: false }) availableSteels: any[] = [];
 
   constructor() {
@@ -644,7 +552,12 @@ class VsaAppShell extends LitElement {
         : html`<header
             class="app-header ${this.geometryFullScreen ? "hidden" : ""}"
           >
-            <h1>VSharpAngle</h1>
+            <h1 @click=${() => this._go("home")}>VSharpAngle</h1>
+            <sl-icon-button
+              name="house-fill"
+              @click=${() => this._go("home")}
+              label="Go to home"
+            ></sl-icon-button>
             <sl-switch
               ?checked=${this.dark}
               @sl-change=${() => this._toggleTheme()}
@@ -785,15 +698,95 @@ class VsaAppShell extends LitElement {
   _renderPage() {
     switch (this.page) {
       case "angle":
-        return this._pageAngle();
+        return html`<div class="page">
+          <vsa-angle-calculator></vsa-angle-calculator>
+          <div class="help" aria-label="Angle Calculator Explanation">
+            <h2>Knife Angle Calculation</h2>
+            <p>
+              This calculator uses the width-to-height ratio to determine the
+              degrees per side (DPS) of a knife's edge. The formula is based on
+              trigonometry: <code>arcsin(width/2/height)</code>.
+            </p>
+            <p>
+              For accurate measurements, ensure the blade is held perpendicular
+              to the measuring surface and that the width represents the full
+              edge width at the measured height.
+            </p>
+          </div>
+        </div>`;
       case "elevation":
-        return this._pageElevation();
+        return html`<div class="page">
+          <vsa-elevation-calculator></vsa-elevation-calculator>
+          <div class="help" aria-label="Elevation Calculator Explanation">
+            <h2>Sharpmaker Elevation Adjustments</h2>
+            <p>
+              The Spyderco Sharpmaker allows angle adjustments by elevating the
+              base. This calculator determines the required elevation (in
+              notches) to achieve your target angle from the available rod
+              settings.
+            </p>
+            <p>
+              Each notch represents approximately 8 degrees of adjustment. The
+              calculation accounts for the geometric relationship between
+              elevation and angle change.
+            </p>
+          </div>
+        </div>`;
       case "rotation":
-        return this._pageRotation();
+        return html`<div class="page">
+          <vsa-rotation-calculator></vsa-rotation-calculator>
+          <div class="help" aria-label="Rotation Calculator Explanation">
+            <h2>How Rotation Offsets Work</h2>
+            <p>
+              Rotating the base changes the relative orientation between the
+              knife and the rods, allowing intermediate angles without swapping
+              to different preset holes. The math multiplies
+              <code>sin(target)</code> by <code>csc(setting)</code> and uses
+              <code>acos</code> to find the rotation offset. The product must
+              stay between -1 and 1 (a domain requirement).
+            </p>
+            <p>
+              If you hit a domain error, pick a target closer to the rod's
+              native setting. Very large deviations may be mechanically awkward
+              or inconsistent.
+            </p>
+            <p>
+              <strong>Tip:</strong> Rotate gradually and keep the spine vertical
+              to avoid inadvertent angle drift.
+            </p>
+          </div>
+        </div>`;
       case "passes":
-        return this._pagePasses();
+        return html`<div class="page">
+          <vsa-pass-calculator></vsa-pass-calculator>
+          <div class="help" aria-label="Pass Counter Explanation">
+            <h2>Why Track Progressive Passes?</h2>
+            <p>
+              Progressive pass reduction refines scratch pattern and apex
+              quality while limiting over‑grinding. Starting passes define the
+              top sequence; each descending step (minus 10) accelerates
+              deburring and polish. Final small counts (5, 3, 2, 1) provide
+              controlled finish.
+            </p>
+            <p>
+              The total and X‑stroke count help estimate time investment and
+              symmetry. Choose an odd starting number to maintain balanced
+              alternation.
+            </p>
+            <p>
+              <strong>Tip:</strong> If steel is hard or wear‑resistant, consider
+              a higher starting pass count for proper apex formation.
+            </p>
+          </div>
+        </div>`;
       case "retention":
-        return this._pageRetention();
+        // Load steels data for comparison section
+        this._loadSteels();
+        return html`<div class="page">
+          <vsa-retention-calculator
+            .availableSteels=${this.availableSteels}
+          ></vsa-retention-calculator>
+        </div>`;
       case "steels":
         return this._pageSteels();
       case "geometry":
@@ -807,14 +800,12 @@ class VsaAppShell extends LitElement {
 
   _pageGeometry() {
     return html`<div class="page">
-      <div class="back-link">${this._homeLink()}</div>
       <vsa-geometry-builder></vsa-geometry-builder>
     </div>`;
   }
 
   _pageIntro() {
     return html`<div class="page">
-      <div class="back-link">${this._homeLink()}</div>
       <section class="calc">
         <h2>Introduction & Guide</h2>
         <p>
@@ -923,644 +914,9 @@ class VsaAppShell extends LitElement {
     </div>`;
   }
 
-  _pageAngle() {
-    const angle = measureAngle(this.width, this.height);
-    let invalid: string | null = null;
-    if (angle == null) {
-      if (this.width == null || this.height == null)
-        invalid = "Width and height are required.";
-      else if (this.height === 0) invalid = "Height must be greater than 0.";
-      else invalid = "width/2 must be ≤ height (arcsin domain).";
-      // Focus first invalid input
-      queueMicrotask(() => {
-        const el = this.renderRoot?.querySelector(
-          this.width == null
-            ? 'sl-input[label="Width"]'
-            : 'sl-input[label="Height"]'
-        ) as HTMLElement | null;
-        el?.focus();
-      });
-    }
-    return html`<div class="page">
-      <div class="back-link">${this._homeLink()}</div>
-      <section class="calc">
-        <h2>
-          Angle Measurement
-          <sl-tooltip
-            content="Convert bevel width & height behind the edge into degrees-per-side."
-          >
-            <sl-icon
-              name="info-circle"
-              style="font-size:.9rem; margin-left:.4rem"
-            ></sl-icon>
-          </sl-tooltip>
-        </h2>
-        <div class="output-row">
-          <sl-input
-            label="Width"
-            type="number"
-            .value=${String(this.width)}
-            @input=${(e: Event) => this._num(e, "width")}
-          ></sl-input>
-          <sl-input
-            label="Height"
-            type="number"
-            .value=${String(this.height)}
-            @input=${(e: Event) => this._num(e, "height")}
-          ></sl-input>
-        </div>
-        <div aria-live="polite">
-          ${angle != null
-            ? html`<div class="result-block" role="status">
-                <span>Inclusive Edge Angle (DPS)</span
-                ><span class="result-value">${angle}°</span>
-              </div>`
-            : html`<div class="invalid-msg" role="alert">
-                <strong>Angle could not be calculated.</strong
-                ><br />${invalid}<br /><em>Expectation:</em> Positive width &
-                height with width/2 ≤ height.
-              </div>`}
-        </div>
-      </section>
-      <div class="help" aria-label="Angle Measurement Explanation">
-        <h2>How This Angle Is Calculated</h2>
-        <p>
-          The per‑side edge angle is derived from simple trigonometry: we treat
-          the bevel height as the adjacent side of a right triangle and half the
-          measured width behind the edge as the opposite side. The ratio
-          <code>(width / 2) / height</code> gives <em>sin(θ)</em>. If that ratio
-          exceeds 1 the physical measurement is inconsistent (angle cannot
-          exist) and you’ll see an invalid message.
-        </p>
-        <p>
-          Use consistent units (mm or inches). Minor measurement error can shift
-          a calculated DPS by a degree or two—adequate for sharpening decisions.
-        </p>
-        <p>
-          <strong>Tip:</strong> A smaller height for the same width means a
-          blunter (larger) angle.
-        </p>
-      </div>
-    </div>`;
-  }
-
-  _pageElevation() {
-    const elev = sharpmakerElevation(this.desiredAngle, this.sharpenerAngle);
-    let invalid: string | null = null;
-    if (elev == null) {
-      if (this.desiredAngle == null || this.sharpenerAngle == null)
-        invalid = "Both desired and setting angles required.";
-      else invalid = "Unexpected null result; ensure numeric inputs.";
-      queueMicrotask(() => {
-        const el = this.renderRoot?.querySelector(
-          this.desiredAngle == null
-            ? 'sl-input[label="Desired"]'
-            : 'sl-select[label="Setting"]'
-        ) as HTMLElement | null;
-        el?.focus();
-      });
-    }
-    return html`<div class="page">
-      <div class="back-link">${this._homeLink()}</div>
-      <section class="calc">
-        <h2>
-          Sharpmaker Elevation
-          <sl-tooltip
-            content="Calculate required base lift to reach a target rod angle."
-          >
-            <sl-icon
-              name="info-circle"
-              style="font-size:.9rem; margin-left:.4rem"
-            ></sl-icon>
-          </sl-tooltip>
-        </h2>
-        <div class="output-row">
-          <sl-input
-            label="Desired"
-            type="number"
-            .value=${String(this.desiredAngle)}
-            @input=${(e: Event) => this._num(e, "desiredAngle")}
-          ></sl-input>
-          <sl-select
-            label="Setting"
-            .value=${String(this.sharpenerAngle)}
-            @sl-change=${(e: CustomEvent) => {
-              this.sharpenerAngle = Number(
-                (e.target as HTMLSelectElement).value
-              );
-            }}
-          >
-            <sl-option value="15">15°</sl-option
-            ><sl-option value="20">20°</sl-option
-            ><sl-option value="25">25°</sl-option>
-          </sl-select>
-        </div>
-        <div aria-live="polite">
-          ${elev != null
-            ? html`<div class="result-block" role="status">
-                <span>Required Elevation</span
-                ><span class="result-value">${elev}"</span>
-              </div>`
-            : html`<div class="invalid-msg" role="alert">
-                <strong>Elevation could not be estimated.</strong
-                ><br />${invalid}<br /><em>Expectation:</em> Desired angle
-                usually within ~10° of setting.
-              </div>`}
-        </div>
-      </section>
-      <div class="help" aria-label="Elevation Calculator Explanation">
-        <h2>Understanding Elevation Adjustment</h2>
-        <p>
-          Raising one side of a V‑stick base changes the effective rod angle.
-          The approximation here uses the difference between desired
-          degrees‑per‑side and the rod’s built‑in setting, scaled by a constant
-          that represents typical rod spacing.
-        </p>
-        <p>
-          Small elevation changes (fractions of an inch) can translate into
-          several degrees at the edge. Keep lifts modest; extreme elevation may
-          compromise stability.
-        </p>
-        <p>
-          <strong>Tip:</strong> If the required elevation rounds to 0, you are
-          already at or very near the desired angle.
-        </p>
-      </div>
-    </div>`;
-  }
-
-  _pageRotation() {
-    const rotation = sharpmakerRotation(
-      this.rotationAngle,
-      this.rotationSharpener
-    );
-    let invalid: string | null = null;
-    if (rotation == null) {
-      if (this.rotationAngle == null || this.rotationSharpener == null)
-        invalid = "Provide both target and setting angles.";
-      else invalid = "csc(setting) * sin(angle) must be between -1 and 1.";
-      queueMicrotask(() => {
-        const el = this.renderRoot?.querySelector(
-          this.rotationAngle == null
-            ? 'sl-input[label="Angle"]'
-            : 'sl-select[label="Setting"]'
-        ) as HTMLElement | null;
-        el?.focus();
-      });
-    }
-    return html`<div class="page">
-      <div class="back-link">${this._homeLink()}</div>
-      <section class="calc">
-        <h2>
-          Sharpmaker Rotation
-          <sl-tooltip
-            content="Determine safe rotation offset between common rod angle settings."
-          >
-            <sl-icon
-              name="info-circle"
-              style="font-size:.9rem; margin-left:.4rem"
-            ></sl-icon>
-          </sl-tooltip>
-        </h2>
-        <div class="output-row">
-          <sl-input
-            label="Angle"
-            type="number"
-            .value=${String(this.rotationAngle)}
-            @input=${(e: Event) => this._num(e, "rotationAngle")}
-          ></sl-input>
-          <sl-select
-            label="Setting"
-            .value=${String(this.rotationSharpener)}
-            @sl-change=${(e: CustomEvent) => {
-              this.rotationSharpener = Number(
-                (e.target as HTMLSelectElement).value
-              );
-            }}
-          >
-            <sl-option value="15">15°</sl-option
-            ><sl-option value="20">20°</sl-option
-            ><sl-option value="25">25°</sl-option>
-          </sl-select>
-        </div>
-        <div aria-live="polite">
-          ${rotation != null
-            ? html`<div class="result-block" role="status">
-                <span>Rotation Offset</span
-                ><span class="result-value">${rotation}°</span>
-              </div>`
-            : html`<div class="invalid-msg" role="alert">
-                <strong>Rotation offset cannot be computed.</strong
-                ><br />${invalid}<br /><em>Expectation:</em> Choose angle
-                compatible with selected setting.
-              </div>`}
-        </div>
-      </section>
-      <div class="help" aria-label="Rotation Calculator Explanation">
-        <h2>How Rotation Offsets Work</h2>
-        <p>
-          Rotating the base changes the relative orientation between the knife
-          and the rods, allowing intermediate angles without swapping to
-          different preset holes. The math multiplies
-          <code>sin(target)</code> by <code>csc(setting)</code> and uses
-          <code>acos</code> to find the rotation offset. The product must stay
-          between -1 and 1 (a domain requirement).
-        </p>
-        <p>
-          If you hit a domain error, pick a target closer to the rod’s native
-          setting. Very large deviations may be mechanically awkward or
-          inconsistent.
-        </p>
-        <p>
-          <strong>Tip:</strong> Rotate gradually and keep the spine vertical to
-          avoid inadvertent angle drift.
-        </p>
-      </div>
-    </div>`;
-  }
-
-  _pagePasses() {
-    const passInfo = passCount(this.passes);
-    const valid = passInfo.total > 0;
-    let invalid: string | null = null;
-    if (!valid) {
-      if (this.passes == null) invalid = "Number of passes is required.";
-      else if ((this.passes as number) < 1) invalid = "Pass count must be ≥ 1.";
-      else invalid = "Invalid pass input.";
-      queueMicrotask(() => {
-        const el = this.renderRoot?.querySelector(
-          'sl-input[label="Passes"]'
-        ) as HTMLElement | null;
-        el?.focus();
-      });
-    }
-    return html`<div class="page">
-      <div class="back-link">${this._homeLink()}</div>
-      <section class="calc">
-        <h2>
-          Pass Counter
-          <sl-tooltip
-            content="Plan descending stroke sets and view total plus X-strokes."
-          >
-            <sl-icon
-              name="info-circle"
-              style="font-size:.9rem; margin-left:.4rem"
-            ></sl-icon>
-          </sl-tooltip>
-        </h2>
-        <div class="output-row">
-          <sl-input
-            label="Passes"
-            type="number"
-            .value=${String(this.passes)}
-            @input=${(e: Event) => this._num(e, "passes")}
-          ></sl-input>
-        </div>
-        <div aria-live="polite">
-          ${valid
-            ? html`<div class="result-block" role="status">
-                <span>Total / X-Strokes</span
-                ><span class="result-value"
-                  >${passInfo.total} / ${passInfo.xStrokes}</span
-                >
-              </div>`
-            : html`<div class="invalid-msg" role="alert">
-                <strong>Sequence cannot be generated.</strong
-                ><br />${invalid}<br /><em>Expectation:</em> Enter positive
-                integer (e.g., 9, 19, 29).
-              </div>`}
-        </div>
-        <sl-details summary="Sequence"
-          >${passInfo.sequence.map(
-            (n) => html`<span class="badge-seq">${n}, </span>`
-          )}</sl-details
-        >
-      </section>
-      <div class="help" aria-label="Pass Counter Explanation">
-        <h2>Why Track Progressive Passes?</h2>
-        <p>
-          Progressive pass reduction refines scratch pattern and apex quality
-          while limiting over‑grinding. Starting passes define the top sequence;
-          each descending step (minus 10) accelerates deburring and polish.
-          Final small counts (5, 3, 2, 1) provide controlled finish.
-        </p>
-        <p>
-          The total and X‑stroke count help estimate time investment and
-          symmetry. Choose an odd starting number to maintain balanced
-          alternation.
-        </p>
-        <p>
-          <strong>Tip:</strong> If steel is hard or wear‑resistant, consider a
-          slightly larger starting pass set.
-        </p>
-      </div>
-    </div>`;
-  }
-
-  _pageRetention() {
-    // Load steels data for comparison section
-    this._loadSteels();
-
-    const edge = edgeRetention({
-      name: "current",
-      hardness: this.hardness,
-      edgeAngle: this.edgeAngle,
-      CrC: this.carbides.CrC,
-      CrV: this.carbides.CrCV,
-      MC: this.carbides.MC,
-      M6C: this.carbides.M6C,
-      MN: this.carbides.MN,
-      CrN: this.carbides.CrN,
-      Fe3C: this.carbides.Fe3C,
-    });
-    const hardValid = this.hardness != null && this.hardness > 0;
-    const angleValid = this.edgeAngle != null && this.edgeAngle > 0;
-    const invalids: string[] = [];
-    if (!hardValid) invalids.push("Hardness must be positive (e.g., 60).");
-    if (!angleValid)
-      invalids.push("Edge angle must be positive degrees per side.");
-    if (invalids.length) {
-      queueMicrotask(() => {
-        const selector = !hardValid
-          ? "tr:first-child sl-input"
-          : "tr:nth-child(2) sl-input";
-        const el = this.renderRoot?.querySelector(
-          selector
-        ) as HTMLElement | null;
-        el?.focus();
-      });
-    }
-    return html`<div class="page">
-      <div class="back-link">${this._homeLink()}</div>
-
-      <sl-details ?open=${!this.retentionEstimatorCollapsed}>
-        <div slot="summary">
-          Edge Retention Estimator
-          <sl-tooltip
-            content="Approximate CATRA TCC and volume from hardness, edge angle, and carbides."
-          >
-            <sl-icon
-              name="info-circle"
-              style="font-size:.9rem; margin-left:.4rem"
-            ></sl-icon>
-          </sl-tooltip>
-        </div>
-
-        <section class="calc">
-          <p class="section-subtitle">
-            Enter custom steel properties to get an estimate, or interact with
-            the full steel database below.
-          </p>
-          <div class="retention-inputs">
-            <table class="retention-table">
-              <tr>
-                <td>
-                  <div class="label-with-tooltip">
-                    <span>Hardness</span>
-                    <sl-tooltip
-                      content="Rockwell C hardness (HRC). Higher HRC boosts wear resistance but may reduce toughness. Typical 50–70."
-                    >
-                      <sl-icon
-                        name="info-circle"
-                        style="font-size: 0.75rem; opacity: 0.7;"
-                      ></sl-icon>
-                    </sl-tooltip>
-                  </div>
-                </td>
-                <td>
-                  <sl-input
-                    type="number"
-                    .value=${String(this.hardness)}
-                    @input=${(e: Event) => this._num(e, "hardness")}
-                    size="small"
-                  ></sl-input>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="label-with-tooltip">
-                    <span>Edge Angle</span>
-                    <sl-tooltip
-                      content="Degrees per side (DPS). Lower angles slice more efficiently; higher angles increase edge durability."
-                    >
-                      <sl-icon
-                        name="info-circle"
-                        style="font-size: 0.75rem; opacity: 0.7;"
-                      ></sl-icon>
-                    </sl-tooltip>
-                  </div>
-                </td>
-                <td>
-                  <sl-input
-                    type="number"
-                    .value=${String(this.edgeAngle)}
-                    @input=${(e: Event) => this._num(e, "edgeAngle")}
-                    size="small"
-                  ></sl-input>
-                </td>
-              </tr>
-              ${[
-                {
-                  k: "CrC",
-                  t: "Chromium carbides (CrC) – moderate wear contribution.",
-                },
-                {
-                  k: "CrCV",
-                  t: "Chromium/Vanadium mixed carbides – added abrasion resistance.",
-                },
-                {
-                  k: "MC",
-                  t: "MC (V/Nb) carbides – very high hardness, strong wear resistance.",
-                },
-                {
-                  k: "M6C",
-                  t: "Complex M6C carbides – balanced secondary contribution.",
-                },
-                { k: "MN", t: "Manganese phases – minor influence overall." },
-                { k: "CrN", t: "Chromium nitride – stability & wear support." },
-                {
-                  k: "Fe3C",
-                  t: "Iron carbide (cementite) – baseline matrix wear component.",
-                },
-              ].map(
-                ({ k, t }) => html`<tr>
-                  <td>
-                    <div class="label-with-tooltip">
-                      <span>${k}</span>
-                      <sl-tooltip content="${t}">
-                        <sl-icon
-                          name="info-circle"
-                          style="font-size: 0.75rem; opacity: 0.7;"
-                        ></sl-icon>
-                      </sl-tooltip>
-                    </div>
-                  </td>
-                  <td>
-                    <sl-input
-                      type="number"
-                      .value=${String(this.carbides[k] || 0)}
-                      @input=${(e: Event) => this._carbide(e, k)}
-                      size="small"
-                    ></sl-input>
-                  </td>
-                </tr>`
-              )}
-            </table>
-          </div>
-          <div aria-live="polite">
-            ${invalids.length === 0
-              ? html`<div class="result-block" role="status">
-                  <span>TCC / Volume</span
-                  ><span class="result-value"
-                    >${edge.TCC} / ${edge.volume.toFixed(1)}</span
-                  >
-                </div>`
-              : html`<div class="invalid-msg" role="alert">
-                  <strong>Cannot compute retention metrics.</strong
-                  ><br />${invalids.map((m) => html`<div>${m}</div>`)}<br /><em
-                    >Expectation:</em
-                  >
-                  Hardness 50–70 HRC; edge angle 10°–35° DPS.
-                </div>`}
-          </div>
-          <div class="output-row">
-            <sl-progress-bar
-              .value=${Math.min(edge.volume, 30)}
-              max="30"
-            ></sl-progress-bar>
-          </div>
-        </section>
-
-        <div class="help" aria-label="Edge Retention Estimator Explanation">
-          <h2>About The Retention Estimate</h2>
-          <p>
-            The CATRA‑inspired TCC approximation combines hardness, edge angle,
-            and carbide fractions (simplified). Higher hardness generally
-            increases TCC; larger edge angle reduces it. Carbides contribute
-            differently—MC types often yield greater wear resistance than simple
-            chromium carbides.
-          </p>
-          <p>
-            <strong>Volume</strong> is a simple sum of carbide fractions, giving
-            a rough sense of alloy complexity.
-          </p>
-          <p>
-            Treat these numbers as comparative guidance, not lab‑grade
-            measurements. Real cutting performance depends on heat treatment,
-            microstructure, and edge finish.
-          </p>
-        </div>
-      </sl-details>
-
-      <!-- Compare Existing Steels Section -->
-      <section class="comparison-section">
-        <div class="comparison-header">
-          <h3>Compare Existing Steels</h3>
-          <sl-button
-            variant="primary"
-            size="small"
-            @click=${this._addComparisonSteel}
-            ?disabled=${this.availableSteels.length === 0}
-          >
-            <sl-icon slot="prefix" name="plus"></sl-icon>
-            Add Steel
-          </sl-button>
-        </div>
-
-        ${this.comparisonSteels.length > 0
-          ? html`
-              <table class="comparison-table">
-                <thead>
-                  <tr>
-                    <th>Steel</th>
-                    <th>HRC</th>
-                    <th>Angle (DPS)</th>
-                    <th>TCC</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${this.comparisonSteels.map(
-                    (steel) => html`
-                      <tr>
-                        <td>
-                          <sl-select
-                            .value=${steel.steelId}
-                            @sl-change=${(e: CustomEvent) =>
-                              this._updateComparisonSteel(
-                                steel.id,
-                                "steelId",
-                                (e.target as any).value
-                              )}
-                            size="small"
-                          >
-                            ${this.availableSteels.map(
-                              (s) => html`
-                                <sl-option value=${s.id}>${s.name}</sl-option>
-                              `
-                            )}
-                          </sl-select>
-                        </td>
-                        <td>
-                          <sl-input
-                            type="number"
-                            .value=${String(steel.hardness)}
-                            @input=${(e: Event) =>
-                              this._updateComparisonSteel(
-                                steel.id,
-                                "hardness",
-                                Number((e.target as HTMLInputElement).value)
-                              )}
-                            size="small"
-                            min="40"
-                            max="70"
-                          ></sl-input>
-                        </td>
-                        <td>
-                          <sl-input
-                            type="number"
-                            .value=${String(steel.edgeAngle)}
-                            @input=${(e: Event) =>
-                              this._updateComparisonSteel(
-                                steel.id,
-                                "edgeAngle",
-                                Number((e.target as HTMLInputElement).value)
-                              )}
-                            size="small"
-                            min="5"
-                            max="50"
-                          ></sl-input>
-                        </td>
-                        <td class="tcc-cell">
-                          ${this._getComparisonSteelTCC(steel)}
-                        </td>
-                        <td class="delete-cell">
-                          <sl-icon-button
-                            name="trash"
-                            @click=${() =>
-                              this._removeComparisonSteel(steel.id)}
-                            label="Remove steel"
-                          ></sl-icon-button>
-                        </td>
-                      </tr>
-                    `
-                  )}
-                </tbody>
-              </table>
-            `
-          : html`
-              <div class="empty-comparison">
-                No steels added. Click "Add Steel" to start comparing.
-              </div>
-            `}
-      </section>
-    </div>`;
-  }
-
   _pageSteels() {
     if (!customElements.get("vsa-steel-table")) import("./vsa-steel-table");
     return html`<div class="page">
-      <div class="back-link">${this._homeLink()}</div>
       <section class="calc">
         <h2>
           Steel Database
@@ -1603,20 +959,6 @@ class VsaAppShell extends LitElement {
     </div>`;
   }
 
-  _homeLink() {
-    return this.geometryFullScreen
-      ? html``
-      : html`<sl-button
-          size="medium"
-          variant="default"
-          @click=${() => this._go("home")}
-          style="gap:.4rem"
-        >
-          <sl-icon name="house" style="font-size:1.1rem"></sl-icon>
-          Home
-        </sl-button>`;
-  }
-
   _toggleSteelTable() {
     // Deprecated: show/hide replaced by <sl-details>
   }
@@ -1642,48 +984,6 @@ class VsaAppShell extends LitElement {
         console.error("Failed to load steels:", error);
       }
     }
-  }
-
-  _addComparisonSteel() {
-    const newId = Date.now().toString();
-    this.comparisonSteels = [
-      ...this.comparisonSteels,
-      {
-        id: newId,
-        steelId: this.availableSteels[0]?.id || "",
-        hardness: 60,
-        edgeAngle: 20,
-      },
-    ];
-  }
-
-  _removeComparisonSteel(id: string) {
-    this.comparisonSteels = this.comparisonSteels.filter((s) => s.id !== id);
-  }
-
-  _updateComparisonSteel(id: string, field: string, value: string | number) {
-    this.comparisonSteels = this.comparisonSteels.map((steel) =>
-      steel.id === id ? { ...steel, [field]: value } : steel
-    );
-  }
-
-  _getComparisonSteelTCC(compSteel: ComparisonSteel) {
-    const steel = this.availableSteels.find((s) => s.id === compSteel.steelId);
-    if (!steel) return 0;
-
-    const edge = edgeRetention({
-      name: steel.name,
-      hardness: compSteel.hardness,
-      edgeAngle: compSteel.edgeAngle,
-      CrC: steel.CrC || 0,
-      CrV: steel.CrV || 0,
-      MC: steel.MC || 0,
-      M6C: steel.M6C || 0,
-      MN: steel.MN || 0,
-      CrN: steel.CrN || 0,
-      Fe3C: steel.Fe3C || 0,
-    });
-    return edge.TCC;
   }
 
   _onSteelSelected(e: CustomEvent<SteelSelectedDetail>) {

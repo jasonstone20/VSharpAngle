@@ -515,8 +515,6 @@ class VsaSteelTable extends LitElement {
     return html`
      
 
-      <sl-details open>
-        <div slot="summary">Steel Table Comparison</div>
          <div class="toolbar">
         <div class="control-group filter-group">
           <label for="steel-filter">Filter Steels</label>
@@ -653,7 +651,7 @@ class VsaSteelTable extends LitElement {
                         ${this._headerCell("edgeAngle", "Angle")}
                         ${this._headerCell("TCC", "est.TCC")}
                         ${this._headerCell("CrC", "CrC")}
-                        ${this._headerCell("CrV", "CrV")}
+                        ${this._headerCell("CrV", "CrVC")}
                         ${this._headerCell("MC", "MC")}
                         ${this._headerCell("M6C", "M6C")}
                         ${this._headerCell("MN", "MN")}
@@ -704,7 +702,7 @@ class VsaSteelTable extends LitElement {
               : html`<div class="empty">No steels found.</div>`
           }
         </div>
-      </sl-details>
+      
     `;
   }
 }
