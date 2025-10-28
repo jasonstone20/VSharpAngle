@@ -514,7 +514,9 @@
 
         <div class="dialog-footer" slot="footer">
           <div style="display: flex; align-items: center; gap: 1rem;">
-            <span style="color: var(--sl-color-neutral-600); font-size: 0.9rem;">
+            <span
+              style="color: var(--sl-color-neutral-600); font-size: 0.9rem;"
+            >
               ${this._workingSegments.length}
               segment${this._workingSegments.length===1?"":"s"} •
               ${this._workingUnits}
@@ -610,11 +612,16 @@
                 <div
                   style="text-align: center; padding: 2rem; color: var(--sl-color-neutral-500);"
                 >
-                  <sl-icon name="inbox" style="font-size: 3rem; margin-bottom: 1rem;"></sl-icon>
+                  <sl-icon
+                    name="inbox"
+                    style="font-size: 3rem; margin-bottom: 1rem;"
+                  ></sl-icon>
                   <p>No saved notations found.</p>
                 </div>
               `:p`
-                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <div
+                  style="display: flex; flex-direction: column; gap: 0.5rem;"
+                >
                   ${this._savedNotations.map(r=>p`
                       <div
                         style="display: flex; align-items: center; padding: 0.75rem; border: 1px solid var(--sl-color-neutral-200); border-radius: 6px; background: var(--sl-color-neutral-25);"
