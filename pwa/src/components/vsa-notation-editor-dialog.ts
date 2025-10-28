@@ -1,6 +1,9 @@
 import { LitElement, html, css } from "lit";
 import { customElement, state, property } from "lit/decorators.js";
-import { notationStorage, type SavedNotation } from "../utils/notation-storage.js";
+import {
+  notationStorage,
+  type SavedNotation,
+} from "../utils/notation-storage.js";
 
 interface NotationSegment {
   id: string;
@@ -219,6 +222,10 @@ export class VsaNotationEditorDialog extends LitElement {
   @state() private _editingSegmentId: string | null = null;
   @state() private _newSegmentType: string = "";
   @state() private _newSegmentValues: Record<string, number | string> = {};
+  @state() private _savedNotations: SavedNotation[] = [];
+  @state() private _showSaveDialog: boolean = false;
+  @state() private _showLoadDialog: boolean = false;
+  @state() private _saveNotationName: string = "";
 
   connectedCallback() {
     super.connectedCallback();
@@ -228,6 +235,7 @@ export class VsaNotationEditorDialog extends LitElement {
   updated(changedProperties: Map<string, any>) {
     if (changedProperties.has("open") && this.open) {
       this._initializeWorkingData();
+      this._loadSavedNotations(); // Load saved notations when dialog opens
     }
     if (changedProperties.has("units") && this.open) {
       this._workingUnits = this.units;
@@ -243,6 +251,89 @@ export class VsaNotationEditorDialog extends LitElement {
 
     // If segments have values that don't match current units, we may need to detect original units
     // The geometry builder should handle this by parsing the original notation with correct units
+  }
+
+  private async _loadSavedNotations() {
+    try {
+      this._savedNotations = await notationStorage.getAllNotations();
+    } catch (error) {
+      console.error("Failed to load saved notations:", error);
+      this._savedNotations = [];
+    }
+  }
+
+  private async _saveCurrentNotation() {
+    if (!this._saveNotationName.trim()) return;
+
+    try {
+      // Build notation string from segments
+      const notationParts = this._workingSegments.map(
+        (segment) => segment.notation
+      );
+      let notation = notationParts.join(",");
+
+      // Always include unit prefix
+      notation = `${this._workingUnits}=>${notation}`;
+
+      const savedNotation: SavedNotation = {
+        name: this._saveNotationName.trim(),
+        notation,
+        lastModified: new Date(),
+      };
+
+      await notationStorage.saveNotation(savedNotation);
+      await this._loadSavedNotations();
+
+      // Reset save dialog
+      this._showSaveDialog = false;
+      this._saveNotationName = "";
+    } catch (error) {
+      console.error("Failed to save notation:", error);
+    }
+  }
+
+  private async _loadNotation(savedNotation: SavedNotation) {
+    try {
+      // Parse the saved notation back into segments
+      // For now, we'll just set the raw notation and let the geometry builder handle parsing
+      // This could be enhanced to directly parse into segments
+
+      // Extract units and notation from the saved string
+      const notation = savedNotation.notation;
+      let units: "mm" | "in" = this.units;
+      let segmentNotation = notation;
+
+      // Check for unit prefix
+      const unitMatch = notation.match(/^(mm|in)=>(.+)$/);
+      if (unitMatch) {
+        units = unitMatch[1] as "mm" | "in";
+        segmentNotation = unitMatch[2];
+      }
+
+      // For now, just close the dialog and dispatch the loaded notation
+      // The parent component can handle the parsing
+      this._showLoadDialog = false;
+
+      const event = new CustomEvent("dialog-apply", {
+        detail: {
+          notation: savedNotation.notation,
+          units: units,
+          segments: [], // Let the parent parse this
+        },
+      });
+      this.dispatchEvent(event);
+    } catch (error) {
+      console.error("Failed to load notation:", error);
+    }
+  }
+
+  private async _deleteNotation(id: number) {
+    try {
+      await notationStorage.deleteNotation(id);
+      await this._loadSavedNotations();
+    } catch (error) {
+      console.error("Failed to delete notation:", error);
+    }
   }
 
   private _convertValue(
@@ -762,11 +853,35 @@ export class VsaNotationEditorDialog extends LitElement {
         </div>
 
         <div class="dialog-footer" slot="footer">
-          <span style="color: var(--sl-color-neutral-600); font-size: 0.9rem;">
-            ${this._workingSegments.length}
-            segment${this._workingSegments.length === 1 ? "" : "s"} •
-            ${this._workingUnits}
-          </span>
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <span
+              style="color: var(--sl-color-neutral-600); font-size: 0.9rem;"
+            >
+              ${this._workingSegments.length}
+              segment${this._workingSegments.length === 1 ? "" : "s"} •
+              ${this._workingUnits}
+            </span>
+            ${!(this._newSegmentType || this._editingSegmentId)
+              ? html`
+                  <!-- Show save/load buttons when not editing segments -->
+                  <sl-button
+                    size="small"
+                    variant="default"
+                    @click=${() => (this._showLoadDialog = true)}
+                  >
+                    Load
+                  </sl-button>
+                  <sl-button
+                    size="small"
+                    variant="default"
+                    @click=${() => (this._showSaveDialog = true)}
+                    .disabled=${this._workingSegments.length === 0}
+                  >
+                    Save
+                  </sl-button>
+                `
+              : html``}
+          </div>
           <div class="footer-actions">
             ${this._newSegmentType || this._editingSegmentId
               ? html`
@@ -794,6 +909,121 @@ export class VsaNotationEditorDialog extends LitElement {
                   </sl-button>
                 `}
           </div>
+        </div>
+      </sl-dialog>
+
+      <!-- Save Notation Dialog -->
+      <sl-dialog
+        .open=${this._showSaveDialog}
+        label="Save Notation"
+        @sl-hide=${() => (this._showSaveDialog = false)}
+      >
+        <div style="margin-bottom: 1rem;">
+          <sl-input
+            label="Notation Name"
+            placeholder="Enter a name for this notation..."
+            .value=${this._saveNotationName}
+            @sl-input=${(e: CustomEvent) => {
+              this._saveNotationName = (e.target as HTMLInputElement).value;
+            }}
+            @keydown=${(e: KeyboardEvent) => {
+              if (e.key === "Enter" && this._saveNotationName.trim()) {
+                this._saveCurrentNotation();
+              }
+            }}
+          ></sl-input>
+        </div>
+        <div slot="footer">
+          <sl-button
+            variant="default"
+            @click=${() => (this._showSaveDialog = false)}
+          >
+            Cancel
+          </sl-button>
+          <sl-button
+            variant="primary"
+            @click=${this._saveCurrentNotation}
+            .disabled=${!this._saveNotationName.trim()}
+          >
+            Save
+          </sl-button>
+        </div>
+      </sl-dialog>
+
+      <!-- Load Notation Dialog -->
+      <sl-dialog
+        .open=${this._showLoadDialog}
+        label="Load Saved Notation"
+        style="--width: 600px;"
+        @sl-hide=${() => (this._showLoadDialog = false)}
+      >
+        <div style="max-height: 400px; overflow-y: auto;">
+          ${this._savedNotations.length === 0
+            ? html`
+                <div
+                  style="text-align: center; padding: 2rem; color: var(--sl-color-neutral-500);"
+                >
+                  <sl-icon
+                    name="inbox"
+                    style="font-size: 3rem; margin-bottom: 1rem;"
+                  ></sl-icon>
+                  <p>No saved notations found.</p>
+                </div>
+              `
+            : html`
+                <div
+                  style="display: flex; flex-direction: column; gap: 0.5rem;"
+                >
+                  ${this._savedNotations.map(
+                    (notation) => html`
+                      <div
+                        style="display: flex; align-items: center; padding: 0.75rem; border: 1px solid var(--sl-color-neutral-200); border-radius: 6px; background: var(--sl-color-neutral-25);"
+                      >
+                        <div style="flex: 1;">
+                          <div
+                            style="font-weight: 500; margin-bottom: 0.25rem;"
+                          >
+                            ${notation.name}
+                          </div>
+                          <div
+                            style="font-size: 0.8rem; color: var(--sl-color-neutral-600); font-family: monospace; background: var(--sl-color-neutral-0); padding: 0.25rem 0.5rem; border-radius: 4px; margin-bottom: 0.25rem;"
+                          >
+                            ${notation.notation}
+                          </div>
+                          <div
+                            style="font-size: 0.75rem; color: var(--sl-color-neutral-500);"
+                          >
+                            ${new Date(notation.lastModified).toLocaleString()}
+                          </div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                          <sl-button
+                            size="small"
+                            variant="primary"
+                            @click=${() => this._loadNotation(notation)}
+                          >
+                            Load
+                          </sl-button>
+                          <sl-icon-button
+                            name="trash"
+                            variant="danger"
+                            @click=${() => this._deleteNotation(notation.id!)}
+                            label="Delete notation"
+                          ></sl-icon-button>
+                        </div>
+                      </div>
+                    `
+                  )}
+                </div>
+              `}
+        </div>
+        <div slot="footer">
+          <sl-button
+            variant="default"
+            @click=${() => (this._showLoadDialog = false)}
+          >
+            Close
+          </sl-button>
         </div>
       </sl-dialog>
     `;

@@ -16,9 +16,9 @@ export interface NotationStorageStats {
 }
 
 class NotationStorageAPI {
-  private dbName = 'VSANotationStorage';
+  private dbName = "VSANotationStorage";
   private dbVersion = 1;
-  private storeName = 'notations';
+  private storeName = "notations";
   private db: IDBDatabase | null = null;
 
   /**
@@ -29,7 +29,7 @@ class NotationStorageAPI {
       const request = indexedDB.open(this.dbName, this.dbVersion);
 
       request.onerror = () => {
-        reject(new Error('Failed to open IndexedDB'));
+        reject(new Error("Failed to open IndexedDB"));
       };
 
       request.onsuccess = () => {
@@ -39,17 +39,17 @@ class NotationStorageAPI {
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
-        
+
         // Create the notations object store
         if (!db.objectStoreNames.contains(this.storeName)) {
-          const store = db.createObjectStore(this.storeName, { 
-            keyPath: 'id', 
-            autoIncrement: true 
+          const store = db.createObjectStore(this.storeName, {
+            keyPath: "id",
+            autoIncrement: true,
           });
-          
+
           // Create indexes for better querying
-          store.createIndex('name', 'name', { unique: false });
-          store.createIndex('lastModified', 'lastModified', { unique: false });
+          store.createIndex("name", "name", { unique: false });
+          store.createIndex("lastModified", "lastModified", { unique: false });
         }
       };
     });
@@ -63,7 +63,7 @@ class NotationStorageAPI {
       await this.init();
     }
     if (!this.db) {
-      throw new Error('Database not initialized');
+      throw new Error("Database not initialized");
     }
     return this.db;
   }
@@ -73,25 +73,25 @@ class NotationStorageAPI {
    */
   async saveNotation(notation: SavedNotation): Promise<number> {
     const db = await this.ensureDB();
-    
+
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.storeName], 'readwrite');
+      const transaction = db.transaction([this.storeName], "readwrite");
       const store = transaction.objectStore(this.storeName);
-      
+
       // Ensure lastModified is set to current time
       const notationToSave = {
         ...notation,
-        lastModified: new Date()
+        lastModified: new Date(),
       };
-      
+
       const request = store.put(notationToSave);
-      
+
       request.onsuccess = () => {
         resolve(request.result as number);
       };
-      
+
       request.onerror = () => {
-        reject(new Error('Failed to save notation'));
+        reject(new Error("Failed to save notation"));
       };
     });
   }
@@ -101,16 +101,16 @@ class NotationStorageAPI {
    */
   async getAllNotations(): Promise<SavedNotation[]> {
     const db = await this.ensureDB();
-    
+
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.storeName], 'readonly');
+      const transaction = db.transaction([this.storeName], "readonly");
       const store = transaction.objectStore(this.storeName);
-      const index = store.index('lastModified');
-      
+      const index = store.index("lastModified");
+
       // Get all records in descending order (newest first)
-      const request = index.openCursor(null, 'prev');
+      const request = index.openCursor(null, "prev");
       const results: SavedNotation[] = [];
-      
+
       request.onsuccess = () => {
         const cursor = request.result;
         if (cursor) {
@@ -120,9 +120,9 @@ class NotationStorageAPI {
           resolve(results);
         }
       };
-      
+
       request.onerror = () => {
-        reject(new Error('Failed to retrieve notations'));
+        reject(new Error("Failed to retrieve notations"));
       };
     });
   }
@@ -132,18 +132,18 @@ class NotationStorageAPI {
    */
   async getNotation(id: number): Promise<SavedNotation | null> {
     const db = await this.ensureDB();
-    
+
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.storeName], 'readonly');
+      const transaction = db.transaction([this.storeName], "readonly");
       const store = transaction.objectStore(this.storeName);
       const request = store.get(id);
-      
+
       request.onsuccess = () => {
         resolve(request.result || null);
       };
-      
+
       request.onerror = () => {
-        reject(new Error('Failed to retrieve notation'));
+        reject(new Error("Failed to retrieve notation"));
       };
     });
   }
@@ -153,18 +153,18 @@ class NotationStorageAPI {
    */
   async deleteNotation(id: number): Promise<void> {
     const db = await this.ensureDB();
-    
+
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.storeName], 'readwrite');
+      const transaction = db.transaction([this.storeName], "readwrite");
       const store = transaction.objectStore(this.storeName);
       const request = store.delete(id);
-      
+
       request.onsuccess = () => {
         resolve();
       };
-      
+
       request.onerror = () => {
-        reject(new Error('Failed to delete notation'));
+        reject(new Error("Failed to delete notation"));
       };
     });
   }
@@ -175,8 +175,8 @@ class NotationStorageAPI {
   async searchNotations(searchTerm: string): Promise<SavedNotation[]> {
     const allNotations = await this.getAllNotations();
     const lowerSearchTerm = searchTerm.toLowerCase();
-    
-    return allNotations.filter(notation => 
+
+    return allNotations.filter((notation) =>
       notation.name.toLowerCase().includes(lowerSearchTerm)
     );
   }
@@ -186,15 +186,17 @@ class NotationStorageAPI {
    */
   async getStorageStats(): Promise<NotationStorageStats> {
     const notations = await this.getAllNotations();
-    
+
     const totalSize = notations.reduce((size, notation) => {
       // Rough estimate of size in bytes
-      return size + (notation.name.length * 2) + (notation.notation.length * 2) + 50;
+      return (
+        size + notation.name.length * 2 + notation.notation.length * 2 + 50
+      );
     }, 0);
-    
+
     return {
       count: notations.length,
-      totalSize
+      totalSize,
     };
   }
 
@@ -203,18 +205,18 @@ class NotationStorageAPI {
    */
   async clearAll(): Promise<void> {
     const db = await this.ensureDB();
-    
+
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.storeName], 'readwrite');
+      const transaction = db.transaction([this.storeName], "readwrite");
       const store = transaction.objectStore(this.storeName);
       const request = store.clear();
-      
+
       request.onsuccess = () => {
         resolve();
       };
-      
+
       request.onerror = () => {
-        reject(new Error('Failed to clear notations'));
+        reject(new Error("Failed to clear notations"));
       };
     });
   }
@@ -234,17 +236,17 @@ class NotationStorageAPI {
     try {
       const notations: SavedNotation[] = JSON.parse(jsonData);
       let importedCount = 0;
-      
+
       for (const notation of notations) {
         // Remove ID to avoid conflicts and let auto-increment handle it
         const { id, ...notationWithoutId } = notation;
         await this.saveNotation(notationWithoutId);
         importedCount++;
       }
-      
+
       return importedCount;
     } catch (error) {
-      throw new Error('Invalid JSON data for import');
+      throw new Error("Invalid JSON data for import");
     }
   }
 }
