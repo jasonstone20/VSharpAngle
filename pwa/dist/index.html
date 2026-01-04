@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>VSharpAngle</title>
+  <link rel="manifest" href="/assets/manifest-DS2Ulk-v.json" />
+  <link rel="icon" type="image/png" sizes="128x128" href="/assets/icon-128x128-Cb82Ampk.png" />
+  <!-- Theme color primarily used by Chromium-based browsers; fallback styling handled via CSS vars -->
+  <meta name="theme-color" content="#0d6efd" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/cdn/themes/light.css" />
+  <!-- Optional dark theme will be lazy loaded if user toggles -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.0/cdn/shoelace.js"></script>
+    <style>
+      /* Simplified Shoelace-first theming - let Shoelace handle light/dark automatically */
+      :root {
+        /* Only keep truly custom app-specific tokens */
+        --vsa-path-a-color: var(--sl-color-primary-600);
+        --vsa-path-b-color: var(--sl-color-danger-600);
+        --vsa-grid-line-color: var(--sl-color-neutral-400);
+        --vsa-metrics-bg: var(--sl-color-neutral-100);
+        
+        /* Specialized geometry colors that need custom behavior */
+        --vsa-stroke-color: var(--sl-color-neutral-900);
+        --vsa-center-line-color: var(--sl-color-warning-600);
+        
+        /* Global input styling override */
+        --sl-input-background-color: #faebd7;
+        
+        /* Use Shoelace's automatic color scheme detection */
+        color-scheme: light dark;
+      }
+      
+      /* Essential dark mode contrast fixes for specific elements */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --vsa-path-a-color: var(--sl-color-primary-400);
+          --vsa-path-b-color: var(--sl-color-danger-400);
+          --vsa-grid-line-color: var(--sl-color-neutral-600);
+          --vsa-metrics-bg: rgba(255, 255, 255, 0.05);
+          --vsa-stroke-color: var(--sl-color-neutral-300);
+          --vsa-center-line-color: var(--sl-color-warning-400);
+        }
+      }
+      
+      html.dark {
+        --vsa-path-a-color: var(--sl-color-primary-400);
+        --vsa-path-b-color: var(--sl-color-danger-400);
+        --vsa-grid-line-color: var(--sl-color-neutral-600);
+        --vsa-metrics-bg: rgba(255, 255, 255, 0.05);
+        --vsa-stroke-color: var(--sl-color-neutral-300);
+        --vsa-center-line-color: var(--sl-color-warning-400);
+      }
+      
+      /* Fix Shoelace input text contrast in dark mode */
+      sl-input::part(input), 
+      sl-select::part(display-input) {
+        color: #444;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, Arial, sans-serif;
+        background: var(--sl-color-neutral-50);
+        color: var(--sl-color-neutral-900);
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+      }
+      vsa-app-shell { flex: 1; }
+      .no-js-warning {
+        padding: 0.75rem;
+        background: var(--sl-color-danger-600);
+        color: var(--sl-color-neutral-0);
+        text-align: center;
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/main-BRPqSjvP.js"></script>
+  </head>
+  <body>
+    <!-- Application built by ShaperAndMower and J.D. Stone -->
+    <noscript><div class="no-js-warning">JavaScript is required for VSharpAngle to function.</div></noscript>
+  <vsa-app-shell></vsa-app-shell>
+  </body>
+</html>
+

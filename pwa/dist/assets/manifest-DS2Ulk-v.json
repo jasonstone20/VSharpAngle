@@ -1,0 +1,114 @@
+{
+  "name": "VSharpAngle Sharpening Companion",
+  "short_name": "VSharpAngle",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#0d6efd",
+  "description": "Progressive Web App for V-stick knife sharpening: angle calculators, pass planner, edge retention estimator, and steel data.",
+  "categories": ["productivity", "utilities", "education"],
+  "dir": "ltr",
+  "lang": "en-US",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/icons/icon-48x48.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Angle Measure",
+      "short_name": "Angle",
+      "description": "Measure edge bevel angle",
+      "url": "#/angle",
+      "icons": [
+        {
+          "src": "assets/icons/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Rotation",
+      "short_name": "Rotate",
+      "description": "Rod rotation calculator",
+      "url": "#/rotation"
+    },
+    {
+      "name": "Pass Counter",
+      "short_name": "Passes",
+      "description": "Progressive stroke planner",
+      "url": "#/passes"
+    }
+  ],
+  "share_target": {
+    "action": "./index.html",
+    "method": "GET",
+    "params": { "title": "title", "text": "text" }
+  }
+,
+  "protocol_handlers": [
+    {
+      "protocol":"The protocol you would like to handle. For example: web+myapp",
+      "url":"The url you would like to open when the user chooses this shortcut. This must be a URL local to your PWA. For example: If my start_url is /, this URL must be something like /shortcut"
+    }
+  ]
+,
+  "file_handlers": [
+    {
+      "action": "The url you would like to open when the user chooses to share content to your app. This URL must have code to do something with the returned file.",
+      "accept": {
+        "text/*": [".txt"]
+      }
+    }
+  ]
+}

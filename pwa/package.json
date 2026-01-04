@@ -1,0 +1,22 @@
+{
+  "name": "vsharpangle-pwa",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "lit": "^3.1.0",
+    "@shoelace-style/shoelace": "^2.13.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "rollup-plugin-visualizer": "^5.9.0",
+    "typescript": "^5.4.0",
+    "@types/node": "^20.11.0"
+  }
+}
